@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>DAPP Man</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  </head>
+  <style>
+    input {
+      display: block;
+      margin-bottom: 12px;
+    }
+  </style>
+  <body>
+    <h1>Poor man DAPP</h1>
+
+    <hr>
+    <button id="forceWallet" onclick="load()">Force Wallet</button>
+
+    <br>
+      <h1>Mint Token</h1>
+      <br><label for="amount">Amount:</label><input type="text" id="amount"/>
+      <button id="mintToken" onclick="App.mintToken()">Mint EVNT Token</button>
+      <span id="status"></span>
+      <br>
+    <button id="getBalance" onclick="App.getBalance()">Balance EVNT Token</button>
+    <script src="index.js"></script>
+  </body>
+</html>
