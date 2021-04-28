@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import starNotaryArtifact from "../../build/contracts/EVNTIcoToken.json";
+import starNotaryArtifact from "../../build/contracts/WallfairToken.json";
 
 const App = {
   web3: null,
