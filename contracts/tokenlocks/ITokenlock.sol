@@ -14,18 +14,18 @@ contract ITokenlock is DateTime {
 
     uint immutable private _startTime;
 
-    uint8 immutable private _percentage;
+    uint16 immutable private _percentage;
 
     uint8 immutable private _initialPercentage;
 
-    mapping (address => UnlockState) private _stakes;
+    mapping (address => UnlockState) stakes;
 
     struct UnlockState {
         uint ownedTokens;
         uint unlockedTokens;
     }
 
-    constructor (IERC20 token_, uint startTime_, uint8 percentage_, uint8 initialPercentage_) {
+    constructor (IERC20 token_, uint startTime_, uint16 percentage_, uint8 initialPercentage_) {
         _token = token_;
         _startTime = startTime_;
         _percentage = percentage_;
@@ -49,32 +49,32 @@ contract ITokenlock is DateTime {
     /**
      * @return the percentage that gets unlocked every month.
      */
-    function percentage() public view virtual returns (uint8) {
+    function percentage() public view virtual returns (uint16) {
         return _percentage;
     }
 
     function release() public virtual {
         address sender = msg.sender;
 
-        uint ownedTokens = _stakes[sender].ownedTokens;
-        uint tokensToUnlock = (_stakes[sender].ownedTokens - ((ownedTokens * 30) / 100));
+        uint ownedTokens = stakes[sender].ownedTokens;
+        uint tokensToUnlock = (stakes[sender].ownedTokens - ((ownedTokens * 30) / 100));
 
         // To account for float percentages like 6.66%
         uint unlockPortion = ((ownedTokens * percentage()) / 10000);
-        uint8 unlockedMonths = (tokensToUnlock - _stakes[sender].unlockedTokens) / unlockPortion;
+        uint unlockedMonths = (tokensToUnlock - stakes[sender].unlockedTokens) / unlockPortion;
 
         require(block.timestamp >= startTime() + (unlockedMonths + 1) * 30 days, "No tokens to unlock");
 
         uint16 monthsToUnlock = _monthDiff(startTime(), block.timestamp);
         uint unlockAmount = unlockPortion * monthsToUnlock;
 
-        _stakes[sender].unlockedTokens += unlockAmount;
+        stakes[sender].unlockedTokens += unlockAmount;
         token().safeTransfer(sender, unlockAmount);
     }
 
     // == Utils ==
 
-    function _monthDiff(uint date1, uint date2) private returns (uint16) {
+    function _monthDiff(uint date1, uint date2) private pure returns (uint16) {
         uint16 months = (getYear(date1) - getYear(date2)) * 12;
         months -= getMonth(date1);
         months += getMonth(date2);
