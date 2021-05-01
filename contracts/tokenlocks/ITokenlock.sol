@@ -54,14 +54,12 @@ contract ITokenlock is DateTime {
         return _percentage;
     }
 
-    function unlockPortion() public view virtual returns (uint) {
-        address sender = msg.sender;
-
+    function unlockPortion() public view hasStake virtual returns (uint) {
         // To account for float percentages like 6.66%
-        return (stakes[sender].ownedTokens * percentage()) / 10000;
+        return (stakes[msg.sender].ownedTokens * percentage()) / 10000;
     }
 
-    function unlockedMonths() public view virtual returns (uint16) {
+    function unlockedMonths() public view hasStake virtual returns (uint16) {
         address sender = msg.sender;
 
         uint ownedTokens = stakes[sender].ownedTokens;
@@ -70,19 +68,25 @@ contract ITokenlock is DateTime {
         return uint16((stakes[sender].unlockedTokens - initialUnlock) / unlockPortion());
     }
 
-    function unlockableMonths() public view virtual returns (uint16) {
-        return _monthDiff(startTime(), block.timestamp);// - unlockedMonths();
+    function unlockableMonths() public view hasStake virtual returns (uint16) {
+        return _monthDiff(startTime(), block.timestamp) - unlockedMonths();
     }
 
 
-    function release() public virtual {
+    function release() public hasStake virtual {
         address sender = msg.sender;
+        uint remainingAmount = stakes[sender].ownedTokens - stakes[sender].unlockedTokens;
+
+        require(remainingAmount > 0, "All Tokens unlocked");
 
         uint16 monthsToUnlock = unlockableMonths();
 
         require(monthsToUnlock > 0, "No tokens to unlock");
 
+        if (monthsToUnlock > 12) { monthsToUnlock = 12; }
+
         uint unlockAmount = unlockPortion() * monthsToUnlock;
+        if (unlockAmount > remainingAmount) { unlockAmount = remainingAmount; }
 
         stakes[sender].unlockedTokens += unlockAmount;
         token().safeTransfer(sender, unlockAmount);
@@ -95,4 +99,12 @@ contract ITokenlock is DateTime {
         months += getMonth(date2) - getMonth(date1);
         return months;
     }
+
+    // == Modifier ==
+
+    modifier hasStake() {
+        require(stakes[msg.sender].ownedTokens > 0, "No tokens owned");
+        _;
+    }
+
 }
