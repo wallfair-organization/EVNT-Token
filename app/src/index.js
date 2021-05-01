@@ -1,10 +1,12 @@
 import Web3 from "web3";
-import starNotaryArtifact from "../../build/contracts/WallfairToken.json";
+import wallfairTokenArtifact from "../../build/contracts/WallfairToken.json";
+import tokenLockArtifact from "../../build/contracts/FriendsTokenlock.json";
 
 const App = {
   web3: null,
   account: null,
   meta: null,
+  tokenLock: null,
 
   start: async function() {
     const { web3 } = this;
@@ -12,10 +14,17 @@ const App = {
     try {
       // get contract instance
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = starNotaryArtifact.networks[networkId];
+
+      const deployedWallfairToken = wallfairTokenArtifact.networks[networkId];
       this.meta = new web3.eth.Contract(
-        starNotaryArtifact.abi,
-        deployedNetwork.address,
+        wallfairTokenArtifact.abi,
+        deployedWallfairToken.address,
+      );
+
+      const deployedTokenLock = tokenLockArtifact.networks[networkId];
+      this.tokenLock = new web3.eth.Contract(
+          tokenLockArtifact.abi,
+          deployedTokenLock.address
       );
 
       // get accounts
@@ -44,7 +53,29 @@ const App = {
     const { balanceOf } = this.meta.methods;
     const balance = await balanceOf(this.account).call({from: this.account});
 
-    App.setStatus(`Successful mint of ${balance} EVNT to ${this.account}.`);
+    App.setStatus(`${balance} EVNT`);
+  },
+
+  getFamilyUnlock: async function() {
+    const { release } = this.tokenLock.methods;
+    const unlock = await release().send({from: this.account});
+
+    App.setStatus(`${unlock}`);
+  },
+
+  getFamilyToken: async function() {
+    const { token } = this.tokenLock.methods;
+    const unlockPercentage = await token().call({from: this.account});
+
+    console.log(unlockPercentage);
+    App.setStatus(`${unlockPercentage}`);
+  },
+
+  getFamilyUnlockPercentage: async function() {
+    const { percentage } = this.tokenLock.methods;
+    const unlockPercentage = await percentage().call({from: this.account});
+
+    App.setStatus(`${unlockPercentage / 100}%`);
   }
 };
 

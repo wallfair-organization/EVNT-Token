@@ -1,5 +1,5 @@
-const EVNTIcoToken = artifacts.require("EVNTIcoToken");
+const WallfairToken = artifacts.require("WallfairToken");
 
 module.exports = function (deployer) {
-    deployer.deploy(EVNTIcoToken);
+    deployer.deploy(WallfairToken);
 };

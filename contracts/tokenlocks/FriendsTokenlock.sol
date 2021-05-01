@@ -7,9 +7,8 @@ import "../WallfairToken.sol";
 
 // Note: This is just a sample Implementation of ITokenlock
 
-// ToDo: Enter Correct data
-contract FriendsTokenlock is ITokenlock(WallfairToken(address(0)), 1619693640, 666, 30) {
-    constructor () {
-        stakes[address(0)] = UnlockState(1000, 300);
+contract FriendsTokenlock is ITokenlock {
+    constructor (address wallfairToken_) ITokenlock(WallfairToken(wallfairToken_), 1617062400, 666, 30) {
+        stakes[0x04532a1ac51789A9E24d9A8B2aA2Bb382E9B1e80] = UnlockState(1000, 300);
     }
 }

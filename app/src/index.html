@@ -24,6 +24,7 @@
     }
 
     button {
+      z-index: 100;
       width: 80%;
       height: 70px;
       display: flex;
@@ -72,9 +73,11 @@
       left: 0;
       background-color: black;
       overflow: hidden;
+      z-index: 0;
     }
 
     .grid-container:after {
+      z-index: 0;
       -webkit-mask-image: -webkit-gradient(linear, left 90%, left top, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
       mask-image: gradient(linear, left 90%, left top, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
       transform: perspective(200px) rotateX(40deg) scale(2, 1) translateZ(0);
@@ -92,9 +95,6 @@
       outline: 1px solid transparent;
       transform-origin: bottom center;
       will-change: transform;
-    }
-
-    .grid-container:after {
       background-position: center bottom;
       background-size: 40px 40px;
       background-image: linear-gradient(to right, rgb(255, 255, 0) 2px, transparent 2px),
@@ -350,15 +350,25 @@
         </h3>
         <br>
         <button id="forceWallet" onclick="load()">Connect Wallet</button>
-
-        <br>
+        <br/>
+        <span id="status"></span>
+        <br/>
         <h1>Mint EVNT Token</h1>
         <input type="text" id="amount" placeholder="Amount"/>
-        <br>
+        <br/>
         <button id="mintToken" onclick="App.mintToken()">Mint EVNT Token</button>
-        <span id="status"></span>
-        <br>
-<!--        <button id="getBalance" onclick="App.getBalance()">Balance EVNT Token</button>-->
+        <br/>
+        <button id="getBalance" onclick="App.getBalance()">Balance EVNT Token</button>
+        <br/>
+        <h3>
+          <span class="glitch" data-text="Konsti's Unlocker">Konsti's Unlocker</span>
+        </h3>
+        <br/>
+        <button id="getFamilyUnlock" onclick="App.getFamilyUnlock()">Unlock</button>
+        <br/>
+        <button id="getFamilyUnlockPercentage" onclick="App.getFamilyUnlockPercentage()">Unlock Percentage</button>
+        <br/>
+        <button id="getFamilyToken" onclick="App.getFamilyToken()">Token</button>
       </header>
     </section>
   </div>
