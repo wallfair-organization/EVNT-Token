@@ -3,22 +3,12 @@
 const FriendsTokenlock = artifacts.require('FriendsTokenlock');
 const WallfairToken = artifacts.require('WallfairToken');
 
+const assertTryCatch = require("./exceptions.js").tryCatch;
+const ErrTypes = require("./exceptions.js").errTypes;
+
 contract('FriendsTokenlock', function (accounts) {
 
     const ownerID = accounts[0];
-
-    ///Available Accounts
-    ///==================
-    ///(0) 0x27d8d15cbc94527cadf5ec14b69519ae23288b95
-    ///(1) 0x018c2dabef4904ecbd7118350a0c54dbeae3549a
-    ///(2) 0xce5144391b4ab80668965f2cc4f2cc102380ef0a
-    ///(3) 0x460c31107dd048e34971e57da2f99f659add4f02
-    ///(4) 0xd37b7b8c62be2fdde8daa9816483aebdbd356088
-    ///(5) 0x27f184bdc0e7a931b507ddd689d76dba10514bcb
-    ///(6) 0xfe0df793060c49edca5ac9c104dd8e3375349978
-    ///(7) 0xbd58a85c96cc6727859d853086fe8560bc137632
-    ///(8) 0xe07b5ee5f738b2f87f88b99aac9c64ff1e0c7917
-    ///(9) 0xbd3ff2e3aded055244d66544c9c059fa0851da44
 
     console.log("ganache-cli accounts used here...");
     console.log("Contract Owner: accounts[0] ", ownerID);
@@ -44,6 +34,17 @@ contract('FriendsTokenlock', function (accounts) {
         assert.isAbove(parseInt(unlockableMonths), 0, 'It should be larger than 0');
     });
 
+    it("Testing smart contract modifiers", async () => {
+        const friendsTokenlock = await FriendsTokenlock.deployed();
+        await assertTryCatch(friendsTokenlock.unlockPortion({from: accounts[2]}), ErrTypes.revert);
+
+        await assertTryCatch(friendsTokenlock.unlockedMonths({from: accounts[2]}), ErrTypes.revert);
+
+        await assertTryCatch(friendsTokenlock.unlockableMonths({from: accounts[2]}), ErrTypes.revert);
+
+        await assertTryCatch(friendsTokenlock.release({from: accounts[2]}), ErrTypes.revert);
+    });
+
     it("Testing smart contract release() function", async () => {
         const friendsTokenlock = await FriendsTokenlock.deployed();
         const wallfairToken = await WallfairToken.deployed();
@@ -53,5 +54,11 @@ contract('FriendsTokenlock', function (accounts) {
 
         assert.isNotNull(release, 'Token should be released');
         assert.isAbove(parseInt(balance), 0, 'Token should be received');
+    });
+
+    it("Testing smart contract release()-fail function", async () => {
+        const friendsTokenlock = await FriendsTokenlock.deployed();
+
+        await assertTryCatch(friendsTokenlock.release({from: accounts[1]}), ErrTypes.revert);
     });
 });
