@@ -9,6 +9,7 @@ import "../utils/DateTime.sol";
 contract ITokenlock is DateTime {
     using SafeERC20 for IERC20;
     using SafeMath for uint;
+    using SafeMath for uint16;
 
     IERC20 immutable private _token;
 
@@ -53,20 +54,35 @@ contract ITokenlock is DateTime {
         return _percentage;
     }
 
-    function release() public virtual {
+    function unlockPortion() public view virtual returns (uint) {
+        address sender = msg.sender;
+
+        // To account for float percentages like 6.66%
+        return (stakes[sender].ownedTokens * percentage()) / 10000;
+    }
+
+    function unlockedMonths() public view virtual returns (uint16) {
         address sender = msg.sender;
 
         uint ownedTokens = stakes[sender].ownedTokens;
-        uint tokensToUnlock = (stakes[sender].ownedTokens - ((ownedTokens * 30) / 100));
+        uint initialUnlock = (ownedTokens * _initialPercentage) / 100;
 
-        // To account for float percentages like 6.66%
-        uint unlockPortion = ((ownedTokens * percentage()) / 10000);
-        uint unlockedMonths = (tokensToUnlock - stakes[sender].unlockedTokens) / unlockPortion;
+        return uint16((stakes[sender].unlockedTokens - initialUnlock) / unlockPortion());
+    }
 
-        require(block.timestamp >= startTime() + (unlockedMonths + 1) * 30 days, "No tokens to unlock");
+    function unlockableMonths() public view virtual returns (uint16) {
+        return _monthDiff(startTime(), block.timestamp);// - unlockedMonths();
+    }
 
-        uint16 monthsToUnlock = _monthDiff(startTime(), block.timestamp);
-        uint unlockAmount = unlockPortion * monthsToUnlock;
+
+    function release() public virtual {
+        address sender = msg.sender;
+
+        uint16 monthsToUnlock = unlockableMonths();
+
+        require(monthsToUnlock > 0, "No tokens to unlock");
+
+        uint unlockAmount = unlockPortion() * monthsToUnlock;
 
         stakes[sender].unlockedTokens += unlockAmount;
         token().safeTransfer(sender, unlockAmount);
@@ -75,9 +91,8 @@ contract ITokenlock is DateTime {
     // == Utils ==
 
     function _monthDiff(uint date1, uint date2) private pure returns (uint16) {
-        uint16 months = (getYear(date1) - getYear(date2)) * 12;
-        months -= getMonth(date1);
-        months += getMonth(date2);
+        uint16 months = (getYear(date2) - getYear(date1)) * 12;
+        months += getMonth(date2) - getMonth(date1);
         return months;
     }
 }

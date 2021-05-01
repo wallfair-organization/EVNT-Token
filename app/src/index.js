@@ -76,6 +76,20 @@ const App = {
     const unlockPercentage = await percentage().call({from: this.account});
 
     App.setStatus(`${unlockPercentage / 100}%`);
+  },
+
+  getFamilyUnlockedMonths: async function() {
+    const { unlockedMonths } = this.tokenLock.methods;
+    const unlockPercentage = await unlockedMonths().call({from: this.account});
+
+    App.setStatus(`${unlockPercentage}`);
+  },
+
+  getFamilyUnlockableMonths: async function() {
+    const { unlockableMonths } = this.tokenLock.methods;
+    const unlockPercentage = await unlockableMonths().call({from: this.account});
+
+    App.setStatus(`${unlockPercentage}`);
   }
 };
 
