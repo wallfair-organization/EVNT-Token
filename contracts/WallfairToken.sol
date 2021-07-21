@@ -5,8 +5,13 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract WallfairToken is ERC20("Wallfair. Token", "EVNT") {
+    address creator;
 
-    function mint(uint256 amount) public returns (bool) {
+    constructor() {
+        creator = msg.sender;
+    }
+
+    function mint(uint256 amount) public isCreator returns (bool) {
 
         require(totalSupply() + amount <= 400000000 * 10 ** decimals(), "You can't mint more then 400.000.000 EVNT");
 
@@ -14,4 +19,8 @@ contract WallfairToken is ERC20("Wallfair. Token", "EVNT") {
         return true;
     }
 
+    modifier isCreator() {
+        require(creator == msg.sender, "The caller is not the creator!");
+        _;
+    }
 }
