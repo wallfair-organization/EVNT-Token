@@ -19,6 +19,7 @@
  */
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');
+const Ganache = require('ganache-core');
 
 const fs = require('fs');
 const mnemonic = fs.readFileSync("mnemonic.secret").toString().trim();
@@ -55,6 +56,15 @@ module.exports = {
       gas: 8600000,
       timeoutBlocks: 20000000,
       skipDryRun: true
+    },
+    test: {
+      network_id: "*",
+      provider: Ganache.provider({
+        gasLimit: 8600000,
+        accounts: Array(10).fill({ balance: "12300000000000000000000000" }),
+        menmoric: 'gun concert fault upgrade world midnight sleep rough sick collect noodle want'
+      }),
+      gas: 8600000,
     },
     // Another network with more advanced options...
     // advanced: {

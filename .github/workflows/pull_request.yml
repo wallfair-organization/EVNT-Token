@@ -15,7 +15,5 @@ jobs:
         run: npm install
       - name: Install Truffle
         run: npm install truffle -g
-      - name: Start Ganache
-        run: docker-compose up -d
       - name: Run tests
-        run: truffle test
+        run: truffle test --network test

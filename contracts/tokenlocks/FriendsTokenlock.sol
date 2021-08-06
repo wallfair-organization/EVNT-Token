@@ -9,6 +9,6 @@ import "../WallfairToken.sol";
 contract FriendsTokenLock is TokenLock {
     constructor (address wallfairToken_)
     TokenLock(WallfairToken(wallfairToken_), 1612137600, 666, 30) {
-        _stakes[0xB4402f17c02421eEb3723F1033f880a0C123DC3A] = UnlockState(1000000 * 10 ** 18, 0);
+        _stakes[0x5114BF4C0e0163820aE9D7bFFCAd6C06AF65C83C] = UnlockState(1000000 * 10 ** 18, 0);
     }
 }

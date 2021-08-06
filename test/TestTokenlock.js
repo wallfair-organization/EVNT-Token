@@ -30,7 +30,7 @@ contract('WallfairToken', function (accounts) {
     it("Testing smart contract mint-fail function", async () => {
         const wallfairToken = await WallfairToken.deployed();
 
-        const mintValue = BigInt(1100000000 * 10 ** 18);
+        const mintValue = BigInt(11000000000 * 10 ** 18);
 
         await assertTryCatch(wallfairToken.mint(mintValue,{from: ownerID}), ErrTypes.revert);
     });
