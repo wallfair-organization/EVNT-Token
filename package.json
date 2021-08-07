@@ -1,4 +1,13 @@
 {
+  "name": "wallfair_token",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [
+    "ethereum",
+    "ethereum-contract",
+    "erc20"
+  ],
+  "author": "Wallfair.",
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0"
   },
@@ -9,7 +18,6 @@
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "^1.4.1",
-    "eth-gas-reporter": "^0.2.11",
     "prettier": "^2.3.0",
     "prettier-plugin-solidity": "^1.0.0-beta.16",
     "solhint": "^3.3.6",
