@@ -10,9 +10,6 @@ contract FriendsTokenLock is TokenLock {
     constructor(address wallfairToken_, address stakedAccount)
         TokenLock(WallfairToken(wallfairToken_), 1612137600, 666, 30)
     {
-        _stakes[stakedAccount] = UnlockState(
-            1000000 * 10**18,
-            0
-        );
+        _stakes[stakedAccount] = UnlockState(1000000 * 10**18, 0);
     }
 }
