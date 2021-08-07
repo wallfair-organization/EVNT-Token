@@ -3,8 +3,7 @@ name: Wallfair. Smart Contract Test
 on:
   workflow_dispatch:
   pull_request:
-    branches:
-      - trunk
+  push:
 
 jobs:
   build:
