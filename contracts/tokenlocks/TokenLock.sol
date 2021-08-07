@@ -8,22 +8,27 @@ import "../utils/DateTime.sol";
 contract TokenLock is DateTime {
     using SafeERC20 for IERC20;
 
-    IERC20 immutable private _token;
+    IERC20 private immutable _token;
 
-    uint immutable private _startTime;
+    uint256 private immutable _startTime;
 
-    uint16 immutable private _percentage;
+    uint16 private immutable _percentage;
 
-    uint8 immutable private _initialPercentage;
+    uint8 private immutable _initialPercentage;
 
     mapping(address => UnlockState) internal _stakes;
 
     struct UnlockState {
-        uint ownedTokens;
-        uint unlockedTokens;
+        uint256 ownedTokens;
+        uint256 unlockedTokens;
     }
 
-    constructor (IERC20 token_, uint startTime_, uint16 percentage_, uint8 initialPercentage_) {
+    constructor(
+        IERC20 token_,
+        uint256 startTime_,
+        uint16 percentage_,
+        uint8 initialPercentage_
+    ) {
         _token = token_;
         _startTime = startTime_;
         _percentage = percentage_;
@@ -40,7 +45,7 @@ contract TokenLock is DateTime {
     /**
      * @return the start of the unlock period.
      */
-    function startTime() public view virtual returns (uint) {
+    function startTime() public view virtual returns (uint256) {
         return _startTime;
     }
 
@@ -58,7 +63,7 @@ contract TokenLock is DateTime {
         return _initialPercentage;
     }
 
-    function unlockPortion() public view hasStake virtual returns (uint) {
+    function unlockPortion() public view virtual hasStake returns (uint256) {
         // To account for float percentages like 6.66%
         return (_stakes[msg.sender].ownedTokens * percentage()) / 10000;
     }
@@ -66,62 +71,83 @@ contract TokenLock is DateTime {
     /**
      * @return the months that are already unlocked by the sender.
      */
-    function unlockedMonths() public view hasStake virtual returns (uint16) {
+    function unlockedMonths() public view virtual hasStake returns (uint16) {
         address sender = msg.sender;
 
-        if (_stakes[msg.sender].unlockedTokens == 0) {return 0;}
+        if (_stakes[msg.sender].unlockedTokens == 0) {
+            return 0;
+        }
 
-        uint ownedTokens = _stakes[sender].ownedTokens;
-        uint initialUnlock = (ownedTokens * initialPercentage()) / 100;
+        uint256 ownedTokens = _stakes[sender].ownedTokens;
+        uint256 initialUnlock = (ownedTokens * initialPercentage()) / 100;
 
-        return uint16((_stakes[sender].unlockedTokens - initialUnlock) / unlockPortion());
+        return
+            uint16(
+                (_stakes[sender].unlockedTokens - initialUnlock) /
+                    unlockPortion()
+            );
     }
 
     /**
      * @return the months that can be unlocked by the sender.
      */
-    function unlockableMonths() public view hasStake virtual returns (uint16) {
+    function unlockableMonths() public view virtual hasStake returns (uint16) {
         return _monthDiff(startTime(), block.timestamp) - unlockedMonths();
     }
 
-    function releaseInitial() external hasStake virtual {
+    function releaseInitial() external virtual hasStake {
         address sender = msg.sender;
 
-        require(_stakes[sender].unlockedTokens == 0, "'releaseInitial()' was called already");
+        require(
+            _stakes[sender].unlockedTokens == 0,
+            "'releaseInitial()' was called already"
+        );
 
         if (initialPercentage() > 0) {
-            uint unlockAmount = (_stakes[sender].ownedTokens * initialPercentage()) / 100;
+            uint256 unlockAmount = (_stakes[sender].ownedTokens *
+                initialPercentage()) / 100;
             unlockStake(unlockAmount);
         }
     }
 
-    function release() external hasStake virtual {
+    function release() external virtual hasStake {
         address sender = msg.sender;
-        uint remainingAmount = _stakes[sender].ownedTokens - _stakes[sender].unlockedTokens;
+        uint256 remainingAmount = _stakes[sender].ownedTokens -
+            _stakes[sender].unlockedTokens;
 
         require(remainingAmount > 0, "All Tokens unlocked");
-        require(_stakes[sender].unlockedTokens > 0, "'releaseInitial()' was not yet called");
+        require(
+            _stakes[sender].unlockedTokens > 0,
+            "'releaseInitial()' was not yet called"
+        );
 
         uint16 monthsToUnlock = unlockableMonths();
 
         require(monthsToUnlock > 0, "No tokens to unlock");
 
-        if (monthsToUnlock > 12) {monthsToUnlock = 12;}
+        if (monthsToUnlock > 12) {
+            monthsToUnlock = 12;
+        }
 
-        uint unlockAmount = unlockPortion() * monthsToUnlock;
+        uint256 unlockAmount = unlockPortion() * monthsToUnlock;
 
-        if (unlockAmount > remainingAmount) {unlockAmount = remainingAmount;}
+        if (unlockAmount > remainingAmount) {
+            unlockAmount = remainingAmount;
+        }
 
         unlockStake(unlockAmount);
     }
 
     // == Internals ==
 
-    function unlockStake(uint unlockAmount) private {
+    function unlockStake(uint256 unlockAmount) private {
         address sender = msg.sender;
 
-        require(_stakes[sender].ownedTokens >= _stakes[sender].unlockedTokens + unlockAmount,
-            "Tried to unlock more Tokens than owned");
+        require(
+            _stakes[sender].ownedTokens >=
+                _stakes[sender].unlockedTokens + unlockAmount,
+            "Tried to unlock more Tokens than owned"
+        );
 
         _stakes[sender].unlockedTokens += unlockAmount;
         token().safeTransfer(sender, unlockAmount);
@@ -129,7 +155,11 @@ contract TokenLock is DateTime {
 
     // == Utils ==
 
-    function _monthDiff(uint date1, uint date2) private pure returns (uint16) {
+    function _monthDiff(uint256 date1, uint256 date2)
+        private
+        pure
+        returns (uint16)
+    {
         uint16 months = (getYear(date2) - getYear(date1)) * 12;
         months += getMonth(date2) - getMonth(date1);
         return months;
@@ -141,5 +171,4 @@ contract TokenLock is DateTime {
         require(_stakes[msg.sender].ownedTokens > 0, "No tokens owned");
         _;
     }
-
 }

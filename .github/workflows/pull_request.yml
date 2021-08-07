@@ -10,10 +10,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout git repo
+        uses: actions/checkout@v2
+
       - name: Install modules
         run: npm install
-      - name: Install Truffle
-        run: npm install truffle -g
+
+      - name: Lint Files
+        run: npm run lint:sol
+
       - name: Run tests
-        run: truffle test --network test
+        run: npm run test
