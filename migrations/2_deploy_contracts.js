@@ -1,5 +1,5 @@
-const WallfairToken = artifacts.require("WallfairToken");
+const WallfairToken = artifacts.require('WallfairToken');
 
 module.exports = function (deployer) {
-    deployer.deploy(WallfairToken);
+  deployer.deploy(WallfairToken);
 };

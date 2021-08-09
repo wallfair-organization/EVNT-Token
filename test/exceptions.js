@@ -1,20 +1,23 @@
 module.exports.errTypes = {
-    revert            : "revert",
-    outOfGas          : "out of gas",
-    invalidJump       : "invalid JUMP",
-    invalidOpcode     : "invalid opcode",
-    stackOverflow     : "stack overflow",
-    stackUnderflow    : "stack underflow",
-    staticStateChange : "static state change"
-}
-
-module.exports.tryCatch = async function(promise, errType) {
-    try {
-        await promise;
-        assert.fail("Expected an error but did not get one")
-    } catch (error) {
-        assert(error.message.startsWith(PREFIX + errType), "Expected an error starting with '" + PREFIX + errType + "' but got '" + error.message + "' instead");
-    }
+  revert: 'revert',
+  outOfGas: 'out of gas',
+  invalidJump: 'invalid JUMP',
+  invalidOpcode: 'invalid opcode',
+  stackOverflow: 'stack overflow',
+  stackUnderflow: 'stack underflow',
+  staticStateChange: 'static state change',
 };
 
-const PREFIX = "Returned error: VM Exception while processing transaction: ";
+module.exports.tryCatch = async function (promise, errType) {
+  try {
+    await promise;
+    assert.fail('Expected an error but did not get one');
+  } catch (error) {
+    assert(
+      error.message.startsWith(PREFIX + errType),
+      'Expected an error starting with \'' + PREFIX + errType + '\' but got \'' + error.message + '\' instead',
+    );
+  }
+};
+
+const PREFIX = 'Returned error: VM Exception while processing transaction: ';
