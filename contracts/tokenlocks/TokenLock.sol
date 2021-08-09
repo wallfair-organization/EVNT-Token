@@ -3,9 +3,8 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../utils/DateTime.sol";
 
-contract TokenLock is DateTime {
+contract TokenLock {
     using SafeERC20 for IERC20;
 
     IERC20 private immutable _token;
