@@ -35,6 +35,24 @@ contract('TestTokenLock', function (accounts) {
     assert.equal(web3.utils.fromWei(tokensDue), 250000, 'The tokensDue should only be the initial unlock');
   });
 
+  it('Testing tokensDue() function', async () => {
+    const testTokenLock = await TestTokenLock.deployed();
+    const timeStamps =
+        [1612137600, 1614556800, 1617235200, 1619827200, 1622505600, 1625097600, 1627776000, 1630454400];
+    //      Feb.        Mar.        Apr.        May         June        July        Aug.        Sept.
+
+    const expectedResults = [250000, 375000, 500000, 625000, 750000, 875000, 1000000, 1000000];
+    //                       Start                                           End      After
+
+    for (const timeStampIndex in timeStamps) {
+      console.log(timeStamps[timeStampIndex]);
+      const tokensDue = await testTokenLock.tokensDue(stakedAccountID, timeStamps[timeStampIndex],
+        { from: stakedAccountID });
+      assert.equal(web3.utils.fromWei(tokensDue), expectedResults[timeStampIndex],
+        'The tokensDue should only be the initial unlock');
+    }
+  });
+
   it('Testing view functions for invalid Accounts', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
