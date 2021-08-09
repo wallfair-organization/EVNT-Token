@@ -177,9 +177,17 @@ contract TokenLock is DateTime {
         pure
         returns (uint16)
     {
-        uint16 months = (getYear(date2) - getYear(date1)) * 12;
-        months += getMonth(date2) - getMonth(date1);
-        return months;
+        uint256 diff = date2 - date1;
+
+        uint256 secondsAccountedFor;
+        uint256 secondsInMonth = 86400 * 30;
+        uint8 i = 0;
+        while (secondsInMonth + secondsAccountedFor < diff) {
+            secondsAccountedFor += secondsInMonth;
+            i++;
+        }
+
+        return i;
     }
 
     // == Modifier ==
