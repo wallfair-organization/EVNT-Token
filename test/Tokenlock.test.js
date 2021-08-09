@@ -1,5 +1,3 @@
-// This script is designed to test the solidity smart contract - SuppyChain.sol -- and the various functions within
-// Declare a variable and assign the compiled smart contract artifact
 const FriendsTokenLock = artifacts.require('FriendsTokenLock');
 const WallfairToken = artifacts.require('WallfairToken');
 
@@ -25,75 +23,49 @@ contract('FriendsTokenLock', function (accounts) {
     await wallfairToken.transfer(friendsTokenLock.address, BigInt(1000000 * 10 ** 18), { from: ownerID });
   });
 
-  it('Testing smart contract view functions', async () => {
+  it('Testing view functions', async () => {
     const friendsTokenLock = await FriendsTokenLock.deployed();
 
     const startTime = await friendsTokenLock.startTime({ from: stakedAccountID });
-    const unlockedMonths = await friendsTokenLock.unlockedMonths(stakedAccountID, { from: stakedAccountID });
-    const unlockableMonths = await friendsTokenLock.unlockableMonths(stakedAccountID, { from: stakedAccountID });
+    const tokensDue = await friendsTokenLock.tokensDue(stakedAccountID, 1612137600, { from: stakedAccountID });
+    const unlockedTokens = await friendsTokenLock.unlockedTokens(stakedAccountID, { from: stakedAccountID });
 
     assert.equal(startTime, 1612137600, 'The starting date is mismatched');
-    assert.equal(unlockedMonths, 0, 'Some Tokens are already unlocked');
-    assert.isAbove(parseInt(unlockableMonths), 0, 'It should be larger than 0');
+    assert.equal(unlockedTokens, 0, 'Some Tokens are already unlocked');
+    assert.equal(web3.utils.fromWei(tokensDue), 300000, 'The tokensDue should only be the initial unlock');
   });
 
-  it('Testing smart contract modifiers', async () => {
+  it('Testing view functions for invalid Accounts', async () => {
     const friendsTokenLock = await FriendsTokenLock.deployed();
-    await assertTryCatch(
-      friendsTokenLock.unlockPortion(invalidAccountID, { from: invalidAccountID }),
-      ErrTypes.revert,
-    );
 
-    await assertTryCatch(
-      friendsTokenLock.unlockedMonths(invalidAccountID, { from: invalidAccountID }),
-      ErrTypes.revert,
-    );
+    const invalidTokensDue = await friendsTokenLock.tokensDue(invalidAccountID, 1612137600, { from: invalidAccountID });
+    const unlockedTokens = await friendsTokenLock.unlockedTokens(invalidAccountID, { from: invalidAccountID });
 
-    await assertTryCatch(
-      friendsTokenLock.unlockableMonths(invalidAccountID, { from: invalidAccountID }),
-      ErrTypes.revert,
-    );
+    assert.equal(unlockedTokens, 0, 'Some Tokens are unlocked');
+    assert.equal(web3.utils.fromWei(invalidTokensDue), 0, 'The tokensDue should only be zero');
+  });
 
-    await assertTryCatch(friendsTokenLock.releaseInitial({ from: invalidAccountID }), ErrTypes.revert);
+  it('Testing modifier', async () => {
+    const friendsTokenLock = await FriendsTokenLock.deployed();
 
     await assertTryCatch(friendsTokenLock.release({ from: invalidAccountID }), ErrTypes.revert);
   });
 
-  it('Testing smart contract release()-fail before releaseInitial() function', async () => {
-    const friendsTokenLock = await FriendsTokenLock.deployed();
-
-    await assertTryCatch(friendsTokenLock.release({ from: stakedAccountID }), ErrTypes.revert);
-  });
-
-  it('Testing smart contract releaseInitial() function', async () => {
+  it('Testing release() function', async () => {
     const friendsTokenLock = await FriendsTokenLock.deployed();
     const wallfairToken = await WallfairToken.deployed();
 
-    const release = await friendsTokenLock.releaseInitial({ from: stakedAccountID });
-    const balance = await wallfairToken.balanceOf(stakedAccountID, { from: stakedAccountID });
-
-    assert.isNotNull(release, 'Token should be released');
-    assert.isAbove(parseInt(balance), 0, 'Token should be received');
-  });
-
-  it('Testing smart contract releaseInitial()-fail function', async () => {
-    const friendsTokenLock = await FriendsTokenLock.deployed();
-
-    await assertTryCatch(friendsTokenLock.releaseInitial({ from: stakedAccountID }), ErrTypes.revert);
-  });
-
-  it('Testing smart contract release() function', async () => {
-    const friendsTokenLock = await FriendsTokenLock.deployed();
-    const wallfairToken = await WallfairToken.deployed();
+    const timestampNow = Math.round(new Date().getTime() / 1000);
 
     const release = await friendsTokenLock.release({ from: stakedAccountID });
+    const tokensDue = await friendsTokenLock.tokensDue(stakedAccountID, timestampNow, { from: stakedAccountID });
     const balance = await wallfairToken.balanceOf(stakedAccountID, { from: stakedAccountID });
 
     assert.isNotNull(release, 'Token should be released');
-    assert.isAbove(parseInt(balance), 0, 'Token should be received');
+    assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
   });
 
-  it('Testing smart contract release()-fail function', async () => {
+  it('Testing smart contract release()-fail', async () => {
     const friendsTokenLock = await FriendsTokenLock.deployed();
 
     await assertTryCatch(friendsTokenLock.release({ from: stakedAccountID }), ErrTypes.revert);

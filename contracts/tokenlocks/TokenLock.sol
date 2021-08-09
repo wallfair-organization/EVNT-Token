@@ -67,99 +67,50 @@ contract TokenLock is DateTime {
         public
         view
         virtual
-        hasStake
         returns (uint256)
     {
         // To account for float percentages like 6.66%
         return (_stakes[sender].ownedTokens * percentage()) / 10000;
     }
 
-    /**
-     * @return the months that are already unlocked by the sender.
-     */
-    function unlockedMonths(address sender)
+    function unlockedTokens(address sender)
         public
         view
         virtual
-        hasStake
-        returns (uint16)
+        returns (uint256)
     {
-        if (_stakes[sender].unlockedTokens == 0) {
-            return 0;
-        }
-
-        uint256 ownedTokens = _stakes[sender].ownedTokens;
-        uint256 initialUnlock = (ownedTokens * initialPercentage()) / 100;
-
-        return
-            uint16(
-                (_stakes[sender].unlockedTokens - initialUnlock) /
-                    unlockPortion(sender)
-            );
+        return _stakes[sender].unlockedTokens;
     }
 
-    /**
-     * @return the months that can be unlocked by the sender.
-     */
-    function unlockableMonths(address sender)
+    function tokensDue(address sender, uint256 timestamp)
         public
         view
         virtual
-        hasStake
-        returns (uint16)
+        returns (uint256)
     {
-        return
-            _monthDiff(startTime(), block.timestamp) - unlockedMonths(sender);
-    }
-
-    function releaseInitial() external virtual hasStake {
-        address sender = msg.sender;
-
-        require(
-            _stakes[sender].unlockedTokens == 0,
-            "'releaseInitial()' was called already"
-        );
-
+        uint256 tokensDueResult = _monthDiff(startTime(), timestamp) *
+            unlockPortion(sender);
         if (initialPercentage() > 0) {
-            uint256 unlockAmount = (_stakes[sender].ownedTokens *
-                initialPercentage()) / 100;
-            unlockStake(unlockAmount);
+            tokensDueResult +=
+                (_stakes[sender].ownedTokens * initialPercentage()) /
+                100;
         }
+        return tokensDueResult;
     }
 
     function release() external virtual hasStake {
         address sender = msg.sender;
-        uint256 remainingAmount = _stakes[sender].ownedTokens -
+        uint256 unlockAmount = tokensDue(sender, block.timestamp) -
             _stakes[sender].unlockedTokens;
 
-        require(remainingAmount > 0, "All Tokens unlocked");
-        require(
-            _stakes[sender].unlockedTokens > 0,
-            "'releaseInitial()' was not yet called"
-        );
+        require(unlockAmount > 0, "No tokens to unlock");
 
-        uint16 monthsToUnlock = unlockableMonths(sender);
-
-        require(monthsToUnlock > 0, "No tokens to unlock");
-
-        if (monthsToUnlock > 12) {
-            monthsToUnlock = 12;
-        }
-
-        uint256 unlockAmount = unlockPortion(sender) * monthsToUnlock;
-
-        if (unlockAmount > remainingAmount) {
-            unlockAmount = remainingAmount;
-        }
-
-        unlockStake(unlockAmount);
+        _unlockStake(sender, unlockAmount);
     }
 
     // == Internals ==
 
-    function unlockStake(uint256 unlockAmount) private {
-        address sender = msg.sender;
-
+    function _unlockStake(address sender, uint256 unlockAmount) private {
         require(
             _stakes[sender].ownedTokens >=
                 _stakes[sender].unlockedTokens + unlockAmount,
