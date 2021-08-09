@@ -39,11 +39,20 @@ contract('FriendsTokenLock', function (accounts) {
 
   it('Testing smart contract modifiers', async () => {
     const friendsTokenLock = await FriendsTokenLock.deployed();
-    await assertTryCatch(friendsTokenLock.unlockPortion(invalidAccountID, { from: invalidAccountID }), ErrTypes.revert);
+    await assertTryCatch(
+      friendsTokenLock.unlockPortion(invalidAccountID, { from: invalidAccountID }),
+      ErrTypes.revert,
+    );
 
-    await assertTryCatch(friendsTokenLock.unlockedMonths(invalidAccountID, { from: invalidAccountID }), ErrTypes.revert);
+    await assertTryCatch(
+      friendsTokenLock.unlockedMonths(invalidAccountID, { from: invalidAccountID }),
+      ErrTypes.revert,
+    );
 
-    await assertTryCatch(friendsTokenLock.unlockableMonths(invalidAccountID, { from: invalidAccountID }), ErrTypes.revert);
+    await assertTryCatch(
+      friendsTokenLock.unlockableMonths(invalidAccountID, { from: invalidAccountID }),
+      ErrTypes.revert,
+    );
 
     await assertTryCatch(friendsTokenLock.releaseInitial({ from: invalidAccountID }), ErrTypes.revert);
 
