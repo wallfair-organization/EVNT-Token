@@ -162,17 +162,13 @@ contract TokenLock {
         pure
         returns (uint256)
     {
-        require(
-            targetDate >= startDate,
-            "The Target-Date has to be larger than the Start-Date"
-        );
-
-        uint256 diff = targetDate - startDate;
+        uint256 diff = date2 - date1;
 
         uint256 secondsAccountedFor;
-        uint256 i;
-        while (SECONDS_IN_MONTH + secondsAccountedFor < diff) {
-            secondsAccountedFor += SECONDS_IN_MONTH;
+        uint256 secondsInMonth = 86400 * 30;
+        uint8 i = 0;
+        while (secondsInMonth + secondsAccountedFor < diff) {
+            secondsAccountedFor += secondsInMonth;
             i++;
         }
 
