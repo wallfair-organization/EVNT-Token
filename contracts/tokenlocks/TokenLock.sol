@@ -20,7 +20,7 @@ contract TokenLock {
     mapping(address => UnlockState) internal _stakes;
 
     struct UnlockState {
-        uint256 ownedTokens;
+        uint256 totalTokens;
         uint256 unlockedTokens;
     }
 
@@ -29,6 +29,7 @@ contract TokenLock {
         uint256 startTime_,
         uint256 percentage_,
         uint256 initialPercentage_
+
     ) {
         _token = token_;
         _startTime = startTime_;
@@ -64,6 +65,16 @@ contract TokenLock {
         return _initialPercentage;
     }
 
+    function initialUnlockPortion(address sender)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        // To account for float percentages like 6.66%
+        return (totalTokensOf(sender) * initialPercentage()) / 10000;
+    }
+
     function unlockPortion(address sender)
         public
         view
@@ -71,16 +82,25 @@ contract TokenLock {
         returns (uint256)
     {
         // To account for float percentages like 6.66%
-        return (_stakes[sender].ownedTokens * percentage()) / 10000;
+        return (totalTokensOf(sender) * percentage()) / 10000;
     }
 
-    function unlockedTokens(address sender)
+    function unlockedTokensOf(address sender)
         public
         view
         virtual
         returns (uint256)
     {
         return _stakes[sender].unlockedTokens;
+    }
+
+    function totalTokensOf(address sender)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        return _stakes[sender].totalTokens;
     }
 
     function tokensDue(address sender, uint256 timestamp)
@@ -91,18 +111,22 @@ contract TokenLock {
     {
         uint256 tokensDueResult = _monthDiff(startTime(), timestamp) *
             unlockPortion(sender);
+
         if (initialPercentage() > 0) {
-            tokensDueResult +=
-                (_stakes[sender].ownedTokens * initialPercentage()) /
-                100;
+            tokensDueResult += initialUnlockPortion(sender);
         }
+
+        if (tokensDueResult > totalTokensOf(sender)) {
+            return totalTokensOf(sender);
+        }
+
         return tokensDueResult;
     }
 
     function release() external virtual hasStake {
         address sender = msg.sender;
         uint256 unlockAmount = tokensDue(sender, block.timestamp) -
-            _stakes[sender].unlockedTokens;
+            unlockedTokensOf(sender);
 
 
         require(unlockAmount > 0, "No tokens to unlock");
@@ -114,9 +138,8 @@ contract TokenLock {
 
     function _unlockStake(address sender, uint256 unlockAmount) private {
         require(
-            _stakes[sender].ownedTokens >=
-                _stakes[sender].unlockedTokens + unlockAmount,
-            "Tried to unlock more Tokens than owned"
+            totalTokensOf(sender) >= unlockedTokensOf(sender) + unlockAmount,
+            "Tried to unlock more Tokens than locked"
         );
 
         _stakes[sender].unlockedTokens += unlockAmount;
@@ -159,7 +182,7 @@ contract TokenLock {
     // == Modifier ==
 
     modifier hasStake() {
-        require(_stakes[msg.sender].ownedTokens > 0, "No tokens owned");
+        require(totalTokensOf(msg.sender) > 0, "No tokens locked");
         _;
     }
 }
