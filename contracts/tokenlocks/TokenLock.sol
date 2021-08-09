@@ -63,18 +63,28 @@ contract TokenLock is DateTime {
         return _initialPercentage;
     }
 
-    function unlockPortion() public view virtual hasStake returns (uint256) {
+    function unlockPortion(address sender)
+        public
+        view
+        virtual
+        hasStake
+        returns (uint256)
+    {
         // To account for float percentages like 6.66%
-        return (_stakes[msg.sender].ownedTokens * percentage()) / 10000;
+        return (_stakes[sender].ownedTokens * percentage()) / 10000;
     }
 
     /**
      * @return the months that are already unlocked by the sender.
      */
-    function unlockedMonths() public view virtual hasStake returns (uint16) {
-        address sender = msg.sender;
-
-        if (_stakes[msg.sender].unlockedTokens == 0) {
+    function unlockedMonths(address sender)
+        public
+        view
+        virtual
+        hasStake
+        returns (uint16)
+    {
+        if (_stakes[sender].unlockedTokens == 0) {
             return 0;
         }
 
@@ -84,15 +94,22 @@ contract TokenLock is DateTime {
         return
             uint16(
                 (_stakes[sender].unlockedTokens - initialUnlock) /
-                    unlockPortion()
+                    unlockPortion(sender)
             );
     }
 
     /**
      * @return the months that can be unlocked by the sender.
      */
-    function unlockableMonths() public view virtual hasStake returns (uint16) {
-        return _monthDiff(startTime(), block.timestamp) - unlockedMonths();
+    function unlockableMonths(address sender)
+        public
+        view
+        virtual
+        hasStake
+        returns (uint16)
+    {
+        return
+            _monthDiff(startTime(), block.timestamp) - unlockedMonths(sender);
     }
 
     function releaseInitial() external virtual hasStake {
@@ -121,7 +138,7 @@ contract TokenLock is DateTime {
             "'releaseInitial()' was not yet called"
         );
 
-        uint16 monthsToUnlock = unlockableMonths();
+        uint16 monthsToUnlock = unlockableMonths(sender);
 
         require(monthsToUnlock > 0, "No tokens to unlock");
 
@@ -129,7 +146,7 @@ contract TokenLock is DateTime {
             monthsToUnlock = 12;
         }
 
-        uint256 unlockAmount = unlockPortion() * monthsToUnlock;
+        uint256 unlockAmount = unlockPortion(sender) * monthsToUnlock;
 
         if (unlockAmount > remainingAmount) {
             unlockAmount = remainingAmount;

@@ -6,42 +6,18 @@ const WallfairToken = artifacts.require('WallfairToken');
 const assertTryCatch = require('./exceptions.js').tryCatch;
 const ErrTypes = require('./exceptions.js').errTypes;
 
-contract('WallfairToken', function (accounts) {
-  const ownerID = accounts[0];
-
-  console.log('ganache-cli accounts used here...');
-  console.log('Contract Owner:  accounts[0] ', accounts[0]);
-  console.log('Staked Account:  accounts[1] ', accounts[1]);
-  console.log('Invalid Account: accounts[2] ', accounts[2]);
-
-  it('Testing smart contract mint function', async () => {
-    const wallfairToken = await WallfairToken.deployed();
-
-    const mintValue = BigInt(1000000 * 10 ** 18);
-
-    await wallfairToken.mint(mintValue, { from: ownerID });
-
-    const balance = await wallfairToken.balanceOf(ownerID, { from: ownerID });
-
-    assert.equal(balance, mintValue, 'The minted Amount is wrong');
-  });
-
-  it('Testing smart contract mint-fail function', async () => {
-    const wallfairToken = await WallfairToken.deployed();
-
-    const mintValue = BigInt(11000000000 * 10 ** 18);
-
-    await assertTryCatch(wallfairToken.mint(mintValue, { from: ownerID }), ErrTypes.revert);
-  });
-});
-
 contract('FriendsTokenLock', function (accounts) {
   const ownerID = accounts[0];
   const stakedAccountID = accounts[1];
   const invalidAccountID = accounts[2];
 
-  // Setup Roles for testing
   before(async () => {
+    console.log('\n  ETH-Accounts used');
+    console.log('  Contract Owner:  accounts[0] ', accounts[0]);
+    console.log('  Staked Account:  accounts[1] ', accounts[1]);
+    console.log('  Invalid Account: accounts[2] ', accounts[2]);
+    console.log('');
+
     const friendsTokenLock = await FriendsTokenLock.deployed();
     const wallfairToken = await WallfairToken.deployed();
 
@@ -53,8 +29,8 @@ contract('FriendsTokenLock', function (accounts) {
     const friendsTokenLock = await FriendsTokenLock.deployed();
 
     const startTime = await friendsTokenLock.startTime({ from: stakedAccountID });
-    const unlockedMonths = await friendsTokenLock.unlockedMonths({ from: stakedAccountID });
-    const unlockableMonths = await friendsTokenLock.unlockableMonths({ from: stakedAccountID });
+    const unlockedMonths = await friendsTokenLock.unlockedMonths(stakedAccountID, { from: stakedAccountID });
+    const unlockableMonths = await friendsTokenLock.unlockableMonths(stakedAccountID, { from: stakedAccountID });
 
     assert.equal(startTime, 1612137600, 'The starting date is mismatched');
     assert.equal(unlockedMonths, 0, 'Some Tokens are already unlocked');
@@ -63,11 +39,20 @@ contract('FriendsTokenLock', function (accounts) {
 
   it('Testing smart contract modifiers', async () => {
     const friendsTokenLock = await FriendsTokenLock.deployed();
-    await assertTryCatch(friendsTokenLock.unlockPortion({ from: invalidAccountID }), ErrTypes.revert);
+    await assertTryCatch(
+      friendsTokenLock.unlockPortion(invalidAccountID, { from: invalidAccountID }),
+      ErrTypes.revert,
+    );
 
-    await assertTryCatch(friendsTokenLock.unlockedMonths({ from: invalidAccountID }), ErrTypes.revert);
+    await assertTryCatch(
+      friendsTokenLock.unlockedMonths(invalidAccountID, { from: invalidAccountID }),
+      ErrTypes.revert,
+    );
 
-    await assertTryCatch(friendsTokenLock.unlockableMonths({ from: invalidAccountID }), ErrTypes.revert);
+    await assertTryCatch(
+      friendsTokenLock.unlockableMonths(invalidAccountID, { from: invalidAccountID }),
+      ErrTypes.revert,
+    );
 
     await assertTryCatch(friendsTokenLock.releaseInitial({ from: invalidAccountID }), ErrTypes.revert);
 
