@@ -2,7 +2,6 @@ const TestTokenLock = artifacts.require('TestTokenLock');
 const WallfairToken = artifacts.require('WallfairToken');
 
 const assertTryCatch = require('./exceptions.js').tryCatch;
-const increaseTime = require('./utils/increaseTime').increaseTime;
 const ErrTypes = require('./exceptions.js').errTypes;
 
 contract('TestTokenLock', function (accounts) {
@@ -20,8 +19,8 @@ contract('TestTokenLock', function (accounts) {
     const testTokenLock = await TestTokenLock.deployed();
     const wallfairToken = await WallfairToken.deployed();
 
-    await wallfairToken.mint(web3.utils.toWei("1000000"), { from: ownerID });
-    await wallfairToken.transfer(testTokenLock.address, web3.utils.toWei("1000000"), { from: ownerID });
+    await wallfairToken.mint(web3.utils.toWei('1000000'), { from: ownerID });
+    await wallfairToken.transfer(testTokenLock.address, web3.utils.toWei('1000000'), { from: ownerID });
   });
 
   it('Testing view functions', async () => {
