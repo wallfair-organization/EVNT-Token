@@ -171,12 +171,17 @@ contract TokenLock {
 
     // == Utils ==
 
-    function _monthDiff(uint256 date1, uint256 date2)
+    function _monthDiff(uint256 startDate, uint256 targetDate)
         private
         pure
         returns (uint16)
     {
-        uint256 diff = date2 - date1;
+        require(
+            targetDate > startDate,
+            "The Target-Date has to be larger than the Start-Date"
+        );
+
+        uint256 diff = targetDate - startDate;
 
         uint256 secondsAccountedFor;
         uint256 secondsInMonth = 86400 * 30;
