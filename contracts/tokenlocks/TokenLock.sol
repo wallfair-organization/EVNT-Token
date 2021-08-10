@@ -7,13 +7,15 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract TokenLock {
     using SafeERC20 for IERC20;
 
+    uint256 internal constant SECONDS_IN_MONTH = 2592000;
+
     IERC20 private immutable _token;
 
     uint256 private immutable _startTime;
 
-    uint16 private immutable _percentage;
+    uint256 private immutable _percentage;
 
-    uint8 private immutable _initialPercentage;
+    uint256 private immutable _initialPercentage;
 
     mapping(address => UnlockState) internal _stakes;
 
@@ -25,8 +27,8 @@ contract TokenLock {
     constructor(
         IERC20 token_,
         uint256 startTime_,
-        uint16 percentage_,
-        uint8 initialPercentage_
+        uint256 percentage_,
+        uint256 initialPercentage_
     ) {
         _token = token_;
         _startTime = startTime_;
@@ -51,14 +53,14 @@ contract TokenLock {
     /**
      * @return the percentage that gets unlocked every month.
      */
-    function percentage() public view virtual returns (uint16) {
+    function percentage() public view virtual returns (uint256) {
         return _percentage;
     }
 
     /**
      * @return the percentage that gets unlocked initially.
      */
-    function initialPercentage() public view virtual returns (uint8) {
+    function initialPercentage() public view virtual returns (uint256) {
         return _initialPercentage;
     }
 
@@ -81,7 +83,7 @@ contract TokenLock {
         view
         virtual
         hasStake
-        returns (uint16)
+        returns (uint256)
     {
         if (_stakes[sender].unlockedTokens == 0) {
             return 0;
@@ -91,7 +93,7 @@ contract TokenLock {
         uint256 initialUnlock = (ownedTokens * initialPercentage()) / 100;
 
         return
-            uint16(
+            uint256(
                 (_stakes[sender].unlockedTokens - initialUnlock) /
                     unlockPortion(sender)
             );
@@ -105,7 +107,7 @@ contract TokenLock {
         view
         virtual
         hasStake
-        returns (uint16)
+        returns (uint256)
     {
         return
             _monthDiff(startTime(), block.timestamp) - unlockedMonths(sender);
@@ -137,7 +139,7 @@ contract TokenLock {
             "'releaseInitial()' was not yet called"
         );
 
-        uint16 monthsToUnlock = unlockableMonths(sender);
+        uint256 monthsToUnlock = unlockableMonths(sender);
 
         require(monthsToUnlock > 0, "No tokens to unlock");
 
@@ -174,7 +176,7 @@ contract TokenLock {
     function _monthDiff(uint256 startDate, uint256 targetDate)
         private
         pure
-        returns (uint16)
+        returns (uint256)
     {
         require(
             targetDate >= startDate,
@@ -184,10 +186,9 @@ contract TokenLock {
         uint256 diff = targetDate - startDate;
 
         uint256 secondsAccountedFor;
-        uint256 secondsInMonth = 86400 * 30;
-        uint8 i = 0;
-        while (secondsInMonth + secondsAccountedFor < diff) {
-            secondsAccountedFor += secondsInMonth;
+        uint256 i;
+        while (SECONDS_IN_MONTH + secondsAccountedFor < diff) {
+            secondsAccountedFor += SECONDS_IN_MONTH;
             i++;
         }
 
