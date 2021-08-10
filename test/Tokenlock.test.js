@@ -256,7 +256,7 @@ contract('TestTokenLock', function (accounts) {
     const secondsInMonth = 30 * 86400;
 
     const testTokenLock = await TestTokenLock.new(wallfairToken.address,
-      futureAccountID, LOCK_AMOUNT, 36, 0, timestampNow,
+      futureAccountID, LOCK_AMOUNT, 36, 2800, timestampNow,
     );
 
     await wallfairToken.mint(LOCK_AMOUNT, { from: ownerID });
@@ -268,17 +268,13 @@ contract('TestTokenLock', function (accounts) {
 
       console.log(i, web3.utils.fromWei(tokensDue));
 
-      if (i === 1) {
-        await assertTryCatch(testTokenLock.release({ from: futureAccountID }), ErrTypes.revert);
-      } else {
-        const release = await testTokenLock.release({ from: futureAccountID });
-        const balance = await wallfairToken.balanceOf(futureAccountID, { from: futureAccountID });
-
-        assert.isNotNull(release, 'Token should be released');
-        assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
-      }
+      const release = await testTokenLock.release({ from: futureAccountID });
+      const balance = await wallfairToken.balanceOf(futureAccountID, { from: futureAccountID });
 
       await increaseTime(secondsInMonth);
+
+      assert.isNotNull(release, 'To ken should be released');
+      assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
     }
   });
 
