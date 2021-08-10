@@ -112,6 +112,8 @@ contract('TestTokenLock', function (accounts) {
       const tokensDue = await testTokenLock.tokensDue(futureAccountID, changedTimeStamp, { from: futureAccountID });
       const balance = await wallfairToken.balanceOf(futureAccountID, { from: futureAccountID });
 
+      console.log(i, web3.utils.fromWei(balance), web3.utils.fromWei(tokensDue));
+
       await increaseTime(secondsInMonth);
 
       assert.isNotNull(release, 'Token should be released');
