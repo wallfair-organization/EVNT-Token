@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.4;
 
@@ -12,8 +12,6 @@ contract TokenLock {
     IERC20 private immutable _token;
 
     uint256 private immutable _startTime;
-
-    uint256 private immutable _percentage;
 
     uint256 private immutable _initialPercentage;
 
@@ -29,15 +27,12 @@ contract TokenLock {
     constructor(
         IERC20 token_,
         uint256 startTime_,
-        //        uint256 percentage_,
         uint256 vestingPeriodMonths_,
         uint256 initialPercentage_
     ) {
         _token = token_;
         _startTime = startTime_;
-        _percentage = 0;
         _vestingPeriodMonths = vestingPeriodMonths_;
-        //        _percentage = percentage_;
         _initialPercentage = initialPercentage_;
     }
 
@@ -53,13 +48,6 @@ contract TokenLock {
      */
     function startTime() public view virtual returns (uint256) {
         return _startTime;
-    }
-
-    /**
-     * @return the percentage that gets unlocked every month.
-     */
-    function percentage() public view virtual returns (uint256) {
-        return _percentage;
     }
 
     /**
@@ -86,16 +74,6 @@ contract TokenLock {
         return (totalTokensOf(sender) * initialPercentage()) / 10000;
     }
 
-    function unlockPortion(address sender)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
-        // To account for float percentages like 6.66%
-        return (totalTokensOf(sender) * percentage()) / 10000;
-    }
-
     function unlockedTokensOf(address sender)
         public
         view
@@ -120,20 +98,6 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        /*
-        uint256 tokensDueResult = _monthDiff(startTime(), timestamp) *
-            unlockPortion(sender);
-
-        if (initialPercentage() > 0) {
-            tokensDueResult += initialUnlockPortion(sender);
-        }
-
-        if (tokensDueResult > totalTokensOf(sender)) {
-            return totalTokensOf(sender);
-        }
-
-        return tokensDueResult;
-*/
         return
             initialUnlockPortion(sender) +
             (_min(_monthDiff(startTime(), timestamp), vestingPeriodMonths()) *
