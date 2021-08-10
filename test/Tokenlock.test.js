@@ -4,16 +4,13 @@
 const TestTokenLock = artifacts.require('TestTokenLock');
 const WallfairToken = artifacts.require('WallfairToken');
 
-const increaseTime = require("./utils/increaseTime").increaseTime;
-const assertTryCatch = require('./exceptions.js').tryCatch;
-const increaseTime = require('./utils/increaseTime').increaseTime;
-const ErrTypes = require('./exceptions.js').errTypes;
+const assertTryCatch = require('./utils/exceptions.js').tryCatch;
+const ErrTypes = require('./utils/exceptions.js').errTypes;
 
 contract('TestTokenLock', function (accounts) {
   const ownerID = accounts[0];
   const stakedAccountID = accounts[1];
   const invalidAccountID = accounts[2];
-  const futureAccountID = accounts[3];
 
   const LOCK_AMOUNT = web3.utils.toWei('1000000');
 
@@ -22,7 +19,6 @@ contract('TestTokenLock', function (accounts) {
     console.log('  Contract Owner:  accounts[0] ', accounts[0]);
     console.log('  Staked Account:  accounts[1] ', accounts[1]);
     console.log('  Invalid Account: accounts[2] ', accounts[2]);
-    console.log('  Future Account:  accounts[3] ', accounts[3]);
     console.log('');
 
     const testTokenLock = await TestTokenLock.deployed();
@@ -251,52 +247,6 @@ contract('TestTokenLock', function (accounts) {
     const testTokenLock = await TestTokenLock.deployed();
 
     await assertTryCatch(testTokenLock.release({ from: stakedAccountID }), ErrTypes.revert);
-  });
-
-  it('Testing dateDiff() function', async () => {
-    const friendsTokenLock = await FriendsTokenLock.deployed();
-
-    const JAN = 1609459200; // 1. Jan 2021
-    const FEB = 1612137600; // 1. Feb 2021
-    const MAR = 1614729600; // 3. Mar 2021
-    const APR = 1617321600; // 2. Apr 2021
-    const monthDiff1 = await friendsTokenLock.monthDiff(JAN, FEB, { from: stakedAccountID });
-    const monthDiff2 = await friendsTokenLock.monthDiff(JAN, MAR, { from: stakedAccountID });
-    const monthDiff3 = await friendsTokenLock.monthDiff(JAN, APR, { from: stakedAccountID });
-
-    assert.equal(monthDiff1, 1, '1 Month should be the difference');
-    assert.equal(monthDiff2, 2, '2 Month should be the difference');
-    assert.equal(monthDiff3, 3, '3 Month should be the difference');
-
-  it('Testing with Time Travel', async () => {
-    const wallfairToken = await WallfairToken.new();
-
-    const timestampNow = Math.round(new Date().getTime() / 1000);
-    const secondsInMonth = 30 * 86400;
-
-    const testTokenLock = await TestTokenLock.new(wallfairToken.address,
-      futureAccountID, LOCK_AMOUNT, 36, 0, timestampNow,
-    );
-
-    await wallfairToken.mint(LOCK_AMOUNT, { from: ownerID });
-    await wallfairToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
-
-    for (let i = 1; i <= 37; i++) {
-      const changedTimeStamp = timestampNow + i * secondsInMonth;
-
-      if (i === 1) {
-        await assertTryCatch(testTokenLock.release({ from: futureAccountID }), ErrTypes.revert);
-      } else {
-        const release = await testTokenLock.release({ from: futureAccountID });
-        const balance = await wallfairToken.balanceOf(futureAccountID, { from: futureAccountID });
-
-        assert.isNotNull(release, 'Token should be released');
-        assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
-      }
-
-      await increaseTime(secondsInMonth);
-
-    }
   });
 
   it('Testing dateDiff() function', async () => {
