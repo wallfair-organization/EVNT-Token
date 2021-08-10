@@ -12,11 +12,12 @@ contract TestTokenLock is TokenLock {
         address stakedAccount,
         uint256 totalTokens,
         uint16 percentage,
-        uint16 initialPercentage
+        uint16 initialPercentage,
+        uint256 startDate
     )
         TokenLock(
             WallfairToken(wallfairToken_),
-            1612137600,
+            startDate,
             percentage,
             initialPercentage
         )
