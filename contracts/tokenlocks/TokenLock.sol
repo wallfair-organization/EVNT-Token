@@ -3,9 +3,8 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../utils/DateTime.sol";
 
-contract TokenLock is DateTime {
+contract TokenLock {
     using SafeERC20 for IERC20;
 
     IERC20 private immutable _token;
@@ -145,14 +144,27 @@ contract TokenLock is DateTime {
 
     // == Utils ==
 
-    function _monthDiff(uint256 date1, uint256 date2)
+    function _monthDiff(uint256 startDate, uint256 targetDate)
         private
         pure
         returns (uint16)
     {
-        uint16 months = (getYear(date2) - getYear(date1)) * 12;
-        months += getMonth(date2) - getMonth(date1);
-        return months;
+        require(
+            targetDate >= startDate,
+            "The Target-Date has to be larger than the Start-Date"
+        );
+
+        uint256 diff = targetDate - startDate;
+
+        uint256 secondsAccountedFor;
+        uint256 secondsInMonth = 86400 * 30;
+        uint8 i = 0;
+        while (secondsInMonth + secondsAccountedFor < diff) {
+            secondsAccountedFor += secondsInMonth;
+            i++;
+        }
+
+        return i;
     }
 
     // == Modifier ==
