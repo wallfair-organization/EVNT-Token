@@ -17,6 +17,8 @@ contract TokenLock {
 
     uint256 private immutable _initialPercentage;
 
+    uint256 private immutable _vestingPeriodMonths;
+
     mapping(address => UnlockState) internal _stakes;
 
     struct UnlockState {
@@ -27,12 +29,15 @@ contract TokenLock {
     constructor(
         IERC20 token_,
         uint256 startTime_,
-        uint256 percentage_,
+        //        uint256 percentage_,
+        uint256 vestingPeriodMonths_,
         uint256 initialPercentage_
     ) {
         _token = token_;
         _startTime = startTime_;
-        _percentage = percentage_;
+        _percentage = 0;
+        _vestingPeriodMonths = vestingPeriodMonths_;
+        //        _percentage = percentage_;
         _initialPercentage = initialPercentage_;
     }
 
@@ -55,6 +60,13 @@ contract TokenLock {
      */
     function percentage() public view virtual returns (uint256) {
         return _percentage;
+    }
+
+    /**
+     * @return the number of locked month.
+     */
+    function vestingPeriodMonths() public view virtual returns (uint256) {
+        return _vestingPeriodMonths;
     }
 
     /**
@@ -108,6 +120,7 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
+        /*
         uint256 tokensDueResult = _monthDiff(startTime(), timestamp) *
             unlockPortion(sender);
 
@@ -120,6 +133,12 @@ contract TokenLock {
         }
 
         return tokensDueResult;
+*/
+        return
+            initialUnlockPortion(sender) +
+            (_min(_monthDiff(startTime(), timestamp), vestingPeriodMonths()) *
+                (totalTokensOf(sender) - initialUnlockPortion(sender))) /
+            vestingPeriodMonths();
     }
 
     function release() external virtual hasStake {
@@ -127,7 +146,6 @@ contract TokenLock {
         uint256 unlockAmount = tokensDue(sender, block.timestamp) -
             unlockedTokensOf(sender);
 
-        uint256 monthsToUnlock = unlockableMonths(sender);
         require(unlockAmount > 0, "No tokens to unlock");
 
         _unlockStake(sender, unlockAmount);
@@ -161,10 +179,9 @@ contract TokenLock {
         pure
         returns (uint256)
     {
-        require(
-            targetDate >= startDate,
-            "The Target-Date has to be larger than the Start-Date"
-        );
+        if (targetDate <= startDate) {
+            return 0;
+        }
 
         uint256 diff = targetDate - startDate;
 
@@ -176,6 +193,11 @@ contract TokenLock {
         }
 
         return i;
+    }
+
+    function _min(uint256 a, uint256 b) private pure returns (uint256) {
+        if (a > b) return b;
+        return a;
     }
 
     // == Modifier ==
