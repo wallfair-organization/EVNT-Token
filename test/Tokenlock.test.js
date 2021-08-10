@@ -120,4 +120,20 @@ contract('TestTokenLock', function (accounts) {
       assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
     }
   });
+
+  it('Testing dateDiff() function', async () => {
+    const friendsTokenLock = await FriendsTokenLock.deployed();
+
+    const JAN = 1609459200; // 1. Jan 2021
+    const FEB = 1612137600; // 1. Feb 2021
+    const MAR = 1614729600; // 3. Mar 2021
+    const APR = 1617321600; // 2. Apr 2021
+    const monthDiff1 = await friendsTokenLock.monthDiff(JAN, FEB, { from: stakedAccountID });
+    const monthDiff2 = await friendsTokenLock.monthDiff(JAN, MAR, { from: stakedAccountID });
+    const monthDiff3 = await friendsTokenLock.monthDiff(JAN, APR, { from: stakedAccountID });
+
+    assert.equal(monthDiff1, 1, '1 Month should be the difference');
+    assert.equal(monthDiff2, 2, '2 Month should be the difference');
+    assert.equal(monthDiff3, 3, '3 Month should be the difference');
+  });
 });
