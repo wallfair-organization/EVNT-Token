@@ -4,6 +4,7 @@
 const TestTokenLock = artifacts.require('TestTokenLock');
 const WallfairToken = artifacts.require('WallfairToken');
 
+const increaseTime = require("./utils/increaseTime").increaseTime;
 const assertTryCatch = require('./exceptions.js').tryCatch;
 const increaseTime = require('./utils/increaseTime').increaseTime;
 const ErrTypes = require('./exceptions.js').errTypes;
@@ -12,12 +13,14 @@ contract('TestTokenLock', function (accounts) {
   const ownerID = accounts[0];
   const stakedAccountID = accounts[1];
   const invalidAccountID = accounts[2];
+  const futureAccountID = accounts[3];
 
   before(async () => {
     console.log('\n  ETH-Accounts used');
     console.log('  Contract Owner:  accounts[0] ', accounts[0]);
     console.log('  Staked Account:  accounts[1] ', accounts[1]);
     console.log('  Invalid Account: accounts[2] ', accounts[2]);
+    console.log('  Future Account:  accounts[3] ', accounts[3]);
     console.log('');
 
     const testTokenLock = await TestTokenLock.deployed();
@@ -41,18 +44,17 @@ contract('TestTokenLock', function (accounts) {
 
   it('Testing tokensDue() function', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    const timeStamps =
-        [1612137600, 1614556800, 1617235200, 1619827200, 1622505600, 1625097600, 1627776000, 1630454400];
-    //      Feb.        Mar.        Apr.        May         June        July        Aug.        Sept.
 
+    const secondsInMonth = 30 * 86400;
     const expectedResults = [250000, 375000, 500000, 625000, 750000, 875000, 1000000, 1000000];
     //                       Start                                           End      After
 
-    for (const timeStampIndex in timeStamps) {
-      console.log(timeStamps[timeStampIndex]);
-      const tokensDue = await testTokenLock.tokensDue(stakedAccountID, timeStamps[timeStampIndex],
+    for (let i = 1; i <= 8; i++) {
+      const changedTimeStamp = 1612137600 + i * secondsInMonth;
+
+      const tokensDue = await testTokenLock.tokensDue(stakedAccountID, changedTimeStamp,
         { from: stakedAccountID });
-      assert.equal(web3.utils.fromWei(tokensDue), expectedResults[timeStampIndex],
+      assert.equal(web3.utils.fromWei(tokensDue), expectedResults[i - 1],
         'The tokensDue should only be the initial unlock');
     }
   });
@@ -107,5 +109,34 @@ contract('TestTokenLock', function (accounts) {
     assert.equal(monthDiff1, 1, '1 Month should be the difference');
     assert.equal(monthDiff2, 2, '2 Month should be the difference');
     assert.equal(monthDiff3, 3, '3 Month should be the difference');
+
+  it('Testing with Time Travel', async () => {
+    const wallfairToken = await WallfairToken.deployed();
+
+    const timestampNow = Math.round(new Date().getTime() / 1000);
+    const lockAmount = web3.utils.toWei('1000000');
+    const secondsInMonth = 30 * 86400;
+
+    const testTokenLock = await TestTokenLock.new(wallfairToken.address,
+      futureAccountID, lockAmount, 200, 2800, timestampNow,
+    );
+
+    await wallfairToken.mint(lockAmount, { from: ownerID });
+    await wallfairToken.transfer(testTokenLock.address, lockAmount, { from: ownerID });
+
+    for (let i = 1; i <= 36; i++) {
+      const changedTimeStamp = timestampNow + i * secondsInMonth;
+
+      const release = await testTokenLock.release({ from: futureAccountID });
+      const tokensDue = await testTokenLock.tokensDue(futureAccountID, changedTimeStamp, { from: futureAccountID });
+      const balance = await wallfairToken.balanceOf(futureAccountID, { from: futureAccountID });
+
+      await increaseTime(secondsInMonth);
+
+      console.log(i, web3.utils.fromWei(balance), web3.utils.fromWei(tokensDue))
+
+      assert.isNotNull(release, 'Token should be released');
+      assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
+    }
   });
 });
