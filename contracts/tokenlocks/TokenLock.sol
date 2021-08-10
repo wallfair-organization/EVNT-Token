@@ -173,6 +173,15 @@ contract TokenLock {
 
     // == Utils ==
 
+    function monthDiff(uint256 startDate, uint256 targetDate)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        return _monthDiff(startDate, targetDate);
+    }
+
     function _monthDiff(uint256 startDate, uint256 targetDate)
         private
         pure
