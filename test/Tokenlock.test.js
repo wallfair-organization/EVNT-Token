@@ -1,7 +1,7 @@
 const TestTokenLock = artifacts.require('TestTokenLock');
 const WallfairToken = artifacts.require('WallfairToken');
 
-const increaseTime = require("./utils/increaseTime").increaseTime;
+const increaseTime = require('./utils/increaseTime').increaseTime;
 const assertTryCatch = require('./exceptions.js').tryCatch;
 const ErrTypes = require('./exceptions.js').errTypes;
 
@@ -113,8 +113,6 @@ contract('TestTokenLock', function (accounts) {
       const balance = await wallfairToken.balanceOf(futureAccountID, { from: futureAccountID });
 
       await increaseTime(secondsInMonth);
-
-      console.log(i, web3.utils.fromWei(balance), web3.utils.fromWei(tokensDue))
 
       assert.isNotNull(release, 'Token should be released');
       assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
