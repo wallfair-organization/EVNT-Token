@@ -163,7 +163,7 @@ contract TokenLock {
         returns (uint256)
     {
         require(
-            targetDate > startDate,
+            targetDate >= startDate,
             "The Target-Date has to be larger than the Start-Date"
         );
 
