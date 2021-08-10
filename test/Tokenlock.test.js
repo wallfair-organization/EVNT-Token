@@ -107,12 +107,14 @@ contract('TestTokenLock', function (accounts) {
 
     for (let i = 1; i <= 36; i++) {
       const changedTimeStamp = timestampNow + i * secondsInMonth;
+      const tokensDue = await testTokenLock.tokensDue(futureAccountID, changedTimeStamp, { from: futureAccountID });
+
+      console.log(i, web3.utils.fromWei(tokensDue));
 
       const release = await testTokenLock.release({ from: futureAccountID });
-      const tokensDue = await testTokenLock.tokensDue(futureAccountID, changedTimeStamp, { from: futureAccountID });
       const balance = await wallfairToken.balanceOf(futureAccountID, { from: futureAccountID });
 
-      console.log(i, web3.utils.fromWei(balance), web3.utils.fromWei(tokensDue));
+      console.log(web3.utils.fromWei(balance));
 
       await increaseTime(secondsInMonth);
 
