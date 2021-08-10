@@ -115,7 +115,7 @@ contract('TestTokenLock', function (accounts) {
       960000,
       980000,
       1000000,
-      1000000
+      1000000,
     ];
 
     const tokensDueBefore = await testTokenLock.tokensDue(stakedAccountID, 1612137500,
@@ -189,7 +189,7 @@ contract('TestTokenLock', function (accounts) {
       944444.444444444444444444,
       972222.222222222222222222,
       1000000,
-      1000000
+      1000000,
     ];
 
     const tokensDueBefore = await testTokenLock.tokensDue(stakedAccountID, 1612137500,
@@ -276,7 +276,6 @@ contract('TestTokenLock', function (accounts) {
 
     const testTokenLock = await TestTokenLock.new(wallfairToken.address,
       futureAccountID, LOCK_AMOUNT, 36, 0, timestampNow,
-      // futureAccountID, lockAmount, 200, 2800, timestampNow,
     );
 
     await wallfairToken.mint(LOCK_AMOUNT, { from: ownerID });
