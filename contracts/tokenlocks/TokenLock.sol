@@ -29,7 +29,6 @@ contract TokenLock {
         uint256 startTime_,
         uint256 percentage_,
         uint256 initialPercentage_
-
     ) {
         _token = token_;
         _startTime = startTime_;
@@ -79,16 +78,28 @@ contract TokenLock {
         public
         view
         virtual
+        hasStake
         returns (uint256)
     {
-        // To account for float percentages like 6.66%
-        return (totalTokensOf(sender) * percentage()) / 10000;
+        if (_stakes[sender].unlockedTokens == 0) {
+            return 0;
+        }
+
+        uint256 ownedTokens = _stakes[sender].ownedTokens;
+        uint256 initialUnlock = (ownedTokens * initialPercentage()) / 100;
+
+        return
+            uint256(
+                (_stakes[sender].unlockedTokens - initialUnlock) /
+                    unlockPortion(sender)
+            );
     }
 
     function unlockedTokensOf(address sender)
         public
         view
         virtual
+        hasStake
         returns (uint256)
     {
         return _stakes[sender].unlockedTokens;
@@ -125,8 +136,22 @@ contract TokenLock {
 
     function release() external virtual hasStake {
         address sender = msg.sender;
-        uint256 unlockAmount = tokensDue(sender, block.timestamp) -
-            unlockedTokensOf(sender);
+        uint256 remainingAmount = _stakes[sender].ownedTokens -
+            _stakes[sender].unlockedTokens;
+
+        require(remainingAmount > 0, "All Tokens unlocked");
+        require(
+            _stakes[sender].unlockedTokens > 0,
+            "'releaseInitial()' was not yet called"
+        );
+
+        uint256 monthsToUnlock = unlockableMonths(sender);
+
+        require(monthsToUnlock > 0, "No tokens to unlock");
+
+        if (monthsToUnlock > 12) {
+            monthsToUnlock = 12;
+        }
 
 
         require(unlockAmount > 0, "No tokens to unlock");
@@ -170,10 +195,9 @@ contract TokenLock {
         uint256 diff = targetDate - startDate;
 
         uint256 secondsAccountedFor;
-        uint256 secondsInMonth = 86400 * 30;
-        uint8 i = 0;
-        while (secondsInMonth + secondsAccountedFor < diff) {
-            secondsAccountedFor += secondsInMonth;
+        uint256 i;
+        while (SECONDS_IN_MONTH + secondsAccountedFor < diff) {
+            secondsAccountedFor += SECONDS_IN_MONTH;
             i++;
         }
 
