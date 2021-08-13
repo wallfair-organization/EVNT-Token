@@ -28,7 +28,7 @@
     "lint:js:fix": "eslint --ignore-path .gitignore ./test ./migrations ./app --fix",
     "lint:sol": "solhint 'contracts/**/*.sol' && prettier -c 'contracts/**/*.sol'",
     "lint:sol:fix": "prettier --write \"contracts/**/*.sol\"",
-    "test": "truffle test"
+    "test": "npx hardhat test"
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "^1.4.1",
