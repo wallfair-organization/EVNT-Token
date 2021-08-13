@@ -1,5 +1,7 @@
-// This script is designed to test the solidity smart contract - SuppyChain.sol -- and the various functions within
+// This script is designed to test the solidity smart contracts and the various functions within
 // Declare a variable and assign the compiled smart contract artifact
+const { expect } = require("chai");
+
 const FriendsTokenLock = artifacts.require('FriendsTokenLock');
 const WallfairToken = artifacts.require('WallfairToken');
 
