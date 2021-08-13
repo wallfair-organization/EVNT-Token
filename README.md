@@ -17,7 +17,7 @@ Then install the required packages for the Hardhat toolchain:
 
 ```
 npm install ethers@^7.12.0 hardhat@^7.12.0 ethereum-waffle@^3.2.0 \
-@nomiclabs/hardhat-waffle@^2.0.1 chai \
+@nomiclabs/hardhat-waffle@^2.0.1 chai @nomiclabs/hardhat-web3 web3 \
 @nomiclabs/hardhat-etherscan @nomiclabs/hardhat-ethers @openzeppelin/contracts \
 @nomiclabs/hardhat-truffle5 hardhat-gas-reporter dotenv-safe
 ```
