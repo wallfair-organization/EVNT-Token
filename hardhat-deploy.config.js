@@ -6,10 +6,12 @@ require("@nomiclabs/hardhat-etherscan");
 require('dotenv-safe').config();
 
 const { 
+    RINKEBY_API_URL, 
     ROPSTEN_API_URL, 
     MAINNET_API_URL, 
     BINANCE_API_URL, 
     MUMBAI_API_URL,
+    RINKEBY_PRIVATE_KEY, 
     ROPSTEN_PRIVATE_KEY, 
     MAINNET_PRIVATE_KEY, 
     BINANCE_PRIVATE_KEY, 
@@ -21,6 +23,10 @@ module.exports = {
   networks: {
     hardhat: {
       chainId: 1337
+    },
+    rinkeby: {
+         url: RINKEBY_API_URL,
+         accounts: [`0x${RINKEBY_PRIVATE_KEY}`]
     },
     ropsten: {
          url: ROPSTEN_API_URL,
