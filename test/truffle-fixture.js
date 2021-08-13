@@ -1,3 +1,5 @@
+const { ethers } = require('hardhat');
+
 const Migrations = artifacts.require('Migrations');
 const WallfairToken = artifacts.require('WallfairToken');
 const FriendsTokenLock = artifacts.require('FriendsTokenLock');
