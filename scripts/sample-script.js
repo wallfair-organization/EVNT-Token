@@ -1,3 +1,6 @@
+// This is the default sample-script.js, and has no bearing on the current project,
+// but I'm leaving it in because it provides a good standard example
+
 // We require the Hardhat Runtime Environment explicitly here. This is optional
 // but useful for running the script in a standalone fashion through `node <script>`.
 //

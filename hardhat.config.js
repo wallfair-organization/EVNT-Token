@@ -3,42 +3,26 @@ require("hardhat-gas-reporter");
 require("@nomiclabs/hardhat-waffle")
 require("@nomiclabs/hardhat-truffle5");
 require("@nomiclabs/hardhat-etherscan");
-require('dotenv-safe').config();
+require('dotenv-safe').config({
+  allowEmptyValues: true
+});
 
-const { 
-    ROPSTEN_API_URL, 
-    MAINNET_API_URL, 
-    BINANCE_API_URL, 
-    MUMBAI_API_URL,
-    PRIVATE_KEY, 
-    ETHSCAN_API_KEY } = process.env;
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+});
 
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
+      // over-ride chain ID to allow MetaMask to connect to localhost:8545
+      // see https://hardhat.org/metamask-issue.html
       chainId: 1337
-    },
-    ropsten: {
-         url: ROPSTEN_API_URL,
-         accounts: [`0x${PRIVATE_KEY}`]
-    },
-    mainnet: {
-        url: MAINNET_API_URL,
-        accounts: [`0x${PRIVATE_KEY}`]
-    },
-    binancetest: {
-        url: BINANCE_API_URL,
-        chainId: 97,
-        accounts: [`0x${PRIVATE_KEY}`]
-    },
-    mumbai: {
-        url: MUMBAI_API_URL,
-        accounts: [`0x${PRIVATE_KEY}`]
     }
-  },
-  etherscan: {
-    apiKey: ETHSCAN_API_KEY
   },
   solidity: {
     version: "0.8.4",
