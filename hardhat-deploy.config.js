@@ -16,6 +16,7 @@ const {
     MAINNET_PRIVATE_KEY, 
     BINANCE_PRIVATE_KEY, 
     MUMBAI_PRIVATE_KEY, 
+    POLYGON_PRIVATE_KEY, 
     ETHSCAN_API_KEY } = process.env;
 
 module.exports = {
@@ -44,6 +45,10 @@ module.exports = {
     mumbai: {
         url: MUMBAI_API_URL,
         accounts: [`0x${MUMBAI_PRIVATE_KEY}`]
+    }
+    matic: {
+        url: POLYGON_API_URL,
+        accounts: [`0x${MATIC_PRIVATE_KEY}`]
     }
   },
   etherscan: {
