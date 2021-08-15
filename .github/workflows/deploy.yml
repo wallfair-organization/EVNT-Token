@@ -1,4 +1,4 @@
-name: Wallfair. Smart Contract Test
+name: Deploy
 
 on:
   workflow_dispatch:
@@ -17,11 +17,8 @@ jobs:
       - name: Install modules
         run: npm install
 
-      - name: Lint Solidity Files
-        run: npm run lint:sol
+      - name: Compile
+        run: npm run compile
 
-      - name: Lint JavaScript Files
-        run: npm run lint:js
-
-      - name: Run tests
-        run: npm run test
+      - name: Deploy
+        run: npm run deploy
