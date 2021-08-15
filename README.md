@@ -20,7 +20,7 @@ Then install the required packages for the Hardhat toolchain:
 
 `npm install`
 
-Hardhad should be configured, but if it isn't run the next line, create a sample project
+Hardhat should be configured, but if it isn't run the next line, create a sample project
 and choose the default project root path.
 
 `npx hardhat`
@@ -51,6 +51,8 @@ Then run your harhat commands using the `config` option:
 `npx hardhat <COMMAND> --config hardhat-deploy.config.js --network <NETWORK>`
 
 Remember to be careful with your keys! Share your keys and you share your coins.
+
+## Deployment
 
 
 ## Paper
