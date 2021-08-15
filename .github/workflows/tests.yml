@@ -1,4 +1,4 @@
-name: Compile
+name: Tests
 
 on:
   workflow_dispatch:
@@ -17,5 +17,5 @@ jobs:
       - name: Install modules
         run: npm install
 
-      - name: Compile
-        run: npm run compile
+      - name: Test
+        run: npm run test

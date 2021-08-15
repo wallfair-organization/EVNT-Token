@@ -1,11 +1,11 @@
-name: Deploy
+name: Release
 
 on:
-  workflow_dispatch:
-  pull_request:
   push:
     branches:
       - trunk
+    tags:
+      - 'v*' # Push events to matching v*, e,g, v0.1
 
 jobs:
   build:
