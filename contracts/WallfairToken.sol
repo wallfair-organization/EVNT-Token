@@ -2,12 +2,14 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "erc-payable-token/contracts/token/ERC1363/ERC1363.sol";
 
-contract WallfairToken is ERC20("Wallfair. Token", "EVNT") {
+
+contract EVNTToken is ERC1363 {
     address creator;
 
-    constructor() {
+    constructor()
+        ERC20("EVNT. Token", "EVNT") {
         creator = msg.sender;
     }
 
