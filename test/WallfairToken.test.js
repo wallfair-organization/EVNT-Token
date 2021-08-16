@@ -1,7 +1,7 @@
 const WallfairToken = artifacts.require('WallfairToken');
 
-const assertTryCatch = require('./exceptions.js').tryCatch;
-const ErrTypes = require('./exceptions.js').errTypes;
+const assertTryCatch = require('./utils/exceptions.js').tryCatch;
+const ErrTypes = require('./utils/exceptions.js').errTypes;
 
 contract('WallfairToken', function (accounts) {
   const ownerID = accounts[0];

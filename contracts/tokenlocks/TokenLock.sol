@@ -1,37 +1,38 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../utils/DateTime.sol";
 
-contract TokenLock is DateTime {
+contract TokenLock {
     using SafeERC20 for IERC20;
+
+    uint256 internal constant SECONDS_IN_MONTH = 2592000;
 
     IERC20 private immutable _token;
 
     uint256 private immutable _startTime;
 
-    uint16 private immutable _percentage;
+    uint256 private immutable _initialPercentage;
 
-    uint8 private immutable _initialPercentage;
+    uint256 private immutable _vestingPeriodMonths;
 
     mapping(address => UnlockState) internal _stakes;
 
     struct UnlockState {
-        uint256 ownedTokens;
+        uint256 totalTokens;
         uint256 unlockedTokens;
     }
 
     constructor(
         IERC20 token_,
         uint256 startTime_,
-        uint16 percentage_,
-        uint8 initialPercentage_
+        uint256 vestingPeriodMonths_,
+        uint256 initialPercentage_
     ) {
         _token = token_;
         _startTime = startTime_;
-        _percentage = percentage_;
+        _vestingPeriodMonths = vestingPeriodMonths_;
         _initialPercentage = initialPercentage_;
     }
 
@@ -50,120 +51,76 @@ contract TokenLock is DateTime {
     }
 
     /**
-     * @return the percentage that gets unlocked every month.
+     * @return the number of locked month.
      */
-    function percentage() public view virtual returns (uint16) {
-        return _percentage;
+    function vestingPeriodMonths() public view virtual returns (uint256) {
+        return _vestingPeriodMonths;
     }
 
     /**
      * @return the percentage that gets unlocked initially.
      */
-    function initialPercentage() public view virtual returns (uint8) {
+    function initialPercentage() public view virtual returns (uint256) {
         return _initialPercentage;
     }
 
-    function unlockPortion(address sender)
+    function initialUnlockPortion(address sender)
         public
         view
         virtual
-        hasStake
         returns (uint256)
     {
         // To account for float percentages like 6.66%
-        return (_stakes[sender].ownedTokens * percentage()) / 10000;
+        return (totalTokensOf(sender) * initialPercentage()) / 10000;
     }
 
-    /**
-     * @return the months that are already unlocked by the sender.
-     */
-    function unlockedMonths(address sender)
+    function unlockedTokensOf(address sender)
         public
         view
         virtual
-        hasStake
-        returns (uint16)
+        returns (uint256)
     {
-        if (_stakes[sender].unlockedTokens == 0) {
-            return 0;
-        }
-
-        uint256 ownedTokens = _stakes[sender].ownedTokens;
-        uint256 initialUnlock = (ownedTokens * initialPercentage()) / 100;
-
-        return
-            uint16(
-                (_stakes[sender].unlockedTokens - initialUnlock) /
-                    unlockPortion(sender)
-            );
+        return _stakes[sender].unlockedTokens;
     }
 
-    /**
-     * @return the months that can be unlocked by the sender.
-     */
-    function unlockableMonths(address sender)
+    function totalTokensOf(address sender)
         public
         view
         virtual
-        hasStake
-        returns (uint16)
+        returns (uint256)
     {
-        return
-            _monthDiff(startTime(), block.timestamp) - unlockedMonths(sender);
+        return _stakes[sender].totalTokens;
     }
 
-    function releaseInitial() external virtual hasStake {
-        address sender = msg.sender;
-
-        require(
-            _stakes[sender].unlockedTokens == 0,
-            "'releaseInitial()' was called already"
-        );
-
-        if (initialPercentage() > 0) {
-            uint256 unlockAmount = (_stakes[sender].ownedTokens *
-                initialPercentage()) / 100;
-            unlockStake(unlockAmount);
-        }
+    function tokensDue(address sender, uint256 timestamp)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        return
+            initialUnlockPortion(sender) +
+            (_min(_monthDiff(startTime(), timestamp), vestingPeriodMonths()) *
+                (totalTokensOf(sender) - initialUnlockPortion(sender))) /
+            vestingPeriodMonths();
     }
 
     function release() external virtual hasStake {
         address sender = msg.sender;
-        uint256 remainingAmount = _stakes[sender].ownedTokens -
-            _stakes[sender].unlockedTokens;
+        uint256 unlockAmount = tokensDue(sender, block.timestamp) -
+            unlockedTokensOf(sender);
 
-        require(remainingAmount > 0, "All Tokens unlocked");
-        require(
-            _stakes[sender].unlockedTokens > 0,
-            "'releaseInitial()' was not yet called"
-        );
+        require(unlockAmount > 0, "No tokens to unlock");
 
-        uint16 monthsToUnlock = unlockableMonths(sender);
-
-        require(monthsToUnlock > 0, "No tokens to unlock");
-
-        if (monthsToUnlock > 12) {
-            monthsToUnlock = 12;
-        }
-
-        uint256 unlockAmount = unlockPortion(sender) * monthsToUnlock;
-
-        if (unlockAmount > remainingAmount) {
-            unlockAmount = remainingAmount;
-        }
-
-        unlockStake(unlockAmount);
+        _unlockStake(sender, unlockAmount);
     }
 
     // == Internals ==
 
-    function unlockStake(uint256 unlockAmount) private {
-        address sender = msg.sender;
-
+    function _unlockStake(address sender, uint256 unlockAmount) private {
         require(
-            _stakes[sender].ownedTokens >=
-                _stakes[sender].unlockedTokens + unlockAmount,
-            "Tried to unlock more Tokens than owned"
+            totalTokensOf(sender) >= unlockedTokensOf(sender) + unlockAmount,
+            "Tried to unlock more Tokens than locked"
         );
 
         _stakes[sender].unlockedTokens += unlockAmount;
@@ -172,20 +129,45 @@ contract TokenLock is DateTime {
 
     // == Utils ==
 
-    function _monthDiff(uint256 date1, uint256 date2)
+    function monthDiff(uint256 startDate, uint256 targetDate)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        return _monthDiff(startDate, targetDate);
+    }
+
+    function _monthDiff(uint256 startDate, uint256 targetDate)
         private
         pure
-        returns (uint16)
+        returns (uint256)
     {
-        uint16 months = (getYear(date2) - getYear(date1)) * 12;
-        months += getMonth(date2) - getMonth(date1);
-        return months;
+        if (targetDate <= startDate) {
+            return 0;
+        }
+
+        uint256 diff = targetDate - startDate;
+
+        uint256 secondsAccountedFor;
+        uint256 i;
+        while (SECONDS_IN_MONTH + secondsAccountedFor < diff) {
+            secondsAccountedFor += SECONDS_IN_MONTH;
+            i++;
+        }
+
+        return i;
+    }
+
+    function _min(uint256 a, uint256 b) private pure returns (uint256) {
+        if (a > b) return b;
+        return a;
     }
 
     // == Modifier ==
 
     modifier hasStake() {
-        require(_stakes[msg.sender].ownedTokens > 0, "No tokens owned");
+        require(totalTokensOf(msg.sender) > 0, "No tokens locked");
         _;
     }
 }
