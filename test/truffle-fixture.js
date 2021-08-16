@@ -16,12 +16,12 @@ module.exports = async () => {
   const wallfairTokenInstance = await WallfairToken.deployed();
   const accounts = await ethers.getSigners();
   const testTokenLock = await TestTokenLock.new(
-      wallfairTokenInstance.address, 
-      accounts[1].address, 
-      LOCK_AMOUNT, 
-      6, 
-      1250, 
-      1612137600
+    wallfairTokenInstance.address,
+    accounts[1].address,
+    LOCK_AMOUNT,
+    6,
+    1250,
+    1612137600,
   );
   TestTokenLock.setAsDeployed(testTokenLock);
 };
