@@ -1,5 +1,5 @@
 module.exports.errTypes = {
-  revert: 'revert',
+  revert: 'reverted with reason string',
   outOfGas: 'out of gas',
   invalidJump: 'invalid JUMP',
   invalidOpcode: 'invalid opcode',
@@ -20,4 +20,4 @@ module.exports.tryCatch = async function (promise, errType) {
   }
 };
 
-const PREFIX = 'Returned error: VM Exception while processing transaction: ';
+const PREFIX = 'VM Exception while processing transaction: ';

@@ -10,28 +10,40 @@
   ],
   "author": "Wallfair.",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.2.0"
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-etherscan": "^2.1.4",
+    "@nomiclabs/hardhat-truffle5": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@openzeppelin/contracts": "^4.2.0",
+    "chai": "^4.3.4",
+    "dotenv-safe": "^8.2.0",
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.4.4",
+    "hardhat": "^2.6.0",
+    "hardhat-gas-reporter": "^1.0.4"
   },
   "scripts": {
     "lint:js": "eslint --ignore-path .gitignore ./test ./migrations ./app",
     "lint:js:fix": "eslint --ignore-path .gitignore ./test ./migrations ./app --fix",
     "lint:sol": "solhint 'contracts/**/*.sol' && prettier -c 'contracts/**/*.sol'",
     "lint:sol:fix": "prettier --write \"contracts/**/*.sol\"",
-    "test": "truffle test"
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile"
   },
   "devDependencies": {
-    "@truffle/hdwallet-provider": "^1.4.1",
-    "eslint": "^6.5.1",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.20.0",
-    "eslint-plugin-mocha-no-only": "^1.1.0",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "prettier": "^2.3.0",
-    "prettier-plugin-solidity": "^1.0.0-beta.16",
+    "@truffle/hdwallet-provider": "^1.4.3",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-mocha-no-only": "^1.1.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "prettier": "^2.3.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.17",
     "solhint": "^3.3.6",
-    "truffle": "^5.4.5",
-    "web3": "^1.4.0"
+    "truffle": "^5.4.6",
+    "web3": "^1.5.2"
   }
 }
