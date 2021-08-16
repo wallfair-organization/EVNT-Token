@@ -24,12 +24,22 @@
     "hardhat-gas-reporter": "^1.0.4"
   },
   "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy": "echo 'Not implemented'",
+    "deploy:localhost": "echo 'Not implemented'",
+    "deploy:rinkeby": "echo 'Not implemented'",
+    "deploy:mumbai": "echo 'Not implemented'",
+    "deploy:matic": "echo 'Not implemented'",
     "lint:js": "eslint --ignore-path .gitignore ./test ./migrations ./app",
     "lint:js:fix": "eslint --ignore-path .gitignore ./test ./migrations ./app --fix",
     "lint:sol": "solhint 'contracts/**/*.sol' && prettier -c 'contracts/**/*.sol'",
     "lint:sol:fix": "prettier --write \"contracts/**/*.sol\"",
     "test": "npx hardhat test",
-    "compile": "npx hardhat compile"
+    "test:deploy": "npx hardhat test",
+    "test:localhost": "npx hardhat test --network localhost --config hardhat-deploy.config.js",
+    "test:rinkeby": "npx hardhat test --network rinkeby --config hardhat-deploy.config.js",
+    "test:mumbai": "npx hardhat test --network mumbai --config hardhat-deploy.config.js",
+    "test:matic": "npx hardhat test --network matic --config hardhat-deploy.config.js"
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "^1.4.3",

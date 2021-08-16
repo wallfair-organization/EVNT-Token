@@ -1,8 +1,8 @@
 # EVNT-Token
-[![Build](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/build.yml/badge.svg)](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/build.yml)
-[![Wallfair. Smart Contract Test](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/pull_request.yml/badge.svg)](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/pull_request.yml)
-
 The EVNT-Token is an ERC20-Token running on the Polygon Network.
+
+[![build](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/build.yml/badge.svg)](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/build.yml)
+[![tests](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/tests.yml/badge.svg)](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/tests.yml)
 
 ## Installation
 
@@ -20,7 +20,7 @@ Then install the required packages for the Hardhat toolchain:
 
 `npm install`
 
-Hardhad should be configured, but if it isn't run the next line, create a sample project
+Hardhat should be configured, but if it isn't run the next line, create a sample project
 and choose the default project root path.
 
 `npx hardhat`
@@ -52,9 +52,11 @@ Then run your harhat commands using the `config` option:
 
 Remember to be careful with your keys! Share your keys and you share your coins.
 
+## Deployment
+
 
 ## Paper
 To learn more about the utility of the token, read the [litepaper](https://wallfair.io/static/media/wallfair-litepaper.00df42b3.pdf)
 
 ## Copyright 
-2021 - Wallfair.
+© 2021 Wallfair.
