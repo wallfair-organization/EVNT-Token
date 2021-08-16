@@ -2,7 +2,9 @@ const { ethers } = require('hardhat');
 
 const Migrations = artifacts.require('Migrations');
 const WallfairToken = artifacts.require('WallfairToken');
-const FriendsTokenLock = artifacts.require('FriendsTokenLock');
+const TestTokenLock = artifacts.require('TestTokenLock');
+
+const LOCK_AMOUNT = web3.utils.toWei('1000000');
 
 module.exports = async () => {
   const migrations = await Migrations.new();
@@ -13,6 +15,6 @@ module.exports = async () => {
 
   const wallfairTokenInstance = await WallfairToken.deployed();
   const accounts = await ethers.getSigners();
-  const friendsTokenLock = await FriendsTokenLock.new(wallfairTokenInstance.address, accounts[1].address);
-  FriendsTokenLock.setAsDeployed(friendsTokenLock);
+  const testTokenLock = await TestTokenLock.new(wallfairTokenInstance.address, accounts[1].address, LOCK_AMOUNT, 6, 1250, 1612137600);
+  TestTokenLock.setAsDeployed(testTokenLock);
 };

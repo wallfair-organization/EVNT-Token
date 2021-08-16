@@ -78,7 +78,6 @@ contract TokenLock {
         public
         view
         virtual
-        hasStake
         returns (uint256)
     {
         return _stakes[sender].unlockedTokens;
@@ -108,14 +107,8 @@ contract TokenLock {
 
     function release() external virtual hasStake {
         address sender = msg.sender;
-        uint256 remainingAmount = _stakes[sender].ownedTokens -
-            _stakes[sender].unlockedTokens;
-
-        require(remainingAmount > 0, "All Tokens unlocked");
-        require(
-            _stakes[sender].unlockedTokens > 0,
-            "'releaseInitial()' was not yet called"
-        );
+        uint256 unlockAmount = tokensDue(sender, block.timestamp) -
+            unlockedTokensOf(sender);
 
         require(unlockAmount > 0, "No tokens to unlock");
 
