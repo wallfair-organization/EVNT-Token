@@ -34,18 +34,18 @@ contract('TestTokenLock', function (accounts) {
     const testTokenLock = await TestTokenLock.deployed();
 
     const startTime = await testTokenLock.startTime({ from: stakedAccountID });
-    const tokensDue = await testTokenLock.tokensDue(stakedAccountID, 1612137600, { from: stakedAccountID });
+    const tokensVested = await testTokenLock.tokensVested(stakedAccountID, 1612137600, { from: stakedAccountID });
     const unlockedTokens = await testTokenLock.unlockedTokensOf(stakedAccountID, { from: stakedAccountID });
 
     assert.equal(startTime, 1612137600, 'The starting date is mismatched');
     assert.equal(unlockedTokens, 0, 'Some Tokens are already unlocked');
-    // assert.equal(web3.utils.fromWei(tokensDue), 250000, 'The tokensDue should only be the initial unlock');
-    assert.equal(web3.utils.fromWei(tokensDue), 125000, 'The tokensDue should only be the initial unlock');
+    // assert.equal(web3.utils.fromWei(tokensVested), 250000, 'The tokensVested should only be the initial unlock');
+    assert.equal(web3.utils.fromWei(tokensVested), 0, 'The tokensVested should only be the initial unlock');
   });
 
   /*
 
-  it('Testing tokensDue() function', async () => {
+  it('Testing tokensVested() function', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
     const secondsInMonth = 30 * 86400;
@@ -63,13 +63,13 @@ contract('TestTokenLock', function (accounts) {
     for (let i = 1; i <= 8; i++) {
       const changedTimeStamp = 1612137600 + i * secondsInMonth;
 
-      const tokensDue = await testTokenLock.tokensDue(stakedAccountID, changedTimeStamp,
+      const tokensVested = await testTokenLock.tokensVested(stakedAccountID, changedTimeStamp,
         { from: stakedAccountID });
-      assert.equal(web3.utils.fromWei(tokensDue), expectedResults[i - 1]);
+      assert.equal(web3.utils.fromWei(tokensVested), expectedResults[i - 1]);
     }
   });
 
-  it('Testing tokensDue() function extensively', async () => {
+  it('Testing tokensVested() function extensively', async () => {
     const wallfairToken = await WallfairToken.new();
     const testTokenLock = await TestTokenLock.new(wallfairToken.address,
       stakedAccountID, LOCK_AMOUNT, 36, 2800, 1612137600,
@@ -118,32 +118,32 @@ contract('TestTokenLock', function (accounts) {
       1000000,
     ];
 
-    const tokensDueBefore = await testTokenLock.tokensDue(stakedAccountID, 1612137500,
+    const tokensVestedBefore = await testTokenLock.tokensVested(stakedAccountID, 1612137500,
       { from: stakedAccountID });
-    assert.equal(web3.utils.fromWei(tokensDueBefore), 280000, 'Should be only initial unlock');
+    assert.equal(web3.utils.fromWei(tokensVestedBefore), 280000, 'Should be only initial unlock');
 
-    const tokensDueExact = await testTokenLock.tokensDue(stakedAccountID, 1612137600,
+    const tokensVestedExact = await testTokenLock.tokensVested(stakedAccountID, 1612137600,
       { from: stakedAccountID });
-    assert.equal(web3.utils.fromWei(tokensDueExact), 280000, 'Should be only initial unlock');
+    assert.equal(web3.utils.fromWei(tokensVestedExact), 280000, 'Should be only initial unlock');
 
     for (let i = 1; i <= 37; i++) {
       const changedTimeStamp = 1612137600 + i * secondsInMonth;
 
-      const tokensDueAlmost = await testTokenLock.tokensDue(stakedAccountID, changedTimeStamp,
+      const tokensVestedAlmost = await testTokenLock.tokensVested(stakedAccountID, changedTimeStamp,
         { from: stakedAccountID });
-      assert.equal(web3.utils.fromWei(tokensDueAlmost), expectedResults[i]);
+      assert.equal(web3.utils.fromWei(tokensVestedAlmost), expectedResults[i]);
 
-      const tokensDue = await testTokenLock.tokensDue(stakedAccountID, changedTimeStamp + 1,
+      const tokensVested = await testTokenLock.tokensVested(stakedAccountID, changedTimeStamp + 1,
         { from: stakedAccountID });
-      assert.equal(web3.utils.fromWei(tokensDue), expectedResults[i + 1]);
+      assert.equal(web3.utils.fromWei(tokensVested), expectedResults[i + 1]);
     }
 
-    const tokensDueYearLater = await testTokenLock.tokensDue(stakedAccountID, 1706745600,
+    const tokensVestedYearLater = await testTokenLock.tokensVested(stakedAccountID, 1706745600,
       { from: stakedAccountID });
-    assert.equal(web3.utils.fromWei(tokensDueYearLater), 1000000);
+    assert.equal(web3.utils.fromWei(tokensVestedYearLater), 1000000);
   });
 
-  it('Testing tokensDue() function no initial unlock', async () => {
+  it('Testing tokensVested() function no initial unlock', async () => {
     const wallfairToken = await WallfairToken.new();
     const testTokenLock = await TestTokenLock.new(
       wallfairToken.address, stakedAccountID, LOCK_AMOUNT, 36, 0, 1612137600,
@@ -192,29 +192,29 @@ contract('TestTokenLock', function (accounts) {
       1000000,
     ];
 
-    const tokensDueBefore = await testTokenLock.tokensDue(stakedAccountID, 1612137500,
+    const tokensVestedBefore = await testTokenLock.tokensVested(stakedAccountID, 1612137500,
       { from: stakedAccountID });
-    assert.equal(web3.utils.fromWei(tokensDueBefore), 0, 'Should be only initial unlock');
+    assert.equal(web3.utils.fromWei(tokensVestedBefore), 0, 'Should be only initial unlock');
 
-    const tokensDueExact = await testTokenLock.tokensDue(stakedAccountID, 1612137600,
+    const tokensVestedExact = await testTokenLock.tokensVested(stakedAccountID, 1612137600,
       { from: stakedAccountID });
-    assert.equal(web3.utils.fromWei(tokensDueExact), 0, 'Should be only initial unlock');
+    assert.equal(web3.utils.fromWei(tokensVestedExact), 0, 'Should be only initial unlock');
 
     for (let i = 1; i <= 37; i++) {
       const changedTimeStamp = 1612137600 + i * secondsInMonth;
 
-      const tokensDueAlmost = await testTokenLock.tokensDue(stakedAccountID, changedTimeStamp,
+      const tokensVestedAlmost = await testTokenLock.tokensVested(stakedAccountID, changedTimeStamp,
         { from: stakedAccountID });
-      assert.equal(web3.utils.fromWei(tokensDueAlmost), expectedResults[i]);
+      assert.equal(web3.utils.fromWei(tokensVestedAlmost), expectedResults[i]);
 
-      const tokensDue = await testTokenLock.tokensDue(stakedAccountID, changedTimeStamp + 1,
+      const tokensVested = await testTokenLock.tokensVested(stakedAccountID, changedTimeStamp + 1,
         { from: stakedAccountID });
-      assert.equal(web3.utils.fromWei(tokensDue), expectedResults[i + 1]);
+      assert.equal(web3.utils.fromWei(tokensVested), expectedResults[i + 1]);
     }
 
-    const tokensDueYearLater = await testTokenLock.tokensDue(stakedAccountID, 1706745600,
+    const tokensVestedYearLater = await testTokenLock.tokensVested(stakedAccountID, 1706745600,
       { from: stakedAccountID });
-    assert.equal(web3.utils.fromWei(tokensDueYearLater), 1000000);
+    assert.equal(web3.utils.fromWei(tokensVestedYearLater), 1000000);
   });
 
   */
@@ -222,11 +222,15 @@ contract('TestTokenLock', function (accounts) {
   it('Testing view functions for invalid Accounts', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
-    const invalidTokensDue = await testTokenLock.tokensDue(invalidAccountID, 1612137600, { from: invalidAccountID });
+    const invalidtokensVested = await testTokenLock.tokensVested(
+      invalidAccountID,
+      1612137600,
+      { from: invalidAccountID },
+    );
     const unlockedTokens = await testTokenLock.unlockedTokensOf(invalidAccountID, { from: invalidAccountID });
 
     assert.equal(unlockedTokens, 0, 'Some Tokens are unlocked');
-    assert.equal(web3.utils.fromWei(invalidTokensDue), 0, 'The tokensDue should only be zero');
+    assert.equal(web3.utils.fromWei(invalidtokensVested), 0, 'The tokensVested should only be zero');
   });
 
   it('Testing modifier', async () => {
@@ -242,11 +246,11 @@ contract('TestTokenLock', function (accounts) {
     const timestampNow = Math.round(new Date().getTime() / 1000);
 
     const release = await testTokenLock.release({ from: stakedAccountID });
-    const tokensDue = await testTokenLock.tokensDue(stakedAccountID, timestampNow, { from: stakedAccountID });
+    const tokensVested = await testTokenLock.tokensVested(stakedAccountID, timestampNow, { from: stakedAccountID });
     const balance = await wallfairToken.balanceOf(stakedAccountID, { from: stakedAccountID });
 
     assert.isNotNull(release, 'Token should be released');
-    assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
+    assert.equal(balance.toString(), tokensVested.toString(), 'Token should be received');
   });
 
   it('Testing release()-fail', async () => {

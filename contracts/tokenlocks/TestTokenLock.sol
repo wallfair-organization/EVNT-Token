@@ -15,13 +15,13 @@ contract TestTokenLock is TokenLock {
         uint256 vestingPeriod, // in seconds
         uint256 cliffPeriod // in seconds
     )
-        TokenLock(
-            WallfairToken(wallfairToken_),
-            startDate,
-            vestingPeriod,
-            cliffPeriod
-        )
-    {
+
+    TokenLock(
+        WallfairToken(wallfairToken_),
+        startDate,
+        vestingPeriod,
+        cliffPeriod
+    ) {
         _stakes[stakedAccount] = UnlockState(totalTokens, 0);
     }
 }

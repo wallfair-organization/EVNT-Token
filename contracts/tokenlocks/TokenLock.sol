@@ -8,8 +8,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 contract TokenLock {
     using SafeERC20 for IERC20;
 
-    uint256 internal constant SECONDS_IN_MONTH = 2592000;
-
     IERC20 private immutable _token;
 
     uint256 private immutable _startTime; // Unix timestamp
@@ -92,7 +90,8 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        if ((_startTime - timestamp) < _cliffPeriod) {
+        // check if time vested has reached the cliff yet
+        if ((timestamp - _startTime) < _cliffPeriod) {
             return 0;
         }
 
@@ -109,7 +108,7 @@ contract TokenLock {
         returns (uint256)
     {
         uint256 timeVestedSoFar = Math.min(
-            (_startTime - timestamp) * cliffExceeded(timestamp),
+            (timestamp - _startTime) * cliffExceeded(timestamp),
             _vestingPeriod
         );
         // ensure all tokens can eventually be claimed

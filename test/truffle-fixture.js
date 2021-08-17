@@ -19,9 +19,9 @@ module.exports = async () => {
     wallfairTokenInstance.address,
     accounts[1].address,
     LOCK_AMOUNT,
-    6,
-    1250,
     1612137600,
+    4 * 365 * 24 * 60 * 60,
+    1 * 365 * 24 * 60 * 60,
   );
   TestTokenLock.setAsDeployed(testTokenLock);
 };
