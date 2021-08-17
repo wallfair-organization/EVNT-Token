@@ -13,9 +13,9 @@ contract TokenLock {
 
     uint256 private immutable _startTime;
 
-    uint256 private immutable _initialPercentage;
-
     uint256 private immutable _vestingPeriodMonths;
+
+    uint256 private immutable _cliffPeriodMonths;
 
     mapping(address => UnlockState) internal _stakes;
 
@@ -28,12 +28,12 @@ contract TokenLock {
         IERC20 token_,
         uint256 startTime_,
         uint256 vestingPeriodMonths_,
-        uint256 initialPercentage_
+        uint256 cliffPeriodMonths_
     ) {
         _token = token_;
         _startTime = startTime_;
         _vestingPeriodMonths = vestingPeriodMonths_;
-        _initialPercentage = initialPercentage_;
+        _cliffPeriodMonths = cliffPeriodMonths_;
     }
 
     /**
@@ -51,27 +51,17 @@ contract TokenLock {
     }
 
     /**
-     * @return the number of locked month.
+     * @return the number of months in the vesting period.
      */
     function vestingPeriodMonths() public view virtual returns (uint256) {
         return _vestingPeriodMonths;
     }
 
     /**
-     * @return the percentage that gets unlocked initially.
+     * @return the number of cliff months
      */
-    function initialPercentage() public view virtual returns (uint256) {
-        return _initialPercentage;
-    }
-
-    function initialUnlockPortion(address sender)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
-        // To account for float percentages like 6.66%
-        return (totalTokensOf(sender) * initialPercentage()) / 10000;
+    function cliffPeriodMonths() public view virtual returns (uint256) {
+        return _cliffPeriodMonths;
     }
 
     function unlockedTokensOf(address sender)
@@ -83,7 +73,7 @@ contract TokenLock {
         return _stakes[sender].unlockedTokens;
     }
 
-    function totalTokensOf(address sender)
+    function totalTokensOf(address sender) 
         public
         view
         virtual
@@ -92,22 +82,40 @@ contract TokenLock {
         return _stakes[sender].totalTokens;
     }
 
-    function tokensDue(address sender, uint256 timestamp)
+   /*
+    * @return 0 if cliff period has not been exceeded and 1 if it has
+    */
+    function cliffExceeded(uint256 timestamp)
         public
         view
         virtual
         returns (uint256)
     {
-        return
-            initialUnlockPortion(sender) +
-            (_min(_monthDiff(startTime(), timestamp), vestingPeriodMonths()) *
-                (totalTokensOf(sender) - initialUnlockPortion(sender))) /
-            vestingPeriodMonths();
+        if (_monthDiff(startTime(), timestamp) < _cliffPeriodMonths) return 0;
+        return 1;
+    }
+
+   /*
+    * @return number of tokens that have vested at a given time
+    */
+    function tokensVested(address sender, uint256 timestamp)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        uint256 monthsVested = _min(
+                            monthDiff(startTime(), timestamp) * cliffExceeded(timestamp),
+                            vestingPeriodMonths()
+                           );
+        // ensure all tokens can eventually be claimed
+        if (vestingPeriodMonths() <= monthsVested) return totalTokensOf(sender);
+        return totalTokensOf(sender) / monthsVested;
     }
 
     function release() external virtual hasStake {
         address sender = msg.sender;
-        uint256 unlockAmount = tokensDue(sender, block.timestamp) -
+        uint256 unlockAmount = tokensVested(sender, block.timestamp) -
             unlockedTokensOf(sender);
 
         require(unlockAmount > 0, "No tokens to unlock");
