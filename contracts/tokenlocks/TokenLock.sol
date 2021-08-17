@@ -91,7 +91,10 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        if (_monthDiff(startTime(), timestamp) < _cliffPeriodMonths) return 0;
+        if (_monthDiff(startTime(), timestamp) < _cliffPeriodMonths) {
+            return 0
+        }
+
         return 1;
     }
 
@@ -106,11 +109,9 @@ contract TokenLock {
     {
         uint256 monthsVested = _min(
                             monthDiff(startTime(), timestamp) * cliffExceeded(timestamp),
-                            vestingPeriodMonths()
+                            _vestingPeriodMonths
                            );
-        // ensure all tokens can eventually be claimed
-        if (vestingPeriodMonths() <= monthsVested) return totalTokensOf(sender);
-        return totalTokensOf(sender) / monthsVested;
+        return totalTokensOf(sender) * monthsVested / _vestingPeriodMonths;
     }
 
     function release() external virtual hasStake {
