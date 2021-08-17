@@ -90,8 +90,14 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        // check if time vested has reached the cliff yet
-        if ((timestamp - _startTime) < _cliffPeriod) {
+
+        uint256 timePassed = 0;
+
+        if (timestamp > _startTime) {
+            timePassed = timestamp - _startTime;
+        }
+
+        if (timePassed < _cliffPeriod) {
             return 0;
         }
 
@@ -107,12 +113,15 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        uint256 timeVestedSoFar = Math.min(
-            (timestamp - _startTime) * cliffExceeded(timestamp),
-            _vestingPeriod
-        );
-        // ensure all tokens can eventually be claimed
-        if (_vestingPeriod < timeVestedSoFar) return totalTokensOf(sender);
+        uint256 timeVestedSoFar = 0;
+       
+        if (timestamp > _startTime) {
+            timeVestedSoFar = Math.min(
+                (timestamp - _startTime) * cliffExceeded(timestamp),
+                _vestingPeriod
+            );
+        }
+
         return totalTokensOf(sender) * timeVestedSoFar / _vestingPeriod;
     }
 

@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.4;
 
-import "./TokenLock.sol";
-import "../WallfairToken.sol";
+import "../TokenLock.sol";
+import "../../WallfairToken.sol";
 
 // Note: This is just a sample Implementation of TokenLock
-contract TestTokenLock is TokenLock {
+contract TestTokenLockNoCliff is TokenLock {
     constructor(
         address wallfairToken_,
         address stakedAccount,
