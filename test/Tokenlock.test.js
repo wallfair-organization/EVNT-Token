@@ -1,10 +1,10 @@
 // This script is designed to test the solidity smart contracts and the various functions within
 // load dependencies
 const { expect } = require('chai');
+const { deployEVNT } = require('./utils/deploy');
 
 // Declare a variable and assign the compiled smart contract artifact
 const TestTokenLock = artifacts.require('TestTokenLock');
-const EVNTToken = artifacts.require('EVNTToken');
 
 const assertTryCatch = require('./utils/exceptions.js').tryCatch;
 const ErrTypes = require('./utils/exceptions.js').errTypes;
@@ -16,6 +16,8 @@ contract('TestTokenLock', function (accounts) {
 
   const LOCK_AMOUNT = web3.utils.toWei('1000000');
 
+  let EVNTToken;
+
   before(async () => {
     console.log('\n  ETH-Accounts used');
     console.log('  Contract Owner:  accounts[0] ', accounts[0]);
@@ -23,10 +25,22 @@ contract('TestTokenLock', function (accounts) {
     console.log('  Invalid Account: accounts[2] ', accounts[2]);
     console.log('');
 
-    const testTokenLock = await TestTokenLock.deployed();
-    const EVNTToken = await EVNTToken.deployed();
+    // TODO: this assigns instance to type and is beyond bad
+    EVNTToken = await deployEVNT([{
+      address: ownerID,
+      amount: LOCK_AMOUNT,
+    }]);
 
-    await EVNTToken.mint(LOCK_AMOUNT, { from: ownerID });
+    const testTokenLock = await TestTokenLock.new(
+      EVNTToken.address,
+      stakedAccountID,
+      LOCK_AMOUNT,
+      6,
+      1250,
+      1612137600,
+    );
+    TestTokenLock.setAsDeployed(testTokenLock);
+
     await EVNTToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
   });
 
@@ -237,7 +251,6 @@ contract('TestTokenLock', function (accounts) {
 
   it('Testing release() function', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    const EVNTToken = await EVNTToken.deployed();
 
     const timestampNow = Math.round(new Date().getTime() / 1000);
 
