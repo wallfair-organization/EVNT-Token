@@ -4,6 +4,7 @@ const { expect } = require('chai');
 
 // Declare a variable and assign the compiled smart contract artifact
 const TestTokenLock = artifacts.require('TestTokenLock');
+const TestTokenLockNoCliff = artifacts.require('TestTokenLockNoCliff');
 const WallfairToken = artifacts.require('WallfairToken');
 
 const assertTryCatch = require('./utils/exceptions.js').tryCatch;
@@ -26,10 +27,16 @@ contract('TestTokenLock', function (accounts) {
     console.log('');
 
     const testTokenLock = await TestTokenLock.deployed();
+    const testTokenLockNoCliff = await TestTokenLockNoCliff.deployed();   
     const wallfairToken = await WallfairToken.deployed();
 
+    // Two test contracts, so mint twice the amount
     await wallfairToken.mint(LOCK_AMOUNT, { from: ownerID });
+    await wallfairToken.mint(LOCK_AMOUNT, { from: ownerID });
+    // Transfer lock amount to first contract
     await wallfairToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
+    // Transfer lock amount to second contract
+    await wallfairToken.transfer(testTokenLockNoCliff.address, LOCK_AMOUNT, { from: ownerID });
   });
 
 /*
@@ -74,6 +81,18 @@ contract('TestTokenLock', function (accounts) {
   it('Check there are no unlocked tokens at the initial deployment', async () => {
     const testTokenLock = await TestTokenLock.deployed();
     expect((await testTokenLock.unlockedTokensOf(stakedAccountID, { from: stakedAccountID })).toString()).to.equal('0');
+  });
+
+  it('Check cliff period has not been exceeded for TokenLock contract', async () => {
+    const testTokenLock = await TestTokenLock.deployed();
+    timestamp = await ethers.block.timestamp();
+    expect((await testTokenLock.cliffExceeded(timestamp)).toString()).to.equal('0');
+  });
+
+  it('Check cliff period has been exceeded for TokenLockNoCliff contract', async () => {
+    const testTokenLockNoCliff = await TestTokenLockNoCliff.deployed();
+    timestamp = await ethers.block.timestamp();
+    expect((await testTokenLock.cliffExceeded(timestamp)).toString()).to.equal('1');
   });
 
   // tokensVested takes an address and a timestamp as an input, so is a bit more complicated
