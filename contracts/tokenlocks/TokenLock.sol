@@ -3,6 +3,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract TokenLock {
     using SafeERC20 for IERC20;
@@ -91,7 +92,10 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        if ((startTime() - timestamp) < _cliffPeriod) return 0;
+        if ((_startTime - timestamp) < _cliffPeriod) {
+            return 0;
+        }
+
         return 1;
     }
 
@@ -104,13 +108,13 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        uint256 timeVestedSoFar = _min(
-            (startTime() - timestamp) * cliffExceeded(timestamp),
-            vestingPeriod()
+        uint256 timeVestedSoFar = Math.min(
+            (_startTime - timestamp) * cliffExceeded(timestamp),
+            _vestingPeriod
         );
         // ensure all tokens can eventually be claimed
-        if (vestingPeriod() <= timeVestedSoFar) return totalTokensOf(sender);
-        return totalTokensOf(sender) / timeVestedSoFar;
+        if (_vestingPeriod < timeVestedSoFar) return totalTokensOf(sender);
+        return totalTokensOf(sender) * timeVestedSoFar / _vestingPeriod;
     }
 
     function release() external virtual hasStake {
@@ -133,13 +137,6 @@ contract TokenLock {
 
         _stakes[sender].unlockedTokens += unlockAmount;
         token().safeTransfer(sender, unlockAmount);
-    }
-
-    // == Utils ==
-
-    function _min(uint256 a, uint256 b) private pure returns (uint256) {
-        if (a > b) return b;
-        return a;
     }
 
     // == Modifier ==
