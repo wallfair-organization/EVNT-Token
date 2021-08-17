@@ -92,7 +92,7 @@ contract TokenLock {
         returns (uint256)
     {
         if (_monthDiff(startTime(), timestamp) < _cliffPeriodMonths) {
-            return 0
+            return 0;
         }
 
         return 1;
