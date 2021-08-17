@@ -148,15 +148,9 @@ contract TokenLock {
         }
 
         uint256 diff = targetDate - startDate;
+        uint256 quotient = diff / SECONDS_IN_MONTH;
 
-        uint256 secondsAccountedFor;
-        uint256 i;
-        while (SECONDS_IN_MONTH + secondsAccountedFor < diff) {
-            secondsAccountedFor += SECONDS_IN_MONTH;
-            i++;
-        }
-
-        return i;
+        return quotient;
     }
 
     function _min(uint256 a, uint256 b) private pure returns (uint256) {

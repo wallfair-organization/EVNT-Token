@@ -1,6 +1,8 @@
 // This script is designed to test the solidity smart contracts and the various functions within
-// Declare a variable and assign the compiled smart contract artifact
+// load dependencies
+const { expect } = require('chai');
 
+// Declare a variable and assign the compiled smart contract artifact
 const TestTokenLock = artifacts.require('TestTokenLock');
 const WallfairToken = artifacts.require('WallfairToken');
 
@@ -40,6 +42,8 @@ contract('TestTokenLock', function (accounts) {
     // assert.equal(web3.utils.fromWei(tokensDue), 250000, 'The tokensDue should only be the initial unlock');
     assert.equal(web3.utils.fromWei(tokensDue), 125000, 'The tokensDue should only be the initial unlock');
   });
+
+  /*
 
   it('Testing tokensDue() function', async () => {
     const testTokenLock = await TestTokenLock.deployed();
@@ -213,6 +217,8 @@ contract('TestTokenLock', function (accounts) {
     assert.equal(web3.utils.fromWei(tokensDueYearLater), 1000000);
   });
 
+  */
+
   it('Testing view functions for invalid Accounts', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
@@ -249,19 +255,43 @@ contract('TestTokenLock', function (accounts) {
     await assertTryCatch(testTokenLock.release({ from: stakedAccountID }), ErrTypes.revert);
   });
 
-  it('Testing dateDiff() function', async () => {
+  it('Testing monthDiff() function', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
-    const JAN = 1609459200; // 1. Jan 2021
-    const FEB = 1612137600; // 1. Feb 2021
-    const MAR = 1614729600; // 3. Mar 2021
-    const APR = 1617321600; // 2. Apr 2021
-    const monthDiff1 = await testTokenLock.monthDiff(JAN, FEB, { from: stakedAccountID });
-    const monthDiff2 = await testTokenLock.monthDiff(JAN, MAR, { from: stakedAccountID });
-    const monthDiff3 = await testTokenLock.monthDiff(JAN, APR, { from: stakedAccountID });
+    const JAN = 1609459200; // Fri Jan 01 2021 00:00:00 GMT+0000
+    const JAN_A = 1609459201; // Fri Jan 01 2021 00:00:01 GMT+0000 (1 second later)
+    const JAN_B = 1612051199; // 1s before first month is up
+    const JAN_C = 1612051200; // Exactly 30 days later
+    const JAN_D = 1612051201; // 30 days and 1s later
+    const FEB = 1612137600; // Mon Feb 01 2021 00:00:00 GMT+0000
+    const MAR = 1614729600; // Wed Mar 03 2021 00:00:00 GMT+0000
+    const APR = 1617321600; // Fri Apr 02 2021 00:00:00 GMT+0000
 
-    assert.equal(monthDiff1, 1, '1 Month should be the difference');
-    assert.equal(monthDiff2, 2, '2 Month should be the difference');
-    assert.equal(monthDiff3, 3, '3 Month should be the difference');
+    // check 31 day difference gives 1 month
+    expect((await testTokenLock.monthDiff(JAN, FEB, { from: stakedAccountID })).toString()).to.equal('1');
+
+    // check 62 day difference gives 2 months
+    expect((await testTokenLock.monthDiff(JAN, MAR, { from: stakedAccountID })).toString()).to.equal('2');
+
+    // check 92 day difference gives 3 months
+    expect((await testTokenLock.monthDiff(JAN, APR, { from: stakedAccountID })).toString()).to.equal('3');
+
+    // check 1 second difference gives 0 months
+    expect((await testTokenLock.monthDiff(JAN, JAN_A, { from: stakedAccountID })).toString()).to.equal('0');
+
+    // check one second before a month is up gives 0 months
+    expect((await testTokenLock.monthDiff(JAN, JAN_B, { from: stakedAccountID })).toString()).to.equal('0');
+
+    // check exactly one month gives 1 month
+    expect((await testTokenLock.monthDiff(JAN, JAN_C, { from: stakedAccountID })).toString()).to.equal('1');
+
+    // check 30 days and 1 second gives 1 month
+    expect((await testTokenLock.monthDiff(JAN, JAN_D, { from: stakedAccountID })).toString()).to.equal('1');
+
+    // check the same day and time gives 0 months
+    expect((await testTokenLock.monthDiff(FEB, FEB, { from: stakedAccountID })).toString()).to.equal('0');
+
+    // check a time before the start time gives 0 months
+    expect((await testTokenLock.monthDiff(MAR, FEB, { from: stakedAccountID })).toString()).to.equal('0');
   });
 });
