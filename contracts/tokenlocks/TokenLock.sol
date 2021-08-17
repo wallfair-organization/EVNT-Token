@@ -11,11 +11,11 @@ contract TokenLock {
 
     IERC20 private immutable _token;
 
-    uint256 private immutable _startTime;
+    uint256 private immutable _startTime; // Unix timestamp
 
-    uint256 private immutable _vestingPeriodMonths;
+    uint256 private immutable _vestingPeriod; // in seconds
 
-    uint256 private immutable _cliffPeriodMonths;
+    uint256 private immutable _cliffPeriod; // in seconds
 
     mapping(address => UnlockState) internal _stakes;
 
@@ -27,13 +27,13 @@ contract TokenLock {
     constructor(
         IERC20 token_,
         uint256 startTime_,
-        uint256 vestingPeriodMonths_,
-        uint256 cliffPeriodMonths_
+        uint256 vestingPeriod_,
+        uint256 cliffPeriod_
     ) {
         _token = token_;
         _startTime = startTime_;
-        _vestingPeriodMonths = vestingPeriodMonths_;
-        _cliffPeriodMonths = cliffPeriodMonths_;
+        _vestingPeriod = vestingPeriod_;
+        _cliffPeriod = cliffPeriod_;
     }
 
     /**
@@ -53,15 +53,15 @@ contract TokenLock {
     /**
      * @return the number of months in the vesting period.
      */
-    function vestingPeriodMonths() public view virtual returns (uint256) {
-        return _vestingPeriodMonths;
+    function vestingPeriod() public view virtual returns (uint256) {
+        return _vestingPeriod;
     }
 
     /**
      * @return the number of cliff months
      */
-    function cliffPeriodMonths() public view virtual returns (uint256) {
-        return _cliffPeriodMonths;
+    function cliffPeriod() public view virtual returns (uint256) {
+        return _cliffPeriod;
     }
 
     function unlockedTokensOf(address sender)
@@ -91,7 +91,7 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        if (_monthDiff(startTime(), timestamp) < _cliffPeriodMonths) return 0;
+        if ((startTime() - timestamp) < _cliffPeriod) return 0;
         return 1;
     }
 
@@ -104,13 +104,13 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-        uint256 monthsVested = _min(
-                            monthDiff(startTime(), timestamp) * cliffExceeded(timestamp),
-                            vestingPeriodMonths()
+        uint256 timeVestedSoFar = _min(
+                                        (startTime() - timestamp) * cliffExceeded(timestamp),
+                                        vestingPeriod()
                            );
         // ensure all tokens can eventually be claimed
-        if (vestingPeriodMonths() <= monthsVested) return totalTokensOf(sender);
-        return totalTokensOf(sender) / monthsVested;
+        if (vestingPeriod() <= timeVestedSoFar) return totalTokensOf(sender);
+        return totalTokensOf(sender) / timeVestedSoFar;
     }
 
     function release() external virtual hasStake {
@@ -136,30 +136,6 @@ contract TokenLock {
     }
 
     // == Utils ==
-
-    function monthDiff(uint256 startDate, uint256 targetDate)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
-        return _monthDiff(startDate, targetDate);
-    }
-
-    function _monthDiff(uint256 startDate, uint256 targetDate)
-        private
-        pure
-        returns (uint256)
-    {
-        if (targetDate <= startDate) {
-            return 0;
-        }
-
-        uint256 diff = targetDate - startDate;
-        uint256 quotient = diff / SECONDS_IN_MONTH;
-
-        return quotient;
-    }
 
     function _min(uint256 a, uint256 b) private pure returns (uint256) {
         if (a > b) return b;
