@@ -20,8 +20,8 @@ module.exports = async () => {
     accounts[1].address,
     LOCK_AMOUNT,
     1612137600,
-    4 * 365 * 24 * 60 * 60,
-    1 * 365 * 24 * 60 * 60,
+    4 * 365 * 24 * 60 * 60, // four year vesting period
+    1 * 365 * 24 * 60 * 60, // 1 year cliff
   );
   TestTokenLock.setAsDeployed(testTokenLock);
 };
