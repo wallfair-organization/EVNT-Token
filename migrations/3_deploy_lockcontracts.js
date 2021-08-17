@@ -1,8 +1,8 @@
 const TestTokenLock = artifacts.require('TestTokenLock');
-const WallfairToken = artifacts.require('WallfairToken');
+const EVNTToken = artifacts.require('EVNTToken');
 
 module.exports = async function (deployer, network, accounts) {
-  const WallfairTokenInstance = await WallfairToken.deployed();
+  const EVNTTokenInstance = await EVNTToken.deployed();
   await deployer.deploy(TestTokenLock,
-    WallfairTokenInstance.address, accounts[1], web3.utils.toWei('1000000'), 6, 1250, 1612137600);
+    EVNTTokenInstance.address, accounts[1], web3.utils.toWei('1000000'), 6, 1250, 1612137600);
 };

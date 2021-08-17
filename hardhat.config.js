@@ -1,6 +1,8 @@
 /* hardhat.config.js */
+require("@babel/register");
+require("@babel/polyfill");
+require('chai/register-should');
 require("hardhat-gas-reporter");
-require("@nomiclabs/hardhat-waffle")
 require("@nomiclabs/hardhat-truffle5");
 require("@nomiclabs/hardhat-etherscan");
 require('dotenv-safe').config({

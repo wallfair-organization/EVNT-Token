@@ -4,7 +4,7 @@ const { expect } = require('chai');
 
 // Declare a variable and assign the compiled smart contract artifact
 const TestTokenLock = artifacts.require('TestTokenLock');
-const WallfairToken = artifacts.require('WallfairToken');
+const EVNTToken = artifacts.require('EVNTToken');
 
 const assertTryCatch = require('./utils/exceptions.js').tryCatch;
 const ErrTypes = require('./utils/exceptions.js').errTypes;
@@ -24,10 +24,10 @@ contract('TestTokenLock', function (accounts) {
     console.log('');
 
     const testTokenLock = await TestTokenLock.deployed();
-    const wallfairToken = await WallfairToken.deployed();
+    const EVNTToken = await EVNTToken.deployed();
 
-    await wallfairToken.mint(LOCK_AMOUNT, { from: ownerID });
-    await wallfairToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
+    await EVNTToken.mint(LOCK_AMOUNT, { from: ownerID });
+    await EVNTToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
   });
 
   it('Testing view functions', async () => {
@@ -70,8 +70,8 @@ contract('TestTokenLock', function (accounts) {
   });
 
   it('Testing tokensDue() function extensively', async () => {
-    const wallfairToken = await WallfairToken.new();
-    const testTokenLock = await TestTokenLock.new(wallfairToken.address,
+    const EVNTToken = await EVNTToken.new();
+    const testTokenLock = await TestTokenLock.new(EVNTToken.address,
       stakedAccountID, LOCK_AMOUNT, 36, 2800, 1612137600,
     );
 
@@ -144,9 +144,9 @@ contract('TestTokenLock', function (accounts) {
   });
 
   it('Testing tokensDue() function no initial unlock', async () => {
-    const wallfairToken = await WallfairToken.new();
+    const EVNTToken = await EVNTToken.new();
     const testTokenLock = await TestTokenLock.new(
-      wallfairToken.address, stakedAccountID, LOCK_AMOUNT, 36, 0, 1612137600,
+      EVNTToken.address, stakedAccountID, LOCK_AMOUNT, 36, 0, 1612137600,
     );
 
     const secondsInMonth = 30 * 86400;
@@ -237,13 +237,13 @@ contract('TestTokenLock', function (accounts) {
 
   it('Testing release() function', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    const wallfairToken = await WallfairToken.deployed();
+    const EVNTToken = await EVNTToken.deployed();
 
     const timestampNow = Math.round(new Date().getTime() / 1000);
 
     const release = await testTokenLock.release({ from: stakedAccountID });
     const tokensDue = await testTokenLock.tokensDue(stakedAccountID, timestampNow, { from: stakedAccountID });
-    const balance = await wallfairToken.balanceOf(stakedAccountID, { from: stakedAccountID });
+    const balance = await EVNTToken.balanceOf(stakedAccountID, { from: stakedAccountID });
 
     assert.isNotNull(release, 'Token should be released');
     assert.equal(balance.toString(), tokensDue.toString(), 'Token should be received');
