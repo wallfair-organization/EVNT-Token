@@ -11,15 +11,15 @@ contract TestTokenLock is TokenLock {
         address wallfairToken_,
         address stakedAccount,
         uint256 totalTokens,
-        uint256 vestingPeriodMonths,
-        uint256 initialPercentage,
-        uint256 startDate
+        uint256 startDate // Unix timestamp
+        uint256 vestingPeriod, // in seconds
+        uint256 cliffPeriod, // in seconds
     )
         TokenLock(
             WallfairToken(wallfairToken_),
             startDate,
-            vestingPeriodMonths,
-            initialPercentage
+            vestingPeriod,
+            cliffPeriod
         )
     {
         _stakes[stakedAccount] = UnlockState(totalTokens, 0);

@@ -82,9 +82,9 @@ contract TokenLock {
         return _stakes[sender].totalTokens;
     }
 
-   /*
-    * @return 0 if cliff period has not been exceeded and 1 if it has
-    */
+    /*
+     * @return 0 if cliff period has not been exceeded and 1 if it has
+     */
     function cliffExceeded(uint256 timestamp)
         public
         view
@@ -95,9 +95,9 @@ contract TokenLock {
         return 1;
     }
 
-   /*
-    * @return number of tokens that have vested at a given time
-    */
+    /*
+     * @return number of tokens that have vested at a given time
+     */
     function tokensVested(address sender, uint256 timestamp)
         public
         view
@@ -105,9 +105,9 @@ contract TokenLock {
         returns (uint256)
     {
         uint256 timeVestedSoFar = _min(
-                                        (startTime() - timestamp) * cliffExceeded(timestamp),
-                                        vestingPeriod()
-                           );
+            (startTime() - timestamp) * cliffExceeded(timestamp),
+            vestingPeriod()
+        );
         // ensure all tokens can eventually be claimed
         if (vestingPeriod() <= timeVestedSoFar) return totalTokensOf(sender);
         return totalTokensOf(sender) / timeVestedSoFar;
