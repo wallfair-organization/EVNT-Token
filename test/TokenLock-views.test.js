@@ -1,6 +1,7 @@
 // This script is designed to test the solidity smart contracts and the various functions within
 // load dependencies
 const { expect } = require('chai');
+const { BN } = require('@openzeppelin/test-helpers');
 
 // Declare a variable and assign the compiled smart contract artifact
 const TestTokenLock = artifacts.require('TestTokenLock');
@@ -55,27 +56,27 @@ contract('TestTokenLock', function (accounts) {
 
   it('Check startTime is as deployed', async () => {
     const testTokenLock = await TestTokenLock.deployed(); 
-    expect((await testTokenLock.startTime()).toString()).to.equal('1612137600');
+    expect(await testTokenLock.startTime()).to.be.a.bignumber.to.equal(new BN('1612137600'));
   });
 
   it('Check vestingPeriod is as deployed', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    expect((await testTokenLock.vestingPeriod()).toString()).to.equal((4 * 365 * 24 * 60 * 60).toString());
+    expect(await testTokenLock.vestingPeriod()).to.be.a.bignumber.to.equal(new BN((4 * 365 * 24 * 60 * 60).toString()));
   });
 
   it('Check cliffPeriod is as deployed', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    expect((await testTokenLock.cliffPeriod()).toString()).to.equal((1 * 365 * 24 * 60 * 60).toString());
+    expect(await testTokenLock.cliffPeriod()).to.be.a.bignumber.to.equal(new BN((1 * 365 * 24 * 60 * 60).toString()));
   });
 
   it('Check totalTokensOf are as deployed', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    expect((await testTokenLock.totalTokensOf(stakedAccountID)).toString()).to.equal((LOCK_AMOUNT).toString());
+    expect(await testTokenLock.totalTokensOf(stakedAccountID)).to.be.a.bignumber.to.equal((LOCK_AMOUNT).toString());
   });
 
   it('Check the initial vesting is 0', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    expect((await testTokenLock.tokensVested(stakedAccountID, 1612137600, { from: stakedAccountID })).toString()).to.equal('0');
+    expect(await testTokenLock.tokensVested(stakedAccountID, 1612137600, { from: stakedAccountID })).to.be.a.bignumber.to.equal(new BN('0'));
   });
 
   it('Check there are no unlocked tokens at the initial deployment', async () => {
@@ -85,14 +86,14 @@ contract('TestTokenLock', function (accounts) {
 
   it('Check cliff period has not been exceeded for TokenLock contract', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    timestamp = await ethers.block.timestamp();
-    expect((await testTokenLock.cliffExceeded(timestamp)).toString()).to.equal('0');
+    block = await ethers.provider.getBlock('latest');
+    expect(await testTokenLock.cliffExceeded(block.timestamp)).to.be.a.bignumber.to.equal(new BN('0'));
   });
 
   it('Check cliff period has been exceeded for TokenLockNoCliff contract', async () => {
     const testTokenLockNoCliff = await TestTokenLockNoCliff.deployed();
-    timestamp = await ethers.block.timestamp();
-    expect((await testTokenLock.cliffExceeded(timestamp)).toString()).to.equal('1');
+    block = await ethers.provider.getBlock('latest');
+    expect(await testTokenLock.cliffExceeded(block.timestamp)).to.be.a.bignumber.to.equal(new BN('1'));
   });
 
   // tokensVested takes an address and a timestamp as an input, so is a bit more complicated
