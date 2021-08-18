@@ -1,7 +1,7 @@
 // This script is designed to test the solidity smart contracts and the various functions within
 // load dependencies
 const { expect } = require('chai');
-const { ethers } = require('hardhat-ethers');
+const { web3, ethers } = require('hardhat');
 const { deployEVNT } = require('./utils/deploy');
 const { BN } = require('@openzeppelin/test-helpers');
 
@@ -109,14 +109,15 @@ contract('TestTokenLock: views tests', function (accounts) {
   });
 
   it('check cliff period has not been exceeded for TokenLock contract', async () => {
+    console.log("Hello world");
     const testTokenLock = await TestTokenLock.deployed();
-    block = await ethers.provider.getBlock('latest');
+    const block = await ethers.provider.getBlock('latest');
     expect(await testTokenLock.cliffExceeded(block.timestamp)).to.be.a.bignumber.to.equal(new BN('0'));
   });
 
   it('check cliff period has been exceeded for TokenLockNoCliff contract', async () => {
     const testTokenLockNoCliff = await TestTokenLockNoCliff.deployed();
-    block = await ethers.provider.getBlock('latest');
+    const block = await ethers.provider.getBlock('latest');
     expect(await testTokenLockNoCliff.cliffExceeded(block.timestamp)).to.be.a.bignumber.to.equal(new BN('1'));
   });
 
