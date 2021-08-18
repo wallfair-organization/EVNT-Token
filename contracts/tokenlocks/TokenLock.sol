@@ -63,33 +63,18 @@ contract TokenLock {
         return _cliffPeriod;
     }
 
-    function unlockedTokensOf(address sender)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function unlockedTokensOf(address sender) public view virtual returns (uint256) {
         return _stakes[sender].unlockedTokens;
     }
 
-    function totalTokensOf(address sender) 
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function totalTokensOf(address sender) public view virtual returns (uint256) {
         return _stakes[sender].totalTokens;
     }
 
     /*
      * @return 0 if cliff period has not been exceeded and 1 if it has
      */
-    function cliffExceeded(uint256 timestamp)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function cliffExceeded(uint256 timestamp) public view virtual returns (uint256) {
         uint256 timePassed = 0;
 
         if (timestamp > _startTime) {
@@ -106,28 +91,19 @@ contract TokenLock {
     /*
      * @return number of tokens that have vested at a given time
      */
-    function tokensVested(address sender, uint256 timestamp)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function tokensVested(address sender, uint256 timestamp) public view virtual returns (uint256) {
         uint256 timeVestedSoFar = 0;
-       
+
         if (timestamp > _startTime) {
-            timeVestedSoFar = Math.min(
-                (timestamp - _startTime) * cliffExceeded(timestamp),
-                _vestingPeriod
-            );
+            timeVestedSoFar = Math.min((timestamp - _startTime) * cliffExceeded(timestamp), _vestingPeriod);
         }
 
-        return totalTokensOf(sender) * timeVestedSoFar / _vestingPeriod;
+        return (totalTokensOf(sender) * timeVestedSoFar) / _vestingPeriod;
     }
 
     function release() external virtual hasStake {
         address sender = msg.sender;
-        uint256 unlockAmount = tokensVested(sender, block.timestamp) -
-            unlockedTokensOf(sender);
+        uint256 unlockAmount = tokensVested(sender, block.timestamp) - unlockedTokensOf(sender);
 
         require(unlockAmount > 0, "No tokens to unlock");
 

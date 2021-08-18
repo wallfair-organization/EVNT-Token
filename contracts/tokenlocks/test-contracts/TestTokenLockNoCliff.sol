@@ -13,15 +13,7 @@ contract TestTokenLockNoCliff is TokenLock {
         uint256 startDate, // Unix timestamp
         uint256 vestingPeriod, // in seconds
         uint256 cliffPeriod // in seconds
-    )
-
-        TokenLock(
-            IERC20(EVNTToken_),
-            startDate,
-            vestingPeriod,
-            cliffPeriod
-        )       
-    {
+    ) TokenLock(IERC20(EVNTToken_), startDate, vestingPeriod, cliffPeriod) {
         _stakes[stakedAccount] = UnlockState(totalTokens, 0);
     }
 }
