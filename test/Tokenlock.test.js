@@ -1,11 +1,9 @@
 // This script is designed to test the solidity smart contracts and the various functions within
 // load dependencies
-const { expect } = require('chai');
 const { deployEVNT } = require('./utils/deploy');
 
 // Declare a variable and assign the compiled smart contract artifact
 const TestTokenLock = artifacts.require('TestTokenLock');
-const TestTokenLockNoCliff = artifacts.require('TestTokenLockNoCliff');
 
 const assertTryCatch = require('./utils/exceptions.js').tryCatch;
 const ErrTypes = require('./utils/exceptions.js').errTypes;
@@ -36,7 +34,7 @@ contract('TestTokenLock', function (accounts) {
       EVNTToken.address,
       stakedAccountID,
       LOCK_AMOUNT,
-      1612137600,  // startDate
+      1612137600, // startDate
       4 * 365 * 24 * 60 * 60, // four year vesting period
       1 * 365 * 24 * 60 * 60, // 1 year cliff
     );
@@ -237,7 +235,10 @@ contract('TestTokenLock', function (accounts) {
   it('Testing view functions for invalid Accounts', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
-    const invalidTokensVested = await testTokenLock.tokensVested(invalidAccountID, 1612137600, { from: invalidAccountID });
+    const invalidTokensVested = await testTokenLock.tokensVested(invalidAccountID,
+      1612137600,
+      { from: invalidAccountID },
+    );
     const unlockedTokens = await testTokenLock.unlockedTokensOf(invalidAccountID, { from: invalidAccountID });
 
     assert.equal(unlockedTokens, 0, 'Some Tokens are unlocked');
@@ -250,7 +251,7 @@ contract('TestTokenLock', function (accounts) {
     await assertTryCatch(testTokenLock.release({ from: invalidAccountID }), ErrTypes.revert);
   });
 
-/* this one fails because it looks like it's expecting the initial allocation
+  /* this one fails because it looks like it's expecting the initial allocation
 
   it('Testing release() function', async () => {
     const testTokenLock = await TestTokenLock.deployed();
@@ -265,7 +266,7 @@ contract('TestTokenLock', function (accounts) {
     assert.equal(balance.toString(), tokensVested.toString(), 'Token should be received');
   });
 
-*/
+  */
 
   it('Testing release()-fail', async () => {
     const testTokenLock = await TestTokenLock.deployed();

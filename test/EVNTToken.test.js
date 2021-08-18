@@ -1,6 +1,5 @@
 import { deployEVNT } from './utils/deploy';
 import { Q18 } from './utils/consts';
-import { expect } from 'chai';
 
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const EVNTToken = artifacts.require('EVNTToken');

@@ -12,13 +12,9 @@ const TestTokenLock = artifacts.require('TestTokenLock');
 const TestTokenLockNoCliff = artifacts.require('TestTokenLockNoCliff');
 const EVNTToken = artifacts.require('EVNTToken');
 
-const assertTryCatch = require('./utils/exceptions.js').tryCatch;
-const ErrTypes = require('./utils/exceptions.js').errTypes;
-
 contract('TestTokenLock: views tests', function (accounts) {
   const ownerID = accounts[0];
   const stakedAccountID = accounts[1];
-  const invalidAccountID = accounts[2];
 
   const MINT_AMOUNT = web3.utils.toWei('3000000');
   const LOCK_AMOUNT = web3.utils.toWei('1000000');
@@ -51,7 +47,7 @@ contract('TestTokenLock: views tests', function (accounts) {
       LOCK_AMOUNT,
       START_DATE,
       VESTING,
-      CLIFF
+      CLIFF,
     );
     TestTokenLock.setAsDeployed(testTokenLock);
 
@@ -68,25 +64,24 @@ contract('TestTokenLock: views tests', function (accounts) {
     // this is locking two amounts from the same owner in two different vesting locks
     await myEVNTToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
     await myEVNTToken.transfer(testTokenLockNoCliff.address, LOCK_AMOUNT, { from: ownerID });
-
   });
 
-/*
- *
- * Individual tests start here 
- *
- */
+  /*
+   *
+   * Individual tests start here
+   *
+   */
 
   // Basic view tests
 
   it('Check token address is correct', async () => {
     const testTokenLock = await TestTokenLock.deployed();
     const token = await EVNTToken.deployed();
-    expect(await testTokenLock.token()).to.equal(token.address); 
+    expect(await testTokenLock.token()).to.equal(token.address);
   });
 
   it('Check startTime is as deployed', async () => {
-    const testTokenLock = await TestTokenLock.deployed(); 
+    const testTokenLock = await TestTokenLock.deployed();
     expect(await testTokenLock.startTime()).to.be.a.bignumber.to.equal(new BN('1612137600'));
   });
 
@@ -107,12 +102,14 @@ contract('TestTokenLock: views tests', function (accounts) {
 
   it('Check there are no unlocked tokens at the initial deployment', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    expect(await testTokenLock.unlockedTokensOf(stakedAccountID, { from: stakedAccountID })).to.be.a.bignumber.to.equal(new BN('0'));
+    expect(await testTokenLock.unlockedTokensOf(stakedAccountID, { from: stakedAccountID }))
+      .to.be.a.bignumber.to.equal(new BN('0'));
   });
 
   it('Check the initial vesting is 0', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    expect(await testTokenLock.tokensVested(stakedAccountID, START_DATE, { from: stakedAccountID })).to.be.a.bignumber.to.equal(new BN('0'));
+    expect(await testTokenLock.tokensVested(stakedAccountID, START_DATE, { from: stakedAccountID }))
+      .to.be.a.bignumber.to.equal(new BN('0'));
   });
 
   it('Check cliff period has not been exceeded for TokenLock contract', async () => {
@@ -133,7 +130,7 @@ contract('TestTokenLock: views tests', function (accounts) {
 
   it('Check no tokens are reported as vested in cliff period', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    for (let i = START_DATE; i < (START_DATE + CLIFF); i += (Math.randomInt(1, Math.floor(CLIFF/100)))) {
+    for (let i = START_DATE; i < (START_DATE + CLIFF); i += (Math.randomInt(1, Math.floor(CLIFF / 100)))) {
       expect(await testTokenLock.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(new BN('0'));
     }
   });
@@ -148,7 +145,8 @@ contract('TestTokenLock: views tests', function (accounts) {
   it('Check no tokens are reported as vested before start date with no cliff', async () => {
     const testTokenLockNoCliff = await TestTokenLockNoCliff.deployed();
     for (let i = START_DATE - (365 * 24 * 60 * 60); i < START_DATE; i += (Math.randomInt(604800, 2419200))) {
-      expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(new BN('0'));
+      expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString()))
+        .to.be.a.bignumber.to.equal(new BN('0'));
     }
   });
 
@@ -156,7 +154,7 @@ contract('TestTokenLock: views tests', function (accounts) {
     const testTokenLock = await TestTokenLock.deployed();
     let expected;
     const amount = new BN(LOCK_AMOUNT);
-    for (let i = START_DATE + CLIFF; i < (START_DATE + VESTING); i += (Math.randomInt(1, Math.floor(VESTING/50)))) {
+    for (let i = START_DATE + CLIFF; i < (START_DATE + VESTING); i += (Math.randomInt(1, Math.floor(VESTING / 50)))) {
       // console.log(amount.mul(new BN((i - START_DATE).toString())).div(new BN(VESTING.toString())).toString());
       expected = amount.mul(new BN((i - START_DATE).toString())).div(new BN(VESTING.toString()));
       expect(await testTokenLock.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(expected);
@@ -167,12 +165,27 @@ contract('TestTokenLock: views tests', function (accounts) {
     const testTokenLockNoCliff = await TestTokenLockNoCliff.deployed();
     let expected;
     const amount = new BN(LOCK_AMOUNT);
-    for (let i = START_DATE; i < (START_DATE + VESTING); i += (Math.randomInt(1, Math.floor(VESTING/50)))) {
+    for (let i = START_DATE; i < (START_DATE + VESTING); i += (Math.randomInt(1, Math.floor(VESTING / 50)))) {
       // console.log(amount.mul(new BN((i - START_DATE).toString())).div(new BN(VESTING.toString())).toString());
       expected = amount.mul(new BN((i - START_DATE).toString())).div(new BN(VESTING.toString()));
-      expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(expected);
+      expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString()))
+        .to.be.a.bignumber.to.equal(expected);
     }
   });
 
-});
+  it('Check correct number of tokens are reported as vested after vesting period', async () => {
+    const testTokenLock = await TestTokenLock.deployed();
+    const amount = new BN(LOCK_AMOUNT);
+    for (let i = START_DATE + VESTING; i < (START_DATE + VESTING + 100); i += 7) {
+      expect(await testTokenLock.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(amount);
+    }
+  });
 
+  it('Check correct number of tokens are reported as vested with no cliff after vesting period', async () => {
+    const testTokenLockNoCliff = await TestTokenLockNoCliff.deployed();
+    const amount = new BN(LOCK_AMOUNT);
+    for (let i = START_DATE + VESTING; i < (START_DATE + VESTING + 100); i += 7) {
+      expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(amount);
+    }
+  });
+});
