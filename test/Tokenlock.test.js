@@ -55,7 +55,7 @@ contract('TestTokenLock', function (accounts) {
     assert.equal(startTime, 1612137600, 'The starting date is mismatched');
     assert.equal(unlockedTokens, 0, 'Some Tokens are already unlocked');
     // assert.equal(web3.utils.fromWei(tokensVested), 250000, 'The tokensVested should only be the initial unlock');
-    assert.equal(web3.utils.fromWei(tokensVested), 125000, 'The tokensVested should only be the initial unlock');
+    assert.equal(web3.utils.fromWei(tokensVested), 0, 'The tokensVested should only be the initial unlock');
   });
 
   /*

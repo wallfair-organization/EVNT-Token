@@ -11,12 +11,14 @@ const TestTokenLockNoCliff = artifacts.require('TestTokenLockNoCliff');
 const assertTryCatch = require('./utils/exceptions.js').tryCatch;
 const ErrTypes = require('./utils/exceptions.js').errTypes;
 
-contract('TestTokenLock', function (accounts) {
+contract('TestTokenLock: views tests', function (accounts) {
   const ownerID = accounts[0];
   const stakedAccountID = accounts[1];
   const invalidAccountID = accounts[2];
 
   const LOCK_AMOUNT = web3.utils.toWei('1000000');
+
+  let EVNTToken;
 
   before(async () => {
     console.log('\n  ETH-Accounts used');
