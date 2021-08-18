@@ -29,10 +29,7 @@ contract('TestTokenLock: views tests', function (accounts) {
     console.log('');
 
 // TODO: this assigns instance to type and is beyond bad
-    const myEVNTToken = await EVNTToken.new([{
-      address: ownerID,
-      amount: MINT_AMOUNT,
-    }]);
+    const myEVNTToken = await EVNTToken.new([ownerID], [MINT_AMOUNT]);
     EVNTToken.setAsDeployed(myEVNTToken);
 
     const testTokenLock = await TestTokenLock.new(
