@@ -8,7 +8,7 @@ const EVNTToken = artifacts.require('EVNTToken');
 contract('EVNTToken', function (accounts) {
   before(() => {});
 
-  it('should deploy', async () => {
+  it('Should deploy', async () => {
     const amount = Q18.mul(new BN('100000'));
     const investor = accounts[0];
 
@@ -17,21 +17,20 @@ contract('EVNTToken', function (accounts) {
       amount,
     }]);
 
-    const balance = await token.balanceOf(investor);
-    expect(balance).to.be.a.bignumber.to.equal(amount);
+    expect(await token.balanceOf(investor)).to.be.a.bignumber.to.equal(amount);
     expect(await token.symbol()).to.eq('EVNT');
     expect(await token.name()).to.eq('EVNT Token');
     expect(await token.decimals()).to.be.bignumber.eq(new BN('18'));
   });
 
-  it('should reject on non equal lists', async () => {
+  it('Should reject on non equal lists', async () => {
     expectRevert(
       EVNTToken.new([accounts[0]], []),
-      'no. elements in lists must match',
+      'number of elements in lists must match',
     );
   });
 
-  it('should mint to many addresses', async () => {
+  it('Should mint to many addresses', async () => {
     const allocation = [{
       address: accounts[0],
       amount: Q18.mul(new BN('119827932')),
@@ -48,7 +47,7 @@ contract('EVNTToken', function (accounts) {
     await deployAndCheck(allocation);
   });
 
-  it('should mint to many addresses with 0 amount', async () => {
+  it('Should mint to many addresses with 0 amount', async () => {
     const allocation = [{
       address: accounts[0],
       amount: Q18.mul(new BN('119827932')),
@@ -65,7 +64,7 @@ contract('EVNTToken', function (accounts) {
     await deployAndCheck(allocation);
   });
 
-  it('should mint to same address many times', async () => {
+  it('Should mint to same address many times', async () => {
     const allocation = [{
       address: accounts[0],
       amount: Q18.mul(new BN('119827932')),
