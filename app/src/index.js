@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import wallfairTokenArtifact from '../../build/contracts/WallfairToken.json';
+import EVNTTokenArtifact from '../../build/contracts/EVNTToken.json';
 import tokenLockArtifact from '../../build/contracts/FriendsTokenlock.json';
 
 const App = {
@@ -15,10 +15,10 @@ const App = {
       // get contract instance
       const networkId = await web3.eth.net.getId();
 
-      const deployedWallfairToken = wallfairTokenArtifact.networks[networkId];
+      const deployedEVNTToken = EVNTTokenArtifact.networks[networkId];
       this.meta = new web3.eth.Contract(
-        wallfairTokenArtifact.abi,
-        deployedWallfairToken.address,
+        EVNTTokenArtifact.abi,
+        deployedEVNTToken.address,
       );
 
       const deployedTokenLock = tokenLockArtifact.networks[networkId];
