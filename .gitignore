@@ -14,3 +14,7 @@ artifacts
 
 # dotenv secret
 .env
+
+# converage
+coverage.json
+coverage

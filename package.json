@@ -37,7 +37,8 @@
     "test:localhost": "npx hardhat test --network localhost --config hardhat-deploy.config.js",
     "test:rinkeby": "npx hardhat test --network rinkeby --config hardhat-deploy.config.js",
     "test:mumbai": "npx hardhat test --network mumbai --config hardhat-deploy.config.js",
-    "test:matic": "npx hardhat test --network matic --config hardhat-deploy.config.js"
+    "test:matic": "npx hardhat test --network matic --config hardhat-deploy.config.js",
+    "hardhat:coverage": "hardhat coverage --network coverage"
   },
   "devDependencies": {
     "@babel/polyfill": "^7.12.1",
@@ -58,6 +59,7 @@
     "prettier-plugin-solidity": "^1.0.0-beta.17",
     "solhint": "^3.3.6",
     "solhint-plugin-prettier": "^0.0.5",
+    "solidity-coverage": "^0.7.16",
     "truffle": "^5.4.6",
     "web3": "^1.5.2"
   }
