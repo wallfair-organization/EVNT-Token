@@ -26,8 +26,6 @@ contract('TestTokenLock', function (accounts) {
     console.log('  Invalid Account: accounts[2] ', accounts[2]);
     console.log('');
 
-    await wallfairToken.transfer(testTokenLockNoCliff.address, LOCK_AMOUNT, { from: ownerID });
-
     // TODO: this assigns instance to type and is beyond bad
     EVNTToken = await deployEVNT([{
       address: ownerID,
@@ -38,9 +36,9 @@ contract('TestTokenLock', function (accounts) {
       EVNTToken.address,
       stakedAccountID,
       LOCK_AMOUNT,
-      6,
-      1250,
-      1612137600,
+      1612137600,  // startDate
+      4 * 365 * 24 * 60 * 60, // four year vesting period
+      1 * 365 * 24 * 60 * 60, // 1 year cliff
     );
     TestTokenLock.setAsDeployed(testTokenLock);
 
@@ -50,6 +48,14 @@ contract('TestTokenLock', function (accounts) {
   it('The startTime can be in the future', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
+    const startTime = await testTokenLock.startTime({ from: stakedAccountID });
+    const tokensVested = await testTokenLock.tokensVested(stakedAccountID, 1612137600, { from: stakedAccountID });
+    const unlockedTokens = await testTokenLock.unlockedTokensOf(stakedAccountID, { from: stakedAccountID });
+
+    assert.equal(startTime, 1612137600, 'The starting date is mismatched');
+    assert.equal(unlockedTokens, 0, 'Some Tokens are already unlocked');
+    // assert.equal(web3.utils.fromWei(tokensVested), 250000, 'The tokensVested should only be the initial unlock');
+    assert.equal(web3.utils.fromWei(tokensVested), 125000, 'The tokensVested should only be the initial unlock');
   });
 
   /*
@@ -231,15 +237,11 @@ contract('TestTokenLock', function (accounts) {
   it('Testing view functions for invalid Accounts', async () => {
     const testTokenLock = await TestTokenLock.deployed();
 
-    const invalidtokensVested = await testTokenLock.tokensVested(
-      invalidAccountID,
-      1612137600,
-      { from: invalidAccountID },
-    );
+    const invalidTokensVested = await testTokenLock.tokensVested(invalidAccountID, 1612137600, { from: invalidAccountID });
     const unlockedTokens = await testTokenLock.unlockedTokensOf(invalidAccountID, { from: invalidAccountID });
 
     assert.equal(unlockedTokens, 0, 'Some Tokens are unlocked');
-    assert.equal(web3.utils.fromWei(invalidtokensVested), 0, 'The tokensVested should only be zero');
+    assert.equal(web3.utils.fromWei(invalidTokensVested), 0, 'The tokensVested should only be zero');
   });
 
   it('Testing modifier', async () => {
