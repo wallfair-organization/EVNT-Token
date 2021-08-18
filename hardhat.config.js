@@ -5,6 +5,7 @@ require('chai/register-should');
 require("hardhat-gas-reporter");
 require("@nomiclabs/hardhat-truffle5");
 require("@nomiclabs/hardhat-etherscan");
+require("@nomiclabs/hardhat-waffle");
 require('dotenv-safe').config({
   allowEmptyValues: true
 });
