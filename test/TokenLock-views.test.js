@@ -1,12 +1,14 @@
 // This script is designed to test the solidity smart contracts and the various functions within
 // load dependencies
 const { expect } = require('chai');
+const { ethers } = require('hardhat');
 const { deployEVNT } = require('./utils/deploy');
 const { BN } = require('@openzeppelin/test-helpers');
 
 // Declare a variable and assign the compiled smart contract artifact
 const TestTokenLock = artifacts.require('TestTokenLock');
 const TestTokenLockNoCliff = artifacts.require('TestTokenLockNoCliff');
+const EVNTToken = artifacts.require('EVNTToken');
 
 const assertTryCatch = require('./utils/exceptions.js').tryCatch;
 const ErrTypes = require('./utils/exceptions.js').errTypes;
@@ -16,11 +18,12 @@ contract('TestTokenLock: views tests', function (accounts) {
   const stakedAccountID = accounts[1];
   const invalidAccountID = accounts[2];
 
+  const MINT_AMOUNT = web3.utils.toWei('3000000');
   const LOCK_AMOUNT = web3.utils.toWei('1000000');
 
-  let EVNTToken;
+  let myEVNTToken;
 
-  before(async () => {
+  beforeEach(async () => {
     console.log('\n  ETH-Accounts used');
     console.log('  Contract Owner:  accounts[0] ', accounts[0]);
     console.log('  Staked Account:  accounts[1] ', accounts[1]);
@@ -28,10 +31,13 @@ contract('TestTokenLock: views tests', function (accounts) {
     console.log('');
 
 // TODO: this assigns instance to type and is beyond bad
-    EVNTToken = await deployEVNT([{
+    myEVNTToken = await deployEVNT([{
       address: ownerID,
-      amount: LOCK_AMOUNT,
+      amount: MINT_AMOUNT,
     }]);
+
+    EVNTToken.detectNetwork();
+    EVNTToken.setAsDeployed(myEVNTToken);
 
     const testTokenLock = await TestTokenLock.new(
       EVNTToken.address,
@@ -54,6 +60,7 @@ contract('TestTokenLock: views tests', function (accounts) {
     TestTokenLockNoCliff.setAsDeployed(testTokenLockNoCliff);
 
     await EVNTToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
+    await EVNTToken.transfer(testTokenLockNoCliff.address, LOCK_AMOUNT, { from: ownerID });
   });
 
 /*
@@ -66,8 +73,8 @@ contract('TestTokenLock: views tests', function (accounts) {
 
   it('check token address is correct', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-
-    expect(await testTokenLock.token()).to.equal(wallfairToken.address); 
+    const token = await EVNTToken.deployed()
+    expect(await testTokenLock.token()).to.equal(token.address); 
   });
 
   it('check startTime is as deployed', async () => {
