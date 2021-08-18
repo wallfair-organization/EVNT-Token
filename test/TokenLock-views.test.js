@@ -21,8 +21,6 @@ contract('TestTokenLock: views tests', function (accounts) {
   const MINT_AMOUNT = web3.utils.toWei('3000000');
   const LOCK_AMOUNT = web3.utils.toWei('1000000');
 
-  let myEVNTToken;
-
   beforeEach(async () => {
     console.log('\n  ETH-Accounts used');
     console.log('  Contract Owner:  accounts[0] ', accounts[0]);
@@ -31,12 +29,10 @@ contract('TestTokenLock: views tests', function (accounts) {
     console.log('');
 
 // TODO: this assigns instance to type and is beyond bad
-    myEVNTToken = await deployEVNT([{
+    const myEVNTToken = await EVNTToken.new([{
       address: ownerID,
       amount: MINT_AMOUNT,
     }]);
-
-    EVNTToken.detectNetwork();
     EVNTToken.setAsDeployed(myEVNTToken);
 
     const testTokenLock = await TestTokenLock.new(
@@ -59,8 +55,10 @@ contract('TestTokenLock: views tests', function (accounts) {
     );
     TestTokenLockNoCliff.setAsDeployed(testTokenLockNoCliff);
 
+    // this is locking two amounts from the same owner in two different vesting locks
     await EVNTToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
     await EVNTToken.transfer(testTokenLockNoCliff.address, LOCK_AMOUNT, { from: ownerID });
+
   });
 
 /*
@@ -73,7 +71,7 @@ contract('TestTokenLock: views tests', function (accounts) {
 
   it('check token address is correct', async () => {
     const testTokenLock = await TestTokenLock.deployed();
-    const token = await EVNTToken.deployed()
+    const token = await EVNTToken.deployed();
     expect(await testTokenLock.token()).to.equal(token.address); 
   });
 
