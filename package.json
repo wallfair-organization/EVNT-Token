@@ -1,14 +1,9 @@
 {
-  "name": "wallfair_token",
+  "name": "wallfair-platform-contracts",
   "version": "0.0.1",
-  "description": "",
+  "description": "Smart Contracts for Wallfair Platform",
   "license": "MIT",
-  "keywords": [
-    "ethereum",
-    "ethereum-contract",
-    "erc20"
-  ],
-  "author": "Wallfair.",
+  "author": "Wallfair",
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.4",
@@ -17,8 +12,11 @@
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/contracts": "^4.2.0",
     "@openzeppelin/test-helpers": "^0.5.13",
+    "babel-preset-env": "^1.7.0",
+    "bn.js": "^5.2.0",
     "chai": "^4.3.4",
     "dotenv-safe": "^8.2.0",
+    "erc-payable-token": "^4.1.1",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.4",
     "hardhat": "^2.6.0",
@@ -42,7 +40,13 @@
     "test:matic": "npx hardhat test --network matic --config hardhat-deploy.config.js"
   },
   "devDependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/register": "^7.15.3",
+    "@openzeppelin/test-helpers": "^0.5.13",
     "@truffle/hdwallet-provider": "^1.4.3",
+    "chai-as-promised": "^7.1.1",
+    "chai-bn": "^0.3.0",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.0",
@@ -53,6 +57,7 @@
     "prettier": "^2.3.2",
     "prettier-plugin-solidity": "^1.0.0-beta.17",
     "solhint": "^3.3.6",
+    "solhint-plugin-prettier": "^0.0.5",
     "truffle": "^5.4.6",
     "web3": "^1.5.2"
   }
