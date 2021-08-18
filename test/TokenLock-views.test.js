@@ -1,7 +1,7 @@
 // This script is designed to test the solidity smart contracts and the various functions within
 // load dependencies
 const { expect } = require('chai');
-const { ethers } = require('hardhat');
+const { ethers } = require('hardhat-ethers');
 const { deployEVNT } = require('./utils/deploy');
 const { BN } = require('@openzeppelin/test-helpers');
 
@@ -21,6 +21,8 @@ contract('TestTokenLock: views tests', function (accounts) {
   const MINT_AMOUNT = web3.utils.toWei('3000000');
   const LOCK_AMOUNT = web3.utils.toWei('1000000');
 
+  let myEVNTToken;
+
   beforeEach(async () => {
     console.log('\n  ETH-Accounts used');
     console.log('  Contract Owner:  accounts[0] ', accounts[0]);
@@ -28,12 +30,16 @@ contract('TestTokenLock: views tests', function (accounts) {
     console.log('  Invalid Account: accounts[2] ', accounts[2]);
     console.log('');
 
-// TODO: this assigns instance to type and is beyond bad
-    const myEVNTToken = await EVNTToken.new([ownerID], [MINT_AMOUNT]);
+    // TODO: this assigns instance to type and is beyond bad
+    myEVNTToken = await deployEVNT([{
+      address: ownerID,
+      amount: MINT_AMOUNT,
+    }]);
+
     EVNTToken.setAsDeployed(myEVNTToken);
 
     const testTokenLock = await TestTokenLock.new(
-      EVNTToken.address,
+      myEVNTToken.address,
       stakedAccountID,
       LOCK_AMOUNT,
       1612137600,  // startDate
@@ -43,7 +49,7 @@ contract('TestTokenLock: views tests', function (accounts) {
     TestTokenLock.setAsDeployed(testTokenLock);
 
     const testTokenLockNoCliff = await TestTokenLock.new(
-      EVNTToken.address,
+      myEVNTToken.address,
       stakedAccountID,
       LOCK_AMOUNT,
       1612137600,  // startDate
@@ -53,8 +59,8 @@ contract('TestTokenLock: views tests', function (accounts) {
     TestTokenLockNoCliff.setAsDeployed(testTokenLockNoCliff);
 
     // this is locking two amounts from the same owner in two different vesting locks
-    await EVNTToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
-    await EVNTToken.transfer(testTokenLockNoCliff.address, LOCK_AMOUNT, { from: ownerID });
+    await myEVNTToken.transfer(testTokenLock.address, LOCK_AMOUNT, { from: ownerID });
+    await myEVNTToken.transfer(testTokenLockNoCliff.address, LOCK_AMOUNT, { from: ownerID });
 
   });
 
