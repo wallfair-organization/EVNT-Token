@@ -90,7 +90,6 @@ contract TokenLock {
         virtual
         returns (uint256)
     {
-
         uint256 timePassed = 0;
 
         if (timestamp > _startTime) {
