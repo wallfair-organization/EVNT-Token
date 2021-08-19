@@ -9,9 +9,9 @@ contract TokenLock {
     using SafeERC20 for IERC20;
 
     struct UnlockState {
-        // as we deal with long lists of stakeholders fit the struct into one word
-        uint128 totalTokens;
-        uint128 unlockedTokens;
+        // we never write both values together so packaging struct into sinle word wit uint128 does not make sense
+        uint256 totalTokens;
+        uint256 unlockedTokens;
     }
 
     IERC20 private immutable _token;
@@ -41,7 +41,7 @@ contract TokenLock {
 
         // create stakes, duplicates override each other and are not checked
         for (uint256 ii = 0; ii < wallets_.length; ii += 1) {
-            _stakes[wallets_[ii]] = UnlockState(amounts_[ii], 0);
+            _stakes[wallets_[ii]].totalTokens = amounts_[ii];
         }
     }
 
@@ -98,18 +98,19 @@ contract TokenLock {
             timeVestedSoFar = Math.min((timestamp - _startTime) * cliffExceeded(timestamp), _vestingPeriod);
         }
 
-        return (totalTokensOf(sender) * timeVestedSoFar) / _vestingPeriod;
+        return (_stakes[sender].totalTokens * timeVestedSoFar) / _vestingPeriod;
     }
 
     function release() public {
         address sender = msg.sender;
+
         uint256 unlockAmount = tokensVested(sender, block.timestamp) - unlockedTokensOf(sender);
+        UnlockState storage stake = _stakes[sender];
 
         // this should never happen
-        assert(totalTokensOf(sender) >= unlockedTokensOf(sender) + unlockAmount);
+        assert(stake.totalTokens >= stake.unlockedTokens + unlockAmount);
 
-        // unlock amount cant be higher than 2**128, see assert above
-        _stakes[sender].unlockedTokens += uint128(unlockAmount);
+        stake.unlockedTokens += unlockAmount;
         token().safeTransfer(sender, unlockAmount);
     }
 }
