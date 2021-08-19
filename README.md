@@ -4,7 +4,7 @@
 
 # Contracts
 ## EVNTToken
-The EVNTToken is an ERC20 token that uses ERC1363 extentions. The ERC20 implementation is provided by OpenZeppelin, and ERC1363 extensions by https://github.com/vittominacori/erc1363-payable-token.
+The EVNTToken is an ERC20 token that uses ERC1363 extentions. The ERC20 implementation is provided by OpenZeppelin, and ERC1363 extensions are by https://github.com/vittominacori/erc1363-payable-token.
 
 When a `transfer` methods is used, the extensions allow the token to inform the receiver whether it is a smart contract on transfer, which provides similar functionality to the fallback function in the case of native ETH.
 
