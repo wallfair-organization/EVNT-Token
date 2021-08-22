@@ -5,12 +5,13 @@ export async function deployEVNT (totalSupply, deployer) {
   return EVNTToken.new(totalSupply, { from: deployer });
 }
 
-export async function deployTokenLock (tokenAddress, startTime, vestingPeriod, cliffPeriod, stakes) {
+export async function deployTokenLock (tokenAddress, startTime, vestingPeriod, cliffPeriod, initialRelease, stakes) {
   return TokenLock.new(
     tokenAddress,
     startTime,
     vestingPeriod,
     cliffPeriod,
+    initialRelease,
     stakes.map(({ address }) => address),
     stakes.map(({ amount }) => amount),
   );
