@@ -1,7 +1,7 @@
 // import Math from 'mathjs';
 import { deployEVNT, deployTokenLock } from './utils/deploy';
 import { Q18, EVNT_TOTAL_SUPPLY, ZERO, DAYS_30 } from './utils/consts';
-import { BN, expectRevert } from '@openzeppelin/test-helpers';
+import { BN, expectRevert, time, expectEvent } from '@openzeppelin/test-helpers';
 import { expect } from 'hardhat';
 const Math = require('mathjs');
 
@@ -139,6 +139,8 @@ contract('TestTokenLock', function (accounts) {
       // last stake for given addres overrides the rest
       expect(total).to.be.a.bignumber.to.equal(stakes[1].amount);
     });
+
+    it('and keeps gas below block limit for 250 unlock wallets');
 
     async function deployAndCheck (stakes) {
       const lock = await newTokenLock(stakes);
@@ -342,5 +344,65 @@ contract('TestTokenLock', function (accounts) {
     });
   });
 
-  describe('Release', () => {});
+  describe('Release', () => {
+    async function expectTokenBalance (owner, expectedBalance) {
+      expect(await evntToken.balanceOf(owner)).to.be.bignumber.eq(expectedBalance);
+    }
+
+    function vestingFunction (amount, elapsed, vesting, initialRelease) {
+      return amount.sub(initialRelease).mul(elapsed).div(vesting);
+    }
+
+    async function releaseQuantum (amount, vesting, initialRelease) {
+      // minimum value of tokens that can be released
+      return vestingFunction(amount, new BN(1), vesting, initialRelease);
+    }
+
+    function expectRelease (release, expectedRelease, quantum) {
+      expect(
+        release.sub(expectedRelease).abs(),
+        `expected release ${release.toString()} - expectedRelease ${expectedRelease} 
+        (${release.sub(expectedRelease).abs()}) <= quantum ${quantum.toString()} )`,
+      ).to.be.bignumber.lte(quantum);
+    }
+
+    it(' with one stake, initial release, full lifecycle', async () => {
+      // we want 8.33% here
+      // const releaseFraction = (new BN("833")).mul(Q18).divn(10**4);
+      const releaseFraction = Q18.divn(4);
+      const initialRelease = LOCK_AMOUNT.divn(4);
+
+      const initialTs = await time.latest();
+      const startDate = DAYS_30.add(initialTs);
+
+      // vesting starts month into the future
+      const lock = await newTokenLock(
+        [{ address: stakedAccountID, amount: LOCK_AMOUNT }],
+        { startDate, vesting: DAYS_30.muln(6), cliff: ZERO, initial: releaseFraction },
+      );
+      // compute minimum release quantum
+      const quantum = await releaseQuantum(LOCK_AMOUNT, DAYS_30.muln(6), initialRelease);
+      // send tokens to lock contract
+      await evntToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
+
+      // check vested now
+      let ts = await time.latest();
+      let vested = await lock.tokensVested(stakedAccountID, ts);
+      expect(vested).to.be.bignumber.eq(ZERO);
+      let tx = await lock.release({ from: stakedAccountID });
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: ZERO });
+      await expectTokenBalance(stakedAccountID, ZERO);
+
+      // move to vesting start
+      vested = await lock.tokensVested(stakedAccountID, startDate);
+      expect(vested).to.be.bignumber.eq(initialRelease);
+      await time.increaseTo(startDate);
+      tx = await lock.release({ from: stakedAccountID });
+      ts = await time.latest(); // should have tx timestamp
+      vested = await lock.tokensVested(stakedAccountID, ts);
+      expectRelease(vested, initialRelease, quantum);
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: vested });
+      await expectTokenBalance(stakedAccountID, vested);
+    });
+  });
 });
