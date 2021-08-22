@@ -1,7 +1,8 @@
 // import Math from 'mathjs';
 import { deployEVNT, deployTokenLock } from './utils/deploy';
-import { Q18, EVNTTotalSupply } from './utils/consts';
+import { Q18, EVNT_TOTAL_SUPPLY, ZERO, DAYS_30 } from './utils/consts';
 import { BN, expectRevert } from '@openzeppelin/test-helpers';
+import { expect } from 'hardhat';
 const Math = require('mathjs');
 
 const TokenLock = artifacts.require('TokenLock');
@@ -12,45 +13,80 @@ contract('TestTokenLock', function (accounts) {
 
   // use some odd lock amount so any rounding errors will come out
   const LOCK_AMOUNT = (new BN('1000000')).mul(Q18).add(new BN(1));
-  const VESTING = new BN(4 * 365 * 24 * 60 * 60).add(new BN(1));
-  const CLIFF = new BN(1 * 365 * 24 * 60 * 60);
+  // VESTING AND CLIFF must be divisible by 30 days
+  const VESTING = new BN(4 * 360 * 24 * 60 * 60);
+  const CLIFF = new BN(1 * 360 * 24 * 60 * 60);
   const START_DATE = new BN(1612137600);
 
   let evntToken;
 
-  async function newTokenLock (stakes, cliffOverride, vestingOverride) {
+  async function newTokenLock (stakes, options) {
+    const lockOpts = Object.assign(
+      { startDate: START_DATE, vesting: VESTING, cliff: CLIFF, initial: ZERO },
+      options || {},
+    );
     return deployTokenLock(evntToken.address,
-      START_DATE,
-      vestingOverride === undefined ? VESTING : vestingOverride,
-      cliffOverride === undefined ? CLIFF : cliffOverride,
+      ...Object.values(lockOpts),
       stakes,
     );
   }
 
   beforeEach(async () => {
-    evntToken = await deployEVNT(EVNTTotalSupply, deployer);
+    evntToken = await deployEVNT(EVNT_TOTAL_SUPPLY, deployer);
   });
 
   describe('Should deploy', () => {
     it('and have getters set', async () => {
       // deploy without stakes just to check view functions
-      const lock = await newTokenLock([]);
+      let lock = await newTokenLock([]);
       expect(await lock.token()).to.equal(evntToken.address);
       expect(await lock.startTime()).to.be.a.bignumber.to.equal(START_DATE);
       expect(await lock.vestingPeriod()).to.be.a.bignumber.to.equal(VESTING);
       expect(await lock.cliffPeriod()).to.be.a.bignumber.to.equal(CLIFF);
+      expect(await lock.initialReleaseFraction()).to.be.a.bignumber.to.equal(ZERO);
+
+      // redeploy to check initial release getter
+      lock = await newTokenLock([], { cliff: ZERO, initial: Q18 });
+      expect(await lock.initialReleaseFraction()).to.be.a.bignumber.to.equal(Q18);
     });
 
     it('and rejects on non equal lists', async () => {
-      expectRevert(
+      await expectRevert(
         TokenLock.new(evntToken.address,
           START_DATE,
           VESTING,
           CLIFF,
+          ZERO,
           [accounts[0]],
           [],
         ),
         'number of elements in lists must match',
+      );
+    });
+
+    it('and reject on all constructor constraints', async () => {
+      // periods must divide by DAYS_30
+      await expectRevert(
+        newTokenLock([], { vesting: DAYS_30.muln(2).subn(1) }),
+        'vestingPeriod_ must be divisible by 30 days',
+      );
+      await expectRevert(newTokenLock([], { cliff: DAYS_30.subn(1) }), 'cliffPeriod_ must be divisible by 30 days');
+      // vesting period must be at least 30 days
+      await expectRevert(newTokenLock([], { vesting: ZERO }), 'vestingPeriod_ must be at least 30 days');
+      // cliff must be < vesting
+      await expectRevert(
+        newTokenLock([], { vesting: DAYS_30, cliff: DAYS_30 }),
+        'cliffPeriod_ must be less than vestingPeriod_',
+      );
+      // cliff and initial release are exclusive
+      await expectRevert(
+        newTokenLock([], { cliff: DAYS_30, initial: Q18 }),
+        'cliff period and initial release cannot be set together',
+      );
+      // decimal fraction <= 100%
+      await expectRevert(
+        newTokenLock([], { initial: Q18.addn(1) }),
+        'initialReleaseFraction_ must be in range <0, 10**18>',
       );
     });
 
@@ -116,106 +152,193 @@ contract('TestTokenLock', function (accounts) {
     }
   });
 
-  describe('Vesting Function', () => {
-    let testTokenLock, testTokenLockNoCliff;
-
-    beforeEach(async () => {
-      testTokenLock = await newTokenLock([{ address: stakedAccountID, amount: LOCK_AMOUNT }]);
-      testTokenLockNoCliff = await newTokenLock([{ address: stakedAccountID, amount: LOCK_AMOUNT }], new BN(0));
-    });
-
-    it('check the initial vesting is 0', async () => {
-      expect(await testTokenLock.tokensVested(stakedAccountID, START_DATE)).to.be.a.bignumber.to.equal(new BN('0'));
-    });
-
-    it('check cliff period has not been exceeded for lock with cliff at start date', async () => {
-      expect(await testTokenLock.cliffExceeded(START_DATE.sub(new BN(1)))).to.be.a.bignumber.to.equal(new BN('0'));
-      expect(await testTokenLock.cliffExceeded(START_DATE)).to.be.a.bignumber.to.equal(new BN('0'));
-      expect(await testTokenLock.cliffExceeded(START_DATE.add(new BN(1)))).to.be.a.bignumber.to.equal(new BN('0'));
-      expect(await testTokenLock.cliffExceeded(START_DATE.add(CLIFF))).to.be.a.bignumber.to.equal(new BN('1'));
-    });
-
-    it('check cliff period has been exceeded for lock with no cliff contract', async () => {
-      expect(await testTokenLockNoCliff.cliffExceeded(START_DATE.sub(new BN(1))))
-        .to.be.a.bignumber.to.equal(new BN('0'));
-      expect(await testTokenLockNoCliff.cliffExceeded(START_DATE)).to.be.a.bignumber.to.equal(new BN('1'));
-      expect(await testTokenLockNoCliff.cliffExceeded(START_DATE.add(new BN(1))))
-        .to.be.a.bignumber.to.equal(new BN('1'));
-    });
-
-    it('check no tokens are reported as vested in cliff period', async () => {
-      for (let i = START_DATE.toNumber(); i < START_DATE.add(CLIFF).toNumber();
-        i += (Math.randomInt(1, Math.floor(CLIFF.toNumber() / 100)))) {
-        expect(await testTokenLock.tokensVested(stakedAccountID, new BN(i)))
-          .to.be.a.bignumber.to.equal(new BN('0'));
-      }
+  function vestingFunctionCases (lock, vestingFunction, cliffPeriod, initialRelease) {
+    it('check the initial vesting is 0 or initial release', async () => {
+      expect(await lock().tokensVested(stakedAccountID, START_DATE)).to.be.a.bignumber.to.equal(initialRelease);
     });
 
     it('check no tokens are reported as vested before start date', async () => {
       for (let i = START_DATE.toNumber() - (365 * 24 * 60 * 60); i < START_DATE.toNumber();
         i += (Math.randomInt(604800, 2419200))) {
-        expect(await testTokenLock.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(new BN('0'));
+        expect(await lock().tokensVested(stakedAccountID, i.toString()))
+          .to.be.a.bignumber.to.equal(ZERO);
       }
+      // check one second before end
+      expect(await lock().tokensVested(stakedAccountID, START_DATE.subn(1)))
+        .to.be.a.bignumber.to.equal(ZERO);
     });
 
-    it('check no tokens are reported as vested before start date with no cliff', async () => {
-      for (let i = START_DATE.toNumber() - (365 * 24 * 60 * 60); i < START_DATE.toNumber();
-        i += (Math.randomInt(604800, 2419200))) {
-        expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString()))
-          .to.be.a.bignumber.to.equal(new BN('0'));
-      }
-    });
-
-    it('check correct number of tokens are reported as vested after cliff period', async () => {
+    it('check correct number of tokens are reported as vested', async () => {
       let expected;
-      for (let i = START_DATE.add(CLIFF).toNumber(); i < START_DATE.add(VESTING).toNumber();
+      // this only checks release after cliff starts
+      for (let i = START_DATE.add(cliffPeriod).toNumber(); i < START_DATE.add(VESTING).toNumber();
         i += (Math.randomInt(1, Math.floor(VESTING.toNumber() / 50)))) {
-        // console.log(amount.mul(new BN((i - START_DATE).toString())).div(new BN(VESTING.toString())).toString());
-        expected = LOCK_AMOUNT.mul(new BN(i).sub(START_DATE)).div(VESTING);
-        expect(await testTokenLock.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(expected);
-      }
-    });
-
-    it('check correct number of tokens are reported as vested after cliff period for some known periods', async () => {
-      // use vesting divisible by 2
-      const vestingPeriod = new BN(4 * 365 * 24 * 60 * 60);
-      testTokenLock = await newTokenLock([{ address: stakedAccountID, amount: LOCK_AMOUNT }], CLIFF, vestingPeriod);
-
-      const halfThrough = START_DATE.add(vestingPeriod.div(new BN(2)));
-      // 50% vested in 50% of time
-      expect(await testTokenLock.tokensVested(stakedAccountID, halfThrough))
-        .to.be.a.bignumber.to.equal(LOCK_AMOUNT.div(new BN(2)));
-      // 75% vested in 75% of time
-      const tfThrough = START_DATE.add(vestingPeriod.mul(new BN(3)).div(new BN(4)));
-      expect(await testTokenLock.tokensVested(stakedAccountID, tfThrough))
-        .to.be.a.bignumber.to.equal(LOCK_AMOUNT.mul(new BN(3)).div(new BN(4)));
-      // end
-      expect(await testTokenLock.tokensVested(stakedAccountID, START_DATE.add(vestingPeriod)))
-        .to.be.a.bignumber.to.equal(LOCK_AMOUNT);
-    });
-
-    it('check correct number of tokens are reported as vested with no cliff period', async () => {
-      let expected;
-      for (let i = START_DATE.toNumber(); i < START_DATE.add(VESTING).toNumber();
-        i += (Math.randomInt(1, Math.floor(VESTING.toNumber() / 50)))) {
-        // console.log(amount.mul(new BN((i - START_DATE).toString())).div(new BN(VESTING.toString())).toString());
-        expected = LOCK_AMOUNT.mul(new BN(i).sub(START_DATE)).div(VESTING);
-        expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString()))
+        expected = vestingFunction(new BN(i));
+        expect(await lock().tokensVested(stakedAccountID, i.toString()))
           .to.be.a.bignumber.to.equal(expected);
       }
     });
 
     it('check correct number of tokens are reported as vested after vesting period', async () => {
-      for (let i = START_DATE.add(VESTING).toNumber(); i < START_DATE.add(VESTING).toNumber() + 100; i += 7) {
-        expect(await testTokenLock.tokensVested(stakedAccountID, i.toString())).to.be.a.bignumber.to.equal(LOCK_AMOUNT);
-      }
-    });
-
-    it('check correct number of tokens are reported as vested with no cliff after vesting period', async () => {
       for (let i = START_DATE + VESTING; i < (START_DATE + VESTING + 100); i += 7) {
-        expect(await testTokenLockNoCliff.tokensVested(stakedAccountID, i.toString()))
+        expect(await lock().tokensVested(stakedAccountID, i.toString()))
           .to.be.a.bignumber.to.equal(LOCK_AMOUNT);
       }
+    });
+  };
+
+  describe('Vesting  w/o Initial Release', () => {
+    function vestingFunction (timestamp) {
+      return LOCK_AMOUNT.mul(timestamp.sub(START_DATE)).div(VESTING);
+    }
+
+    describe(' and no cliff', () => {
+      let lock;
+
+      const getLock = () => lock;
+
+      beforeEach(async () => {
+        lock = await newTokenLock([{ address: stakedAccountID, amount: LOCK_AMOUNT }], { cliff: ZERO });
+      });
+
+      vestingFunctionCases(getLock, vestingFunction, ZERO, ZERO);
+    });
+
+    describe(' and cliff', () => {
+      let lock;
+
+      const getLock = () => lock;
+
+      beforeEach(async () => {
+        lock = await newTokenLock([{ address: stakedAccountID, amount: LOCK_AMOUNT }]);
+      });
+
+      vestingFunctionCases(getLock, vestingFunction, CLIFF, ZERO);
+
+      it('check no tokens are reported as vested in cliff period', async () => {
+        for (let i = START_DATE.toNumber(); i < START_DATE.add(CLIFF).toNumber();
+          i += (Math.randomInt(1, Math.floor(CLIFF.toNumber() / 100)))) {
+          expect(await lock.tokensVested(stakedAccountID, new BN(i)))
+            .to.be.a.bignumber.to.equal(new BN('0'));
+        }
+      });
+
+      it('check correct number of tokens are reported as vested for some known periods', async () => {
+        const halfThrough = START_DATE.add(VESTING.div(new BN(2)));
+        // 50% vested in 50% of time
+        expect(await lock.tokensVested(stakedAccountID, halfThrough))
+          .to.be.a.bignumber.to.equal(LOCK_AMOUNT.div(new BN(2)));
+        // 75% vested in 75% of time
+        const tfThrough = START_DATE.add(VESTING.mul(new BN(3)).div(new BN(4)));
+        expect(await lock.tokensVested(stakedAccountID, tfThrough))
+          .to.be.a.bignumber.to.equal(LOCK_AMOUNT.mul(new BN(3)).div(new BN(4)));
+        // end
+        expect(await lock.tokensVested(stakedAccountID, START_DATE.add(VESTING)))
+          .to.be.a.bignumber.to.equal(LOCK_AMOUNT);
+      });
+    });
+  });
+
+  describe('Vesting  w. Initial Release', () => {
+    describe(' 100%', () => {
+      let lock;
+
+      const getLock = () => lock;
+
+      function vestingFunction () {
+        // all is released immediately
+        return LOCK_AMOUNT;
+      }
+
+      beforeEach(async () => {
+        lock = await newTokenLock([{ address: stakedAccountID, amount: LOCK_AMOUNT }], { cliff: ZERO, initial: Q18 });
+      });
+
+      vestingFunctionCases(getLock, vestingFunction, ZERO, LOCK_AMOUNT);
+
+      it('check full amount is reported as vested for all known periods', async () => {
+        // for 100% initial release all is released right away
+        const halfThrough = START_DATE.add(VESTING.div(new BN(2)));
+        expect(await lock.tokensVested(stakedAccountID, halfThrough))
+          .to.be.a.bignumber.to.equal(LOCK_AMOUNT);
+        const tfThrough = START_DATE.add(VESTING.mul(new BN(3)).div(new BN(4)));
+        expect(await lock.tokensVested(stakedAccountID, tfThrough))
+          .to.be.a.bignumber.to.equal(LOCK_AMOUNT);
+        expect(await lock.tokensVested(stakedAccountID, START_DATE.add(VESTING)))
+          .to.be.a.bignumber.to.equal(LOCK_AMOUNT);
+      });
+    });
+
+    describe(' 1/4 inital release', () => {
+      let lock;
+
+      const getLock = () => lock;
+
+      // both Q18 and LOCK_AMOUNT are divisible by 4
+      const releaseFraction = Q18.divn(4);
+      const initialRelease = LOCK_AMOUNT.divn(4);
+
+      function vestingFunction (timestamp) {
+        return LOCK_AMOUNT.sub(initialRelease).mul(timestamp.sub(START_DATE)).div(VESTING).add(initialRelease);
+      }
+
+      beforeEach(async () => {
+        lock = await newTokenLock(
+          [{ address: stakedAccountID, amount: LOCK_AMOUNT }],
+          { cliff: ZERO, initial: releaseFraction },
+        );
+      });
+
+      vestingFunctionCases(getLock, vestingFunction, ZERO, initialRelease);
+
+      it('check full amount is reported as vested for all known periods', async () => {
+        const afterInitial = LOCK_AMOUNT.sub(initialRelease);
+
+        const halfThrough = START_DATE.add(VESTING.div(new BN(2)));
+        // 50% vested in 50% of time
+        expect(await lock.tokensVested(stakedAccountID, halfThrough))
+          .to.be.a.bignumber.to.equal(afterInitial.div(new BN(2)).add(initialRelease));
+        // 75% vested in 75% of time
+        const tfThrough = START_DATE.add(VESTING.mul(new BN(3)).div(new BN(4)));
+        expect(await lock.tokensVested(stakedAccountID, tfThrough))
+          .to.be.a.bignumber.to.equal(afterInitial.mul(new BN(3)).div(new BN(4)).add(initialRelease));
+        // end
+        expect(await lock.tokensVested(stakedAccountID, START_DATE.add(VESTING)))
+          .to.be.a.bignumber.to.equal(LOCK_AMOUNT);
+      });
+    });
+
+    describe(' 1/3 inital release', () => {
+      let lock;
+
+      const getLock = () => lock;
+
+      // best approx of 1/3 we can have for decimal fraction
+      const releaseFraction = Q18.divn(3);
+
+      function decimalFraction (amount, fraction) {
+        return amount.mul(fraction).div(Q18);
+      }
+
+      const initialRelease = decimalFraction(LOCK_AMOUNT, releaseFraction);
+
+      function vestingFunction (timestamp) {
+        return LOCK_AMOUNT.sub(initialRelease).mul(timestamp.sub(START_DATE)).div(VESTING).add(initialRelease);
+      }
+
+      beforeEach(async () => {
+        lock = await newTokenLock(
+          [{ address: stakedAccountID, amount: LOCK_AMOUNT }],
+          { cliff: ZERO, initial: releaseFraction },
+        );
+      });
+
+      it('check decimal fraction calculation', async () => {
+        // we are trying to approx. 1/3 so that should be appeox. equal (rounding)
+        expect(LOCK_AMOUNT.divn(3).sub(initialRelease)).to.be.bignumber.to.lt(new BN('1000000'));
+      });
+
+      vestingFunctionCases(getLock, vestingFunction, ZERO, initialRelease);
     });
   });
 
