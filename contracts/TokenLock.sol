@@ -8,19 +8,32 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 contract TokenLock {
     using SafeERC20 for IERC20;
 
+    // we never write both values together so packaging struct into sinle word wit uint128 does not make sense
     struct UnlockState {
-        // we never write both values together so packaging struct into sinle word wit uint128 does not make sense
+        // total tokens to be released
         uint256 totalTokens;
+        // already released tokens
         uint256 unlockedTokens;
     }
 
+    // emitted on token release
+    event LogRelease(address indexed sender, uint256 amount);
+
+    uint256 private constant DAYS_30_PERIOD = 30 days;
+
     IERC20 private immutable _token;
 
-    uint256 private immutable _startTime; // Unix timestamp
+    // start time of the vesting, Unix timestamp
+    uint256 private immutable _startTime;
 
-    uint256 private immutable _vestingPeriod; // in seconds
+    // period of the vesting in seconds
+    uint256 private immutable _vestingPeriod;
 
-    uint256 private immutable _cliffPeriod; // in seconds
+    // cliff period in seconds
+    uint256 private immutable _cliffPeriod;
+
+    // token release on _startTime, decimal fraction where 10**18 is 100%
+    uint256 private immutable _initialReleaseFraction;
 
     mapping(address => UnlockState) internal _stakes;
 
@@ -29,15 +42,32 @@ contract TokenLock {
         uint256 startTime_,
         uint256 vestingPeriod_,
         uint256 cliffPeriod_,
+        uint256 initialReleaseFraction_,
         address[] memory wallets_,
         uint128[] memory amounts_
     ) {
         require(wallets_.length == amounts_.length, "number of elements in lists must match");
+        // we put strong requirements for vesting parameters: this is not a generic vesting contract,
+        // we support and test for just a limited range of parameters, see below
+        require(vestingPeriod_ > 0, "vestingPeriod_ must be at least 30 days");
+        // all periods must be divisible by 30 days
+        require(vestingPeriod_ % DAYS_30_PERIOD == 0, "vestingPeriod_ must be divisible by 30 days");
+        require(cliffPeriod_ % DAYS_30_PERIOD == 0, "cliffPeriod_ must be divisible by 30 days");
+        // cliff must be shorted than total vesting period
+        require(cliffPeriod_ < vestingPeriod_, "cliffPeriod_ must be less than vestingPeriod_");
+        // decimal fraction is between 0 and 10**18
+        require(initialReleaseFraction_ <= 10**18, "initialReleaseFraction_ must be in range <0, 10**18>");
+        // cliff cannot be present if initial release is set
+        require(
+            !(initialReleaseFraction_ > 0 && cliffPeriod_ > 0),
+            "cliff period and initial release cannot be set together"
+        );
 
         _token = token_;
         _startTime = startTime_;
         _vestingPeriod = vestingPeriod_;
         _cliffPeriod = cliffPeriod_;
+        _initialReleaseFraction = initialReleaseFraction_;
 
         // create stakes, duplicates override each other and are not checked
         for (uint256 ii = 0; ii < wallets_.length; ii += 1) {
@@ -45,30 +75,22 @@ contract TokenLock {
         }
     }
 
-    /**
-     * @return the token being held.
-     */
     function token() public view returns (IERC20) {
         return _token;
     }
 
-    /**
-     * @return the start of the unlock period.
-     */
     function startTime() public view returns (uint256) {
         return _startTime;
     }
 
-    /**
-     * @return the number of months in the vesting period.
-     */
     function vestingPeriod() public view returns (uint256) {
         return _vestingPeriod;
     }
 
-    /**
-     * @return the number of cliff months
-     */
+    function initialReleaseFraction() public view returns (uint256) {
+        return _initialReleaseFraction;
+    }
+
     function cliffPeriod() public view returns (uint256) {
         return _cliffPeriod;
     }
@@ -81,24 +103,18 @@ contract TokenLock {
         return _stakes[sender].totalTokens;
     }
 
-    /*
-     * @return 0 if cliff period has not been exceeded and 1 if it has
-     */
-    function cliffExceeded(uint256 timestamp) public view returns (uint256) {
-        return (timestamp >= _startTime + _cliffPeriod) ? 1 : 0;
-    }
-
-    /*
-     * @return number of tokens that have vested at a given time
-     */
-    function tokensVested(address sender, uint256 timestamp) public view returns (uint256) {
-        uint256 timeVestedSoFar = 0;
-
-        if (timestamp > _startTime) {
-            timeVestedSoFar = Math.min((timestamp - _startTime) * cliffExceeded(timestamp), _vestingPeriod);
+    function tokensVested(address sender, uint256 timestamp) public view returns (uint256 vestedTokens) {
+        // returns 0 before (start time + cliff period)
+        // initial release is obtained after cliff
+        if (timestamp >= _startTime + _cliffPeriod) {
+            uint256 timeVestedSoFar = Math.min(timestamp - _startTime, _vestingPeriod);
+            uint256 stake = _stakes[sender].totalTokens;
+            // compute initial release as fraction where 10**18 is total
+            uint256 initialRelease = (stake * _initialReleaseFraction) / 10**18;
+            // return initial release + the remainder proportionally to time from vesting start
+            // mul first for best precision, v.8 compiler reverts on overflows
+            vestedTokens = ((stake - initialRelease) * timeVestedSoFar) / _vestingPeriod + initialRelease;
         }
-
-        return (_stakes[sender].totalTokens * timeVestedSoFar) / _vestingPeriod;
     }
 
     function release() public {
@@ -112,5 +128,7 @@ contract TokenLock {
 
         stake.unlockedTokens += unlockAmount;
         token().safeTransfer(sender, unlockAmount);
+
+        emit LogRelease(sender, unlockAmount);
     }
 }
