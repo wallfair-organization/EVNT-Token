@@ -29,6 +29,7 @@
     "deploy:rinkeby": "echo 'Not implemented'",
     "deploy:mumbai": "echo 'Not implemented'",
     "deploy:matic": "echo 'Not implemented'",
+    "lint": "npm run lint:js && npm run lint:sol",
     "lint:js": "eslint --ignore-path .gitignore ./test ./app",
     "lint:js:fix": "eslint --ignore-path .gitignore ./test ./app --fix",
     "lint:sol": "solhint 'contracts/**/*.sol'",
