@@ -13,6 +13,32 @@ Extensions are intendend to be used within Wallfair Platform, that is, to stake 
 The EVNTToken contract immediately mints the requested supply to the `msg.sender`. For what happens after that - see the *Deployment* section.
 
 ## TokenLock 
+`TokenLock` implements simple vesting schedule. Within the contract we define *vesting function* which, for a given total amount of tokens, tells how much of the tokens may be released at a given moment. This function is defined as follows:
+
+1. It releases tokens linearly proportionally to the time elapsed from the *vesting start* timestamp. Effectively it will release tokens block by block
+2. It realeases tokens fully after *vesting period* has elapsed from the *vesting start*.
+3. A *cliff period* may be defined which works like standard cliff, see. https://www.investopedia.com/ask/answers/09/what-is-cliff-vesting.asp
+4. An *initial release fraction* may be defined which will release such fraction of the tokens on *vesting start*
+
+`TokenLock` fulfills several implementation requirements
+
+1. Only one vesting function may be defined per contract instance.
+2. Tokens belonging to several addresses may be locked in single instance (with same vesting schedule). Addresses may be simple addresses and contracts
+3. Cliff and initial release may not be defined together in single instance
+4. *vesting start* may be specified to happen in the past or in the future in reference to the time of the deployment of the contract
+5. Contract will execute `transfer` function to the address defined as the owner and keep track of how much was already released. Actual release happens via owner-executed transaction. Release will be impossible if the `TokenLock` does not held enough EVNT tokens.
+6. There are no methods to "reclaim" non-released tokens. Tokens that can't be released (owner lost the private key for example) are locked forever.
+7. All time periods must be multiples of 30 days.
+8. List of stakes (*owner address : total amount due* mapping) is provided at the deployment time and cannot be changed later.
+
+The actual deployment will require several instances of the `TokenLock` to be created to cover all the vesting schedules we need.
+
+## Deployment
+The deployment procedure will be as follows:
+1. `EVNTToken` instance is deployed and all full supply is minted to `msg.sender` (`deployer`).
+2. Several `TokenLock` instances are deployed, depending on the actual allocations and vesting schedules of Wallfair, final lists of addresses are provided to that instances.
+3. `deployer` transfers the tokens it holds to the `TokenLock` instances (and other wallets if needed) - as per Wallfair token allocation. At this point `deployer` does not hold any tokens and its private key may be destroyed.
+
 
 # Installation
 
@@ -34,6 +60,9 @@ Then try compiling the contracts to see if it has all worked:
 We use the `Truffle` plugin to write tests. Tests can be run using:
 
 `npm run test`
+
+# Linting
+We use `solhint` and `eslint` for linting. Relevant commands are `npm run lint`, `npm run lint:sol` and `npm run lint:js`.
 
 # Coverage
 We use solidity-coverage with `npm run hardhat:coverage`.
@@ -61,7 +90,6 @@ Then run your Hardhat commands using the `config` option:
 
 Remember to be careful with your keys! Share your keys and you share your coins.
 
-# Deployment
 
 
 # Paper
