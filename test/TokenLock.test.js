@@ -371,6 +371,7 @@ contract('TestTokenLock', function (accounts) {
       // const releaseFraction = (new BN("833")).mul(Q18).divn(10**4);
       const releaseFraction = Q18.divn(4);
       const initialRelease = LOCK_AMOUNT.divn(4);
+      const vestingPeriod = DAYS_30.muln(6);
 
       const initialTs = await time.latest();
       const startDate = DAYS_30.add(initialTs);
@@ -378,10 +379,10 @@ contract('TestTokenLock', function (accounts) {
       // vesting starts month into the future
       const lock = await newTokenLock(
         [{ address: stakedAccountID, amount: LOCK_AMOUNT }],
-        { startDate, vesting: DAYS_30.muln(6), cliff: ZERO, initial: releaseFraction },
+        { startDate, vesting: vestingPeriod, cliff: ZERO, initial: releaseFraction },
       );
       // compute minimum release quantum
-      const quantum = await releaseQuantum(LOCK_AMOUNT, DAYS_30.muln(6), initialRelease);
+      const quantum = await releaseQuantum(LOCK_AMOUNT, vestingPeriod, initialRelease);
       // send tokens to lock contract
       await evntToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
 
@@ -399,10 +400,106 @@ contract('TestTokenLock', function (accounts) {
       await time.increaseTo(startDate);
       tx = await lock.release({ from: stakedAccountID });
       ts = await time.latest(); // should have tx timestamp
+      // here we obtain exact value
       vested = await lock.tokensVested(stakedAccountID, ts);
+      // if we hit exact second boundary this check may sometimes fail, rerun the test
       expectRelease(vested, initialRelease, quantum);
       expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: vested });
+      expect(await lock.unlockedTokensOf(stakedAccountID)).to.be.bignumber.eq(vested);
       await expectTokenBalance(stakedAccountID, vested);
+      // move to half the vesting
+      await time.increaseTo(startDate.add(vestingPeriod.divn(2)));
+      tx = await lock.release({ from: stakedAccountID });
+      ts = await time.latest(); // should have tx timestamp
+      const halfVested = await lock.tokensVested(stakedAccountID, ts);
+      let released = halfVested.sub(vested);
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: released });
+      // we expect half of the vested tokens released (w/o initial release, already released)
+      const expectedRelease = LOCK_AMOUNT.sub(initialRelease).divn(2);
+      expectRelease(released, expectedRelease, quantum);
+      await expectTokenBalance(stakedAccountID, halfVested);
+      // move exactly to vesting end -2 seconds
+      await time.increaseTo(startDate.add(vestingPeriod).subn(2));
+      // that mines block so we have at -1 seconds
+      tx = await lock.release({ from: stakedAccountID });
+      ts = await time.latest(); // should have tx timestamp
+      const almostAllVested = await lock.tokensVested(stakedAccountID, ts);
+      released = almostAllVested.sub(halfVested);
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: released });
+      // we miss max 2 quanta to full unlock
+      expectRelease(almostAllVested, LOCK_AMOUNT.sub(quantum.muln(1)), quantum);
+      // no time travel just release
+      tx = await lock.release({ from: stakedAccountID });
+      ts = await time.latest(); // should have tx timestamp
+      const allVested = await lock.tokensVested(stakedAccountID, ts);
+      released = allVested.sub(almostAllVested);
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: released });
+      // released just one quantum
+      expect(released.sub(quantum).abs()).to.be.bignumber.lte(new BN(1));
+      // go forward
+      await time.increase(vestingPeriod);
+      tx = await lock.release({ from: stakedAccountID });
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: ZERO });
+      // staker has it all
+      await expectTokenBalance(stakedAccountID, LOCK_AMOUNT);
+      expect(await lock.unlockedTokensOf(stakedAccountID)).to.be.bignumber.eq(LOCK_AMOUNT);
+      // lock has none
+      await expectTokenBalance(lock.address, ZERO);
+    });
+
+    it(' with two stakes and cliff', async () => {
+      const secondStaker = accounts[2];
+      const staker1Amount = Q18.muln(61251);
+      const staker2Amount = Q18.muln(60012).addn(1);
+      const totalLocked = staker1Amount.add(staker2Amount);
+
+      const vestingPeriod = DAYS_30.muln(12);
+      const cliffPeriod = DAYS_30.muln(4);
+
+      const initialTs = await time.latest();
+      const startDate = initialTs.sub(DAYS_30);
+
+      // already one month elapsed
+      const lock = await newTokenLock(
+        [{ address: stakedAccountID, amount: staker1Amount }, { address: secondStaker, amount: staker2Amount }],
+        { startDate, vesting: vestingPeriod, cliff: cliffPeriod, initial: ZERO },
+      );
+      // compute minimum release quantum
+      const quantum = await releaseQuantum(totalLocked, vestingPeriod, ZERO);
+      // send tokens to lock contract
+      await evntToken.transfer(lock.address, totalLocked, { from: deployer });
+      // no one can take anything
+      let tx = await lock.release({ from: stakedAccountID });
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: ZERO });
+      tx = await lock.release({ from: secondStaker });
+      expectEvent(tx, 'LogRelease', { sender: secondStaker, amount: ZERO });
+      // this user has no stake so his release is 0
+      tx = await lock.release({ from: accounts[3] });
+      expectEvent(tx, 'LogRelease', { sender: accounts[3], amount: ZERO });
+
+      // move to cliff and release staker 2
+      await time.increaseTo(startDate.add(cliffPeriod));
+      tx = await lock.release({ from: secondStaker });
+      const ts = await time.latest(); // should have tx timestamp
+      // here we obtain exact value
+      const vested = await lock.tokensVested(secondStaker, ts);
+      // if we hit exact second boundary this check may sometimes fail, rerun the test
+      // cliff is at 1/3 of vesting period
+      expectRelease(vested, staker2Amount.divn(3), quantum);
+      expectEvent(tx, 'LogRelease', { sender: secondStaker, amount: vested });
+      expect(await lock.unlockedTokensOf(secondStaker)).to.be.bignumber.eq(vested);
+      await expectTokenBalance(secondStaker, vested);
+      // this user has no stake so his release is 0
+      tx = await lock.release({ from: accounts[3] });
+      expectEvent(tx, 'LogRelease', { sender: accounts[3], amount: ZERO });
+      // move way after vesting and claim staker 1
+      await time.increaseTo(startDate.add(vestingPeriod.muln(2)));
+      tx = await lock.release({ from: stakedAccountID });
+      expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: staker1Amount });
+      await expectTokenBalance(stakedAccountID, staker1Amount);
+      // just make sure we can release all
+      await lock.release({ from: secondStaker });
+      await expectTokenBalance(lock.address, ZERO);
     });
   });
 });
