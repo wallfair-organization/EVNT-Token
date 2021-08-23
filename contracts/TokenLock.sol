@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
@@ -127,8 +127,9 @@ contract TokenLock {
         assert(stake.totalTokens >= stake.unlockedTokens + unlockAmount);
 
         stake.unlockedTokens += unlockAmount;
-        token().safeTransfer(sender, unlockAmount);
 
         emit LogRelease(sender, unlockAmount);
+
+        token().safeTransfer(sender, unlockAmount);
     }
 }
