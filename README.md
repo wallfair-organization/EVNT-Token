@@ -1,16 +1,16 @@
 
-[![build](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/build.yml/badge.svg)](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/build.yml)
-[![tests](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/tests.yml/badge.svg)](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/tests.yml)
+[![build](https://github.com/wallfair-organization/WFAIR-Token/actions/workflows/build.yml/badge.svg)](https://github.com/wallfair-organization/WFAIR-Token/actions/workflows/build.yml)
+[![tests](https://github.com/wallfair-organization/WFAIR-Token/actions/workflows/tests.yml/badge.svg)](https://github.com/wallfair-organization/WFAIR-Token/actions/workflows/tests.yml)
 
 # Contracts
 ## WFAIRToken
-The WFAIRToken is an ERC20 token that uses ERC1363 extentions. The ERC20 implementation is provided by OpenZeppelin, and ERC1363 extensions are by https://github.com/vittominacori/erc1363-payable-token.
+The `WFAIRToken` is an ERC20 token that uses ERC1363 extentions. The ERC20 implementation is provided by OpenZeppelin, and ERC1363 extensions are by https://github.com/vittominacori/erc1363-payable-token.
 
 When a `transfer` methods is used, the extensions allow the token to inform the receiver whether it is a smart contract on transfer, which provides similar functionality to the fallback function in the case of native ETH.
 
 Extensions are intendend to be used within Wallfair Platform, that is, to stake tokens in the PLP contract without the need of an additional `approve` transaction.
 
-The WFAIRToken contract immediately mints the requested supply to the `msg.sender`. For what happens after that - see the *Deployment* section.
+The `WFAIRToken` contract immediately mints the requested supply to the `msg.sender`. For what happens after that - see the *Deployment* section.
 
 ## TokenLock 
 `TokenLock` implements simple vesting schedule. Within the contract we define *vesting function* which, for a given total amount of tokens, tells how much of the tokens may be released at a given moment. This function is defined as follows:
