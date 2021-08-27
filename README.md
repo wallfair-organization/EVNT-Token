@@ -3,14 +3,14 @@
 [![tests](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/tests.yml/badge.svg)](https://github.com/wallfair-organization/EVNT-Token/actions/workflows/tests.yml)
 
 # Contracts
-## EVNTToken
-The EVNTToken is an ERC20 token that uses ERC1363 extentions. The ERC20 implementation is provided by OpenZeppelin, and ERC1363 extensions are by https://github.com/vittominacori/erc1363-payable-token.
+## WFAIRToken
+The WFAIRToken is an ERC20 token that uses ERC1363 extentions. The ERC20 implementation is provided by OpenZeppelin, and ERC1363 extensions are by https://github.com/vittominacori/erc1363-payable-token.
 
 When a `transfer` methods is used, the extensions allow the token to inform the receiver whether it is a smart contract on transfer, which provides similar functionality to the fallback function in the case of native ETH.
 
 Extensions are intendend to be used within Wallfair Platform, that is, to stake tokens in the PLP contract without the need of an additional `approve` transaction.
 
-The EVNTToken contract immediately mints the requested supply to the `msg.sender`. For what happens after that - see the *Deployment* section.
+The WFAIRToken contract immediately mints the requested supply to the `msg.sender`. For what happens after that - see the *Deployment* section.
 
 ## TokenLock 
 `TokenLock` implements simple vesting schedule. Within the contract we define *vesting function* which, for a given total amount of tokens, tells how much of the tokens may be released at a given moment. This function is defined as follows:
@@ -26,7 +26,7 @@ The EVNTToken contract immediately mints the requested supply to the `msg.sender
 2. Tokens belonging to several addresses may be locked in single instance (with same vesting schedule). Addresses may be simple addresses and contracts
 3. Cliff and initial release may not be defined together in single instance
 4. *vesting start* may be specified to happen in the past or in the future in reference to the time of the deployment of the contract
-5. Contract will execute `transfer` function to the address defined as the owner and keep track of how much was already released. Actual release happens via owner-executed transaction. Release will be impossible if the `TokenLock` does not held enough EVNT tokens.
+5. Contract will execute `transfer` function to the address defined as the owner and keep track of how much was already released. Actual release happens via owner-executed transaction. Release will be impossible if the `TokenLock` does not held enough WFAIR tokens.
 6. There are no methods to "reclaim" non-released tokens. Tokens that can't be released (owner lost the private key for example) are locked forever.
 7. All time periods must be multiples of 30 days.
 8. List of stakes (*owner address : total amount due* mapping) is provided at the deployment time and cannot be changed later.
@@ -35,7 +35,7 @@ The actual deployment will require several instances of the `TokenLock` to be cr
 
 ## Deployment
 The deployment procedure will be as follows:
-1. `EVNTToken` instance is deployed and all full supply is minted to `msg.sender` (`deployer`).
+1. `WFAIRToken` instance is deployed and all full supply is minted to `msg.sender` (`deployer`).
 2. Several `TokenLock` instances are deployed, depending on the actual allocations and vesting schedules of Wallfair, final lists of addresses are provided to that instances.
 3. `deployer` transfers the tokens it holds to the `TokenLock` instances (and other wallets if needed) - as per Wallfair token allocation. At this point `deployer` does not hold any tokens and its private key may be destroyed.
 
@@ -44,7 +44,7 @@ The deployment procedure will be as follows:
 
 Clone the repository:
 
-`git clone https://github.com/wallfair-organization/EVNT-Token.git`
+`git clone https://github.com/wallfair-organization/WFAIR-Token.git`
 
 Ensure you have node.js and npm installed. You must be using **npm version >= 7**.
 

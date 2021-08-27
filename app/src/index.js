@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import EVNTTokenArtifact from '../../build/contracts/EVNTToken.json';
+import WFAIRTokenArtifact from '../../build/contracts/WFAIRToken.json';
 import tokenLockArtifact from '../../build/contracts/FriendsTokenlock.json';
 
 const App = {
@@ -15,10 +15,10 @@ const App = {
       // get contract instance
       const networkId = await web3.eth.net.getId();
 
-      const deployedEVNTToken = EVNTTokenArtifact.networks[networkId];
+      const deployedWFAIRToken = WFAIRTokenArtifact.networks[networkId];
       this.meta = new web3.eth.Contract(
-        EVNTTokenArtifact.abi,
-        deployedEVNTToken.address,
+        WFAIRTokenArtifact.abi,
+        deployedWFAIRToken.address,
       );
 
       const deployedTokenLock = tokenLockArtifact.networks[networkId];
@@ -46,14 +46,14 @@ const App = {
     const input = parseInt(document.getElementById('amount').value);
     const amount = BigInt(input) * BigInt(10 ** 18);
     await mint(amount).send({ from: this.account });
-    App.setStatus(`Successful mint of ${input} EVNT to ${this.account}.`);
+    App.setStatus(`Successful mint of ${input} WFAIR to ${this.account}.`);
   },
 
   getBalance: async function () {
     const { balanceOf } = this.meta.methods;
     const balance = await balanceOf(this.account).call({ from: this.account });
 
-    App.setStatus(`${balance} EVNT`);
+    App.setStatus(`${balance} WFAIR`);
   },
 
   getFamilyUnlock: async function () {
