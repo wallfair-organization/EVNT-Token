@@ -7,7 +7,7 @@ const Math = require('mathjs');
 
 const TokenLock = artifacts.require('TokenLock');
 
-contract('TestTokenLock', function (accounts) {
+contract('TokenLock', function (accounts) {
   const deployer = accounts[5];
   const stakedAccountID = accounts[1];
 
@@ -382,7 +382,7 @@ contract('TestTokenLock', function (accounts) {
         { startDate, vesting: vestingPeriod, cliff: ZERO, initial: releaseFraction },
       );
       // compute minimum release quantum
-      const quantum = await releaseQuantum(LOCK_AMOUNT, vestingPeriod, initialRelease);
+      const quantum = (await releaseQuantum(LOCK_AMOUNT, vestingPeriod, initialRelease)).addn(1);
       // send tokens to lock contract
       await WFAIRToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
 
@@ -426,16 +426,17 @@ contract('TestTokenLock', function (accounts) {
       const almostAllVested = await lock.tokensVested(stakedAccountID, ts);
       released = almostAllVested.sub(halfVested);
       expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: released });
-      // we miss max 2 quanta to full unlock
-      expectRelease(almostAllVested, LOCK_AMOUNT.sub(quantum.muln(1)), quantum);
-      // no time travel just release
+      // we miss max 1 quantum to full unlock
+      expectRelease(almostAllVested, LOCK_AMOUNT.sub(quantum), quantum);
+      // set time explicitely to vesting end
+      await time.increaseTo(startDate.add(vestingPeriod));
       tx = await lock.release({ from: stakedAccountID });
-      ts = await time.latest(); // should have tx timestamp
-      const allVested = await lock.tokensVested(stakedAccountID, ts);
+      const allVested = await lock.tokensVested(stakedAccountID, startDate.add(vestingPeriod));
+      expect(allVested).to.be.bignumber.eq(LOCK_AMOUNT);
       released = allVested.sub(almostAllVested);
       expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: released });
-      // released just one quantum
-      expect(released.sub(quantum).abs()).to.be.bignumber.lte(new BN(1));
+      // released just 0 or one quantum
+      expectRelease(released, quantum, quantum);
       // go forward
       await time.increase(vestingPeriod);
       tx = await lock.release({ from: stakedAccountID });
