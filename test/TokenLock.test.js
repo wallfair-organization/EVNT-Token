@@ -1,13 +1,13 @@
 // import Math from 'mathjs';
-import { deployEVNT, deployTokenLock } from './utils/deploy';
-import { Q18, EVNT_TOTAL_SUPPLY, ZERO, DAYS_30 } from './utils/consts';
+import { deployWFAIR, deployTokenLock } from './utils/deploy';
+import { Q18, WFAIR_TOTAL_SUPPLY, ZERO, DAYS_30 } from './utils/consts';
 import { BN, expectRevert, time, expectEvent } from '@openzeppelin/test-helpers';
 import { expect } from 'hardhat';
 const Math = require('mathjs');
 
 const TokenLock = artifacts.require('TokenLock');
 
-contract('TestTokenLock', function (accounts) {
+contract('TokenLock', function (accounts) {
   const deployer = accounts[5];
   const stakedAccountID = accounts[1];
 
@@ -18,28 +18,28 @@ contract('TestTokenLock', function (accounts) {
   const CLIFF = new BN(1 * 360 * 24 * 60 * 60);
   const START_DATE = new BN(1612137600);
 
-  let evntToken;
+  let WFAIRToken;
 
   async function newTokenLock (stakes, options) {
     const lockOpts = Object.assign(
       { startDate: START_DATE, vesting: VESTING, cliff: CLIFF, initial: ZERO },
       options || {},
     );
-    return deployTokenLock(evntToken.address,
+    return deployTokenLock(WFAIRToken.address,
       ...Object.values(lockOpts),
       stakes,
     );
   }
 
   beforeEach(async () => {
-    evntToken = await deployEVNT(EVNT_TOTAL_SUPPLY, deployer);
+    WFAIRToken = await deployWFAIR(WFAIR_TOTAL_SUPPLY, deployer);
   });
 
   describe('Should deploy', () => {
     it('and have getters set', async () => {
       // deploy without stakes just to check view functions
       let lock = await newTokenLock([]);
-      expect(await lock.token()).to.equal(evntToken.address);
+      expect(await lock.token()).to.equal(WFAIRToken.address);
       expect(await lock.startTime()).to.be.a.bignumber.to.equal(START_DATE);
       expect(await lock.vestingPeriod()).to.be.a.bignumber.to.equal(VESTING);
       expect(await lock.cliffPeriod()).to.be.a.bignumber.to.equal(CLIFF);
@@ -52,7 +52,7 @@ contract('TestTokenLock', function (accounts) {
 
     it('and rejects on non equal lists', async () => {
       await expectRevert(
-        TokenLock.new(evntToken.address,
+        TokenLock.new(WFAIRToken.address,
           START_DATE,
           VESTING,
           CLIFF,
@@ -346,7 +346,7 @@ contract('TestTokenLock', function (accounts) {
 
   describe('Release', () => {
     async function expectTokenBalance (owner, expectedBalance) {
-      expect(await evntToken.balanceOf(owner)).to.be.bignumber.eq(expectedBalance);
+      expect(await WFAIRToken.balanceOf(owner)).to.be.bignumber.eq(expectedBalance);
     }
 
     function vestingFunction (amount, elapsed, vesting, initialRelease) {
@@ -382,9 +382,9 @@ contract('TestTokenLock', function (accounts) {
         { startDate, vesting: vestingPeriod, cliff: ZERO, initial: releaseFraction },
       );
       // compute minimum release quantum
-      const quantum = await releaseQuantum(LOCK_AMOUNT, vestingPeriod, initialRelease);
+      const quantum = (await releaseQuantum(LOCK_AMOUNT, vestingPeriod, initialRelease)).addn(1);
       // send tokens to lock contract
-      await evntToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
+      await WFAIRToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
 
       // check vested now
       let ts = await time.latest();
@@ -426,16 +426,17 @@ contract('TestTokenLock', function (accounts) {
       const almostAllVested = await lock.tokensVested(stakedAccountID, ts);
       released = almostAllVested.sub(halfVested);
       expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: released });
-      // we miss max 2 quanta to full unlock
-      expectRelease(almostAllVested, LOCK_AMOUNT.sub(quantum.muln(1)), quantum);
-      // no time travel just release
+      // we miss max 1 quantum to full unlock
+      expectRelease(almostAllVested, LOCK_AMOUNT.sub(quantum), quantum);
+      // set time explicitely to vesting end
+      await time.increaseTo(startDate.add(vestingPeriod));
       tx = await lock.release({ from: stakedAccountID });
-      ts = await time.latest(); // should have tx timestamp
-      const allVested = await lock.tokensVested(stakedAccountID, ts);
+      const allVested = await lock.tokensVested(stakedAccountID, startDate.add(vestingPeriod));
+      expect(allVested).to.be.bignumber.eq(LOCK_AMOUNT);
       released = allVested.sub(almostAllVested);
       expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: released });
-      // released just one quantum
-      expect(released.sub(quantum).abs()).to.be.bignumber.lte(new BN(1));
+      // released just 0 or one quantum
+      expectRelease(released, quantum, quantum);
       // go forward
       await time.increase(vestingPeriod);
       tx = await lock.release({ from: stakedAccountID });
@@ -467,7 +468,7 @@ contract('TestTokenLock', function (accounts) {
       // compute minimum release quantum
       const quantum = await releaseQuantum(totalLocked, vestingPeriod, ZERO);
       // send tokens to lock contract
-      await evntToken.transfer(lock.address, totalLocked, { from: deployer });
+      await WFAIRToken.transfer(lock.address, totalLocked, { from: deployer });
       // no one can take anything
       let tx = await lock.release({ from: stakedAccountID });
       expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: ZERO });
