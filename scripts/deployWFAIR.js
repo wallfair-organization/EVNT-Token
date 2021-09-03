@@ -1,5 +1,6 @@
 /* deployWFAIR.js */
 import { BN } from '@openzeppelin/test-helpers';
+require('log-timestamp');
 const hre = require('hardhat');
 const fs = require('fs');
 
@@ -20,15 +21,20 @@ async function main () {
 
   // Transfer the tokens to the hot wallets
   for (const transferRequest of deployConfig.transferRequests) {
-    console.log(transferRequest);
+    console.log("The following transfer request was retrieved:\n", transferRequest);
     await wfairtoken.transfer(transferRequest.address, Q18.mul(new BN(transferRequest.amount)).toString());
   }
 
   // Check the balances
   for (const transferRequest of deployConfig.transferRequests) {
     const balance = await wfairtoken.balanceOf(transferRequest.address);
-    if (Q18.mul(new BN(transferRequest.amount)).toString() === balance) {
-      console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount);
+    if (Q18.mul(new BN(transferRequest.amount)).toString() === balance.toString()) {
+      console.log('Address ' +
+        transferRequest.address +
+        ' received ' +
+        transferRequest.amount +
+        ' (verified)'
+      );
     } else {
       console.log('Error in transfer to ' + transferRequest.address);
     }
