@@ -1,0 +1,21 @@
+{
+  "lockRequests" :
+    [
+      {
+        "name": "Wallfair wallet",
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "startDate": "2021-10-05T00:00:00.000Z",
+        "vestingPeriod": "12",
+        "cliff": "6",
+        "amount": "10000000000000000000",
+      },
+      {
+        "name": "Wallfair wallet",
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "startDate": "2021-10-05T00:00:00.000Z",
+        "vestingPeriod": "12",
+        "cliff": "6",
+        "amount": "10000000000000000000",
+      },
+    ]
+}
