@@ -24,9 +24,12 @@ module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
+    },
+    localhost: {
+      url: "http://127.0.0.1:8545",
       // over-ride chain ID to allow MetaMask to connect to localhost:8545
       // see https://hardhat.org/metamask-issue.html
-      chainId: 1337
+      chainId: 1337,
     },
     coverage: {
       url: 'http://127.0.0.1:8555',
