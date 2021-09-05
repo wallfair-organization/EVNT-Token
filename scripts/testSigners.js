@@ -2,7 +2,7 @@
 require('log-timestamp');
 const hre = require('hardhat');
 
-// Load the deployment configuration file and set up constants
+// Retrieve network and account details
 const network = hre.hardhatArguments.network;
 console.log('Operating on network ' + network);
 
