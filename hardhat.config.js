@@ -1,35 +1,33 @@
 /* hardhat.config.js */
-require("@babel/register");
-require("@babel/polyfill");
+require('@babel/register');
+require('@babel/polyfill');
 require('chai/register-should');
-require("hardhat-gas-reporter");
-require("@nomiclabs/hardhat-truffle5");
-require("@nomiclabs/hardhat-etherscan");
-require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-web3");
-require("solidity-coverage");
+require('hardhat-gas-reporter');
+require('@nomiclabs/hardhat-truffle5');
+require('@nomiclabs/hardhat-etherscan');
+require('@nomiclabs/hardhat-ethers');
+require('@nomiclabs/hardhat-web3');
+require('solidity-coverage');
 require('dotenv-safe').config({
-  allowEmptyValues: true
+  allowEmptyValues: true,
 });
 
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+require('dotenv-safe').config();
 
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+const { LOCALHOST_PRIVATE_KEY, LOCALHOST_PRIVATE_KEY2 } = process.env;
 
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
+      chainId: 1337
     },
     localhost: {
-      url: "http://127.0.0.1:8545",
+      url: 'http://127.0.0.1:8545',
       // over-ride chain ID to allow MetaMask to connect to localhost:8545
       // see https://hardhat.org/metamask-issue.html
       chainId: 1337,
+      accounts: [LOCALHOST_PRIVATE_KEY, LOCALHOST_PRIVATE_KEY2],
     },
     coverage: {
       url: 'http://127.0.0.1:8555',
@@ -38,12 +36,12 @@ module.exports = {
     },
   },
   solidity: {
-    version: "0.8.7",
+    version: '0.8.7',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
-      }
-    }
-  }
-}
+        runs: 200,
+      },
+    },
+  },
+};

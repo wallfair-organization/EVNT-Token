@@ -1,4 +1,4 @@
-/* deployWFAIR.js */
+/* ./scripts/deployWFAIR.js */
 import { BN } from '@openzeppelin/test-helpers';
 require('log-timestamp');
 const hre = require('hardhat');
@@ -20,21 +20,30 @@ try {
   console.error(err.message);
 }
 
-let actions;
+const actions = {};
+actions.transfers = [];
 try {
-  actions = JSON.parse(fs.readFileSync(actionsFilepath, 'utf-8'));
+  // Make backup copy of prior actions.log file
   fs.renameSync(actionsFilepath, actionsFilepath + '.' + Date.now());
 } catch (err) {
-  console.error(err);
-  actions = {};
+  if (err.code === 'ENOENT') {
+    console.log('A new actions.log will be created');
+  } else {
+    console.error(err);
+    process.exit(1);
+  }
 }
 console.log('Actions will be logged to ' + actionsFilepath);
 
-// in the config file we use WFAIR, but in the transactions we use wei <-- perhaps wei everywhere is better
+// In the config file we use WFAIR, but in the transactions we use wei <-- perhaps wei everywhere is better
 const WALLFAIR_TOTAL_SUPPLY = Q18.mul(new BN(deployConfig.wallfairTotalSupply)).toString();
 console.log('Total supply: ' + WALLFAIR_TOTAL_SUPPLY.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' wei');
 
 async function main () {
+  // Verify the signers for contracts and transactions
+  const accounts = await hre.ethers.getSigners();
+  console.log('Signing account is ' + accounts[0].address);
+
   // Deploy the token contract
   const WFAIRToken = await hre.ethers.getContractFactory('WFAIRToken');
   const wfairtoken = await WFAIRToken.deploy(WALLFAIR_TOTAL_SUPPLY);
@@ -47,16 +56,14 @@ async function main () {
     await wfairtoken.transfer(transferRequest.address, Q18.mul(new BN(transferRequest.amount)).toString());
   }
 
-  // Check the balances
+  // Check the balances (assumes receiving address has 0 WFAIR to start with)
   for (const transferRequest of deployConfig.transferRequests) {
     const balance = await wfairtoken.balanceOf(transferRequest.address);
     if (Q18.mul(new BN(transferRequest.amount)).toString() === balance.toString()) {
-      console.log('Address ' +
-        transferRequest.address +
-        ' received ' +
-        transferRequest.amount +
-        ' (verified)',
-      );
+      console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount + ' from ' +
+        accounts[0].address + ' (verified)');
+      const transfer = { from: accounts[0].address, to: transferRequest.address, amount: transferRequest.amount };
+      actions.transfers.push(transfer);
     } else {
       console.log('Error in transfer to ' + transferRequest.address);
     }
@@ -67,7 +74,7 @@ main()
   .then(() => {
     // write out new actions object
     console.log('Writing actions to ' + actionsFilepath);
-    fs.writeFileSync(actionsFilepath, JSON.stringify(actions), (err) => {
+    fs.writeFileSync(actionsFilepath, JSON.stringify(actions, null, 2), (err) => {
       console.error(err.message);
     });
     process.exit(0);
