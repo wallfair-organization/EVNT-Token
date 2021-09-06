@@ -4,6 +4,8 @@ const hre = require('hardhat');
 const toBN = hre.ethers.BigNumber.from;
 const fs = require('fs');
 
+const Q18 = toBN(10).pow(toBN(18));
+
 // @dev - group array by multiple keys - used to fold multiple lock requirements into
 // the same token lock contract
 function multipleGroupByArray (dataArray, groupPropertyArray) {
@@ -34,7 +36,7 @@ try {
 // can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial
 // payout values
 const lockGroups = multipleGroupByArray(lockConfig.lockRequests, function (item) {
-  return [item.startTime, item.vestingPeriod, item.cliffPeriod, item.initialReleaseFraction];
+  return [item.startTime, item.vestingPeriod, item.cliffPeriod, item.initialReleaseFraction, item.delay];
 });
 console.log('Number of lock functions to deploy: ' + lockGroups.length);
 console.log(lockGroups);
@@ -58,9 +60,9 @@ for (const lockRequest of lockConfig.lockRequests) {
     console.error('Error: Cliff/initial conflict in entry:\n', lockRequest);
     process.exit(1);
   }
-  TOTAL = TOTAL.add(toBN(lockRequest.amount));
+  TOTAL = TOTAL.add(toBN(Q18.mul(lockRequest.amount)));
 }
-console.log('WFAIR to be locked: ' + TOTAL + ' wei');
+console.log('WFAIR to be locked: ' + TOTAL.div(Q18));
 
 //
 // Main async function that connects to contracts and deploys each token lock
@@ -86,13 +88,13 @@ async function main () {
   console.log('Attached to WFAIR token contract ' + WFAIR_CONTRACT);
   const wfairBalance = await wfair.balanceOf(accounts[0].address);
   if (wfairBalance.lt(TOTAL)) {
-    console.error('Error: WFAIR balance of deploying address is ' + wfairBalance +
-       ' but ' + TOTAL + ' is required');
+    console.error('Error: WFAIR balance of deploying address is ' + wfairBalance.div(Q18) +
+       ' but ' + TOTAL.div(Q18) + ' is required');
     process.exit(1);
   } else {
     // TODO: add second comparison and exit on too many tokens
     const excess = wfairBalance.sub(TOTAL);
-    console.log('Excess WFAIR tokens is: ' + excess);
+    console.log('Excess WFAIR tokens is: ' + excess.div(Q18));
   }
 
   // loop through each array of token locks and deploy
@@ -102,12 +104,13 @@ async function main () {
     const amounts = [];
     for (const entry of lockGroup) {
       wallets.push(entry.address);
-      amounts.push(entry.amount);
+      amounts.push(Q18.mul(entry.amount).toString());
     }
     console.log('Processing the following lock group:\n', lockGroup);
     const contractParams = [
       WFAIR_CONTRACT,
-      Math.floor(new Date(lockGroup[0].startTime).getTime() / 1000).toString(),
+      (Math.floor(new Date(lockGroup[0].startTime).getTime() / 1000) +
+        (lockGroup[0].delay * 30 * 24 * 60 * 60)).toString(),
       (parseInt(lockGroup[0].vestingPeriod) * 30 * 24 * 60 * 60).toString(),
       (parseInt(lockGroup[0].cliffPeriod) * 30 * 24 * 60 * 60).toString(),
       lockGroup[0].initialReleaseFraction,
