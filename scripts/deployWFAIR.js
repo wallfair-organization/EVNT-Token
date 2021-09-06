@@ -1,10 +1,10 @@
 /* ./scripts/deployWFAIR.js */
-import { BN } from '@openzeppelin/test-helpers';
 require('log-timestamp');
 const hre = require('hardhat');
+const toBN = hre.web3.utils.toBN;
 const fs = require('fs');
 
-const Q18 = (new BN('10')).pow(new BN('18'));
+const Q18 = (toBN('10')).pow(toBN('18'));
 
 // Load the deployment configuration file and set up constants
 const network = hre.hardhatArguments.network;
@@ -36,7 +36,7 @@ try {
 console.log('Actions will be logged to ' + actionsFilepath);
 
 // In the config file we use WFAIR, but in the transactions we use wei <-- perhaps wei everywhere is better
-const WALLFAIR_TOTAL_SUPPLY = Q18.mul(new BN(deployConfig.wallfairTotalSupply)).toString();
+const WALLFAIR_TOTAL_SUPPLY = Q18.mul(toBN(deployConfig.wallfairTotalSupply)).toString();
 console.log('Total supply: ' + WALLFAIR_TOTAL_SUPPLY.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' wei');
 
 async function main () {
@@ -53,13 +53,13 @@ async function main () {
   // Transfer the tokens to the hot wallets
   for (const transferRequest of deployConfig.transferRequests) {
     console.log('The following transfer request was retrieved:\n', transferRequest);
-    await wfairtoken.transfer(transferRequest.address, Q18.mul(new BN(transferRequest.amount)).toString());
+    await wfairtoken.transfer(transferRequest.address, Q18.mul(toBN(transferRequest.amount)).toString());
   }
 
   // Check the balances (assumes receiving address has 0 WFAIR to start with)
   for (const transferRequest of deployConfig.transferRequests) {
     const balance = await wfairtoken.balanceOf(transferRequest.address);
-    if (Q18.mul(new BN(transferRequest.amount)).toString() === balance.toString()) {
+    if (Q18.mul(toBN(transferRequest.amount)).toString() === balance.toString()) {
       console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount + ' from ' +
         accounts[0].address + ' (verified)');
       const transfer = { from: accounts[0].address, to: transferRequest.address, amount: transferRequest.amount };

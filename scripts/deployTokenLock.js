@@ -29,7 +29,14 @@ let TOTAL_LOCK = toBN(0);
 for (const lockRequest of lockConfig.lockRequests) {
   TOTAL_LOCK = TOTAL_LOCK.add(toBN(lockRequest.amount));
 }
-console.log('Total WFAIR to be locked: ' + TOTAL_LOCK.toString() + ' wei');
+console.log('WFAIR to be locked:     ' + TOTAL_LOCK.toString() + ' wei');
+let TOTAL_INITIAL = toBN(0);
+for (const initialRequest of lockConfig.initialRequests) {
+  TOTAL_INITIAL = TOTAL_INITIAL.add(toBN(initialRequest.amount));
+}
+console.log('WFAIR initial payments: ' + TOTAL_INITIAL.toString() + ' wei');
+const TOTAL = TOTAL_INITIAL.add(TOTAL_LOCK);
+console.log('Total WFAIR required:   ' + TOTAL.toString() + ' wei');
 
 async function main () {
   // Get account that is deploying
@@ -51,15 +58,14 @@ async function main () {
   const wfair = Wfair.attach(WFAIR_CONTRACT);
   console.log('Attached to WFAIR token contract ' + WFAIR_CONTRACT);
   const wfairBalance = toBN(await wfair.balanceOf(accounts[0].address));
-  console.log(wfairBalance);
-  console.log(TOTAL_LOCK);
-  if (TOTAL_LOCK > wfairBalance) {
+  if (TOTAL > wfairBalance) {
     console.error('WFAIR balance of deploying address is ' + wfairBalance.toString() +
-      ' but ' + TOTAL_LOCK.toString() + ' is required');
+       ' but ' + TOTAL.toString() + ' is required');
     process.exit(1);
   } else {
-    // TODO: add second comparison and exit on too many tokens later ...
-    console.log('Excess WFAIR tokens is: ' + wfairBalance.sub(TOTAL_LOCK));
+    // TODO: add second comparison and exit on too many tokens
+    const excess = wfairBalance.sub(TOTAL);
+    console.log('Excess WFAIR tokens is: ' + excess.toString());
   }
 
   // TODO: construct arguments from deployTokenLock.config.json
