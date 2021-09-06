@@ -4,37 +4,37 @@
       {
         "name": "Wallet 1",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        "startDate": "2021-10-05T00:00:00.000Z",
-        "initial": "0",
+        "startTime": "2021-10-05T00:00:00.000Z",
+        "initialReleaseFraction": "0",
         "vestingPeriod": "12",
-        "cliff": "6",
+        "cliffPeriod": "6",
         "amount": "10000000000000000000"
       },
       {
         "name": "Wallet 2",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        "startDate": "2021-10-05T00:00:00.000Z",
-        "initial": "0",
+        "startTime": "2021-10-05T00:00:00.000Z",
+        "initialReleaseFraction": "0",
         "vestingPeriod": "12",
-        "cliff": "6",
+        "cliffPeriod": "6",
         "amount": "10000000000000000000"
       },
       {
         "name": "Wallet 3",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        "startDate": "2021-10-05T00:00:00.000Z",
-        "initial": "1000000000000000000",
+        "startTime": "2021-10-05T00:00:00.000Z",
+        "initialReleaseFraction": "1000000000000000000",
         "vestingPeriod": "12",
-        "cliff": "0",
+        "cliffPeriod": "0",
         "amount": "10000000000000000000"
       },
       {
         "name": "Wallet 4",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        "startDate": "2021-10-05T00:00:00.000Z",
-        "initial": "15000000000000000000",
+        "startTime": "2021-10-05T00:00:00.000Z",
+        "initialReleaseFraction": "15000000000000000000",
         "vestingPeriod": "12",
-        "cliff": "0",
+        "cliffPeriod": "0",
         "amount": "500000000000000000"
       }
     ]

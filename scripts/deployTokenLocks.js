@@ -34,20 +34,21 @@ try {
 // can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial
 // payout values
 const lockGroups = multipleGroupByArray(lockConfig.lockRequests, function (item) {
-  return [item.startDate, item.vesting, item.cliff, item.initial];
+  return [item.startTime, item.vestingPeriod, item.cliffPeriod, item.initialReleaseFraction];
 });
 console.log('Number of lock functions to deploy: ' + lockGroups.length);
 console.log(lockGroups);
+
 // TODO: check that each element of lockGroups doesn't contain the same address twice
 // as that would over-write the first lock with the second and lose tokens
-
-const actions = JSON.parse(fs.readFileSync('./scripts/' + network + '/logs/actions.json', 'utf-8'));
+// TODO: check that each object in the config file contains only correct keys
 
 // Retrieve WFAIR contract address
+const actions = JSON.parse(fs.readFileSync('./scripts/' + network + '/logs/actions.json', 'utf-8'));
 const WFAIR_CONTRACT = actions.WFAIR;
 
 // Minimum ETH balance - to be determined from gas analysis
-const MIN_ETH = toBN('100000000000000000');
+const MIN_ETH = toBN('100000000000000000'); // TODO: should this be in the deployTokenLockConfig.json file?
 
 // Calculate total WFAIR supply requirement, check for cliff/initial conflicts,
 // and create arguments for TokenLock contract
@@ -62,7 +63,7 @@ for (const lockRequest of lockConfig.lockRequests) {
 console.log('WFAIR to be locked: ' + TOTAL + ' wei');
 
 //
-// main function that connects to contracts and deploys each token lock
+// Main async function that connects to contracts and deploys each token lock
 //
 async function main () {
   // Get account that is deploying
@@ -84,8 +85,6 @@ async function main () {
   const wfair = Wfair.attach(WFAIR_CONTRACT);
   console.log('Attached to WFAIR token contract ' + WFAIR_CONTRACT);
   const wfairBalance = await wfair.balanceOf(accounts[0].address);
-  console.log(wfairBalance);
-  console.log(TOTAL);
   if (wfairBalance.lt(TOTAL)) {
     console.error('Error: WFAIR balance of deploying address is ' + wfairBalance +
        ' but ' + TOTAL + ' is required');
@@ -97,13 +96,30 @@ async function main () {
   }
 
   // loop through each array of token locks and deploy
-  for (const argument of lockGroups) {
-    // TODO: extract correct arguments array from objects in lockGroup elements
-    console.log(argument);
+  for (const lockGroup of lockGroups) {
+    // extract correct arguments array from objects in lockGroup elements
+    const wallets = [];
+    const amounts = [];
+    for (const entry of lockGroup) {
+      wallets.push(entry.address);
+      amounts.push(entry.amount);
+    }
+    console.log('Processing the following lock group:\n', lockGroup);
+    const contractParams = [
+      WFAIR_CONTRACT,
+      Math.floor(new Date(lockGroup[0].startTime).getTime() / 1000).toString(),
+      (parseInt(lockGroup[0].vestingPeriod) * 30).toString(),
+      (parseInt(lockGroup[0].cliffPeriod) * 30).toString(),
+      lockGroup[0].initialReleaseFraction,
+      wallets,
+      amounts,
+    ];
+    console.log('Parameters supplied:\n', contractParams);
     // Deploy the token contract for each argument array
     const TokenLock = await hre.ethers.getContractFactory('TokenLock');
-    const tokenlock = await TokenLock.deploy(WFAIR_CONTRACT, ...argument);
+    const tokenlock = await TokenLock.deploy(...contractParams);
     console.log('TokenLock contract deployed to:', tokenlock.address);
+    console.log('Parameters supplied:\n', contractParams);
   }
 
   // TODO: log all actions to actions.json
