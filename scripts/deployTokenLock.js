@@ -57,7 +57,7 @@ async function main () {
   const Wfair = await hre.ethers.getContractFactory('WFAIRToken');
   const wfair = Wfair.attach(WFAIR_CONTRACT);
   console.log('Attached to WFAIR token contract ' + WFAIR_CONTRACT);
-  const wfairBalance = toBN(await wfair.balanceOf(accounts[0].address));
+  const wfairBalance = await wfair.balanceOf(accounts[0].address);
   if (TOTAL > wfairBalance) {
     console.error('WFAIR balance of deploying address is ' + wfairBalance +
        ' but ' + TOTAL + ' is required');
