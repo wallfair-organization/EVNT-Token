@@ -4,7 +4,7 @@ const hre = require('hardhat');
 const toBN = hre.ethers.BigNumber.from;
 const fs = require('fs');
 
-// group array by multiple keys - used to fold multiple lock requirements into
+// @dev - group array by multiple keys - used to fold multiple lock requirements into
 // the same token lock contract
 function multipleGroupByArray (dataArray, groupPropertyArray) {
   const groups = {};
@@ -108,13 +108,12 @@ async function main () {
     const contractParams = [
       WFAIR_CONTRACT,
       Math.floor(new Date(lockGroup[0].startTime).getTime() / 1000).toString(),
-      (parseInt(lockGroup[0].vestingPeriod) * 30).toString(),
-      (parseInt(lockGroup[0].cliffPeriod) * 30).toString(),
+      (parseInt(lockGroup[0].vestingPeriod) * 30 * 24 * 60 * 60).toString(),
+      (parseInt(lockGroup[0].cliffPeriod) * 30 * 24 * 60 * 60).toString(),
       lockGroup[0].initialReleaseFraction,
       wallets,
       amounts,
     ];
-    console.log('Parameters supplied:\n', contractParams);
     // Deploy the token contract for each argument array
     const TokenLock = await hre.ethers.getContractFactory('TokenLock');
     const tokenlock = await TokenLock.deploy(...contractParams);
