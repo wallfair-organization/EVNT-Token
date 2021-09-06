@@ -29,14 +29,14 @@ let TOTAL_LOCK = toBN(0);
 for (const lockRequest of lockConfig.lockRequests) {
   TOTAL_LOCK = TOTAL_LOCK.add(toBN(lockRequest.amount));
 }
-console.log('WFAIR to be locked:     ' + TOTAL_LOCK.toString() + ' wei');
+console.log('WFAIR to be locked:     ' + TOTAL_LOCK + ' wei');
 let TOTAL_INITIAL = toBN(0);
 for (const initialRequest of lockConfig.initialRequests) {
   TOTAL_INITIAL = TOTAL_INITIAL.add(toBN(initialRequest.amount));
 }
-console.log('WFAIR initial payments: ' + TOTAL_INITIAL.toString() + ' wei');
+console.log('WFAIR initial payments: ' + TOTAL_INITIAL + ' wei');
 const TOTAL = TOTAL_INITIAL.add(TOTAL_LOCK);
-console.log('Total WFAIR required:   ' + TOTAL.toString() + ' wei');
+console.log('Total WFAIR required:   ' + TOTAL + ' wei');
 
 async function main () {
   // Get account that is deploying
@@ -44,13 +44,13 @@ async function main () {
   console.log('Signing account is ' + accounts[0].address);
 
   // Check ETH balance of deployer is sufficient
-  const ethBalance = toBN(await accounts[0].getBalance());
+  const ethBalance = await accounts[0].getBalance();
   if (ethBalance < MIN_ETH) {
-    console.error('ETH balance of deploying address is ' + ethBalance.toString() +
-      ' but ' + MIN_ETH.toString() + ' is required');
+    console.error('ETH balance of deploying address is ' + ethBalance +
+      ' but ' + MIN_ETH + ' is required');
     process.exit(1);
   } else {
-    console.log('ETH balance of ' + ethBalance.toString() + ' is sufficient');
+    console.log('ETH balance of ' + ethBalance + ' is sufficient');
   }
 
   // Check WFAIR balance of deployer is sufficient
@@ -59,13 +59,13 @@ async function main () {
   console.log('Attached to WFAIR token contract ' + WFAIR_CONTRACT);
   const wfairBalance = toBN(await wfair.balanceOf(accounts[0].address));
   if (TOTAL > wfairBalance) {
-    console.error('WFAIR balance of deploying address is ' + wfairBalance.toString() +
-       ' but ' + TOTAL.toString() + ' is required');
+    console.error('WFAIR balance of deploying address is ' + wfairBalance +
+       ' but ' + TOTAL + ' is required');
     process.exit(1);
   } else {
     // TODO: add second comparison and exit on too many tokens
     const excess = wfairBalance.sub(TOTAL);
-    console.log('Excess WFAIR tokens is: ' + excess.toString());
+    console.log('Excess WFAIR tokens is: ' + excess);
   }
 
   // TODO: construct arguments from deployTokenLock.config.json
