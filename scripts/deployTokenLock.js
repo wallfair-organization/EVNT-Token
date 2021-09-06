@@ -1,8 +1,22 @@
 /* deployTokenLock.js */
 require('log-timestamp');
 const hre = require('hardhat');
-const toBN = hre.web3.utils.toBN;
+const toBN = hre.ethers.BigNumber.from;
 const fs = require('fs');
+
+// group array by multiple keys - used to fold multiple lock requirements into
+// the same token lock contract
+function multipleGroupByArray (dataArray, groupPropertyArray) {
+  const groups = {};
+  dataArray.forEach(item => {
+    const group = JSON.stringify(groupPropertyArray(item));
+    groups[group] = groups[group] || [];
+    groups[group].push(item);
+  });
+  return Object.keys(groups).map(function (group) {
+    return groups[group];
+  });
+}
 
 // Load the deployment configuration file and set up constants and contract arguments
 const network = hre.hardhatArguments.network;
@@ -16,6 +30,17 @@ try {
   process.exit(1);
 }
 
+// create an array of arguments for the total list of lock contracts by grouping entries that
+// can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial
+// payout values
+const lockGroups = multipleGroupByArray(lockConfig.lockRequests, function (item) {
+  return [item.startDate, item.vesting, item.cliff, item.initial];
+});
+console.log('Number of lock functions to deploy: ' + lockGroups.length);
+console.log(lockGroups);
+// TODO: check that each element of lockGroups doesn't contain the same address twice
+// as that would over-write the first lock with the second and lose tokens
+
 const actions = JSON.parse(fs.readFileSync('./scripts/' + network + '/logs/actions.json', 'utf-8'));
 
 // Retrieve WFAIR contract address
@@ -24,20 +49,21 @@ const WFAIR_CONTRACT = actions.WFAIR;
 // Minimum ETH balance - to be determined from gas analysis
 const MIN_ETH = toBN('100000000000000000');
 
-// Calculate total WFAIR supply requirement and create arguments for TokenLock contract
-let TOTAL_LOCK = toBN(0);
+// Calculate total WFAIR supply requirement, check for cliff/initial conflicts,
+// and create arguments for TokenLock contract
+let TOTAL = toBN(0);
 for (const lockRequest of lockConfig.lockRequests) {
-  TOTAL_LOCK = TOTAL_LOCK.add(toBN(lockRequest.amount));
+  if ((lockRequest.cliff) > 0 && (lockRequest.initial > 0)) {
+    console.error('Error: Cliff/initial conflict in entry:\n', lockRequest);
+    process.exit(1);
+  }
+  TOTAL = TOTAL.add(toBN(lockRequest.amount));
 }
-console.log('WFAIR to be locked:     ' + TOTAL_LOCK + ' wei');
-let TOTAL_INITIAL = toBN(0);
-for (const initialRequest of lockConfig.initialRequests) {
-  TOTAL_INITIAL = TOTAL_INITIAL.add(toBN(initialRequest.amount));
-}
-console.log('WFAIR initial payments: ' + TOTAL_INITIAL + ' wei');
-const TOTAL = TOTAL_INITIAL.add(TOTAL_LOCK);
-console.log('Total WFAIR required:   ' + TOTAL + ' wei');
+console.log('WFAIR to be locked: ' + TOTAL + ' wei');
 
+//
+// main function that connects to contracts and deploys each token lock
+//
 async function main () {
   // Get account that is deploying
   const accounts = await hre.ethers.getSigners();
@@ -46,11 +72,11 @@ async function main () {
   // Check ETH balance of deployer is sufficient
   const ethBalance = await accounts[0].getBalance();
   if (ethBalance < MIN_ETH) {
-    console.error('ETH balance of deploying address is ' + ethBalance +
+    console.error('Error: ETH balance of deploying address is ' + ethBalance +
       ' but ' + MIN_ETH + ' is required');
     process.exit(1);
   } else {
-    console.log('ETH balance of ' + ethBalance + ' is sufficient');
+    console.log('ETH balance of ' + ethBalance + ' is sufficient for gas');
   }
 
   // Check WFAIR balance of deployer is sufficient
@@ -58,8 +84,10 @@ async function main () {
   const wfair = Wfair.attach(WFAIR_CONTRACT);
   console.log('Attached to WFAIR token contract ' + WFAIR_CONTRACT);
   const wfairBalance = await wfair.balanceOf(accounts[0].address);
-  if (TOTAL > wfairBalance) {
-    console.error('WFAIR balance of deploying address is ' + wfairBalance +
+  console.log(wfairBalance);
+  console.log(TOTAL);
+  if (wfairBalance.lt(TOTAL)) {
+    console.error('Error: WFAIR balance of deploying address is ' + wfairBalance +
        ' but ' + TOTAL + ' is required');
     process.exit(1);
   } else {
@@ -68,12 +96,17 @@ async function main () {
     console.log('Excess WFAIR tokens is: ' + excess);
   }
 
-  // TODO: construct arguments from deployTokenLock.config.json
+  // loop through each array of token locks and deploy
+  for (const argument of lockGroups) {
+    // TODO: extract correct arguments array from objects in lockGroup elements
+    console.log(argument);
+    // Deploy the token contract for each argument array
+    const TokenLock = await hre.ethers.getContractFactory('TokenLock');
+    const tokenlock = await TokenLock.deploy(WFAIR_CONTRACT, ...argument);
+    console.log('TokenLock contract deployed to:', tokenlock.address);
+  }
 
-  // Deploy the token contract
-  const TokenLock = await hre.ethers.getContractFactory('TokenLock');
-  const tokenlock = await TokenLock.deploy(WFAIR_CONTRACT, ...arguments);
-  console.log('TokenLock contract deployed to:', tokenlock.address);
+  // TODO: log all actions to actions.json
 }
 
 main()

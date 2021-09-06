@@ -2,30 +2,40 @@
   "lockRequests":
     [
       {
-        "name": "Wallfair wallet",
+        "name": "Wallet 1",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
         "startDate": "2021-10-05T00:00:00.000Z",
-        "initial": "15000000000000000000",
+        "initial": "0",
         "vestingPeriod": "12",
         "cliff": "6",
         "amount": "10000000000000000000"
       },
       {
-        "name": "Wallfair wallet",
+        "name": "Wallet 2",
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "startDate": "2021-10-05T00:00:00.000Z",
+        "initial": "0",
+        "vestingPeriod": "12",
+        "cliff": "6",
+        "amount": "10000000000000000000"
+      },
+      {
+        "name": "Wallet 3",
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "startDate": "2021-10-05T00:00:00.000Z",
+        "initial": "1000000000000000000",
+        "vestingPeriod": "12",
+        "cliff": "0",
+        "amount": "10000000000000000000"
+      },
+      {
+        "name": "Wallet 4",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
         "startDate": "2021-10-05T00:00:00.000Z",
         "initial": "15000000000000000000",
         "vestingPeriod": "12",
-        "cliff": "6",
-        "amount": "10000000000000000000"
-      }
-    ],
-  "initialRequests":
-    [
-      {
-        "name": "Wallfair wallet",
-        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        "amount": "15000000000000000000"
+        "cliff": "0",
+        "amount": "500000000000000000"
       }
     ]
 }
