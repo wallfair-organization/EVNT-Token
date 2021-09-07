@@ -1,9 +1,27 @@
 {
+  "transferRequests" :
+    [
+      {
+        "name": "DEX Liquidity #3",
+        "address": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+        "amount": "2500000"
+      },
+      {
+        "name": "Wallfair Initial Release #4",
+        "address": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+        "amount": "887500"
+      },
+      {
+        "name": "Faculty Initial Release #5",
+        "address": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
+        "amount": "6000000"
+      }
+    ],
   "lockRequests":
     [
       {
-        "name": "Team Wallet (#3)",
-        "address": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+        "name": "Team Wallet #6",
+        "address": "0x976ea74026e726554db657fa54763abd0c3a0aa9",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
@@ -12,8 +30,8 @@
         "amount": "100000000"
       },
       {
-        "name": "Wallfair Advisors (#4)",
-        "address": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+        "name": "Wallfair Advisors #7",
+        "address": "0x14dc79964da2c08b23698b3d3cc7ca32193d9955",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "9",
@@ -22,8 +40,8 @@
         "amount": "2250000"
       },
       {
-        "name": "Wallfair Advisors (#4)",
-        "address": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+        "name": "Wallfair Advisors #8",
+        "address": "0x23618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "3",
@@ -32,8 +50,8 @@
         "amount": "18750000"
       },
       {
-        "name": "Faculty Advisors (#5)",
-        "address": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
+        "name": "Faculty Advisors #9",
+        "address": "0xa0ee7a142d267c1f36714e4a8f75612f20a79720",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "9",
@@ -42,8 +60,8 @@
         "amount": "54000000"
       },
       {
-        "name": "Wallfair Treasury (#6)",
-        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "name": "Wallfair Treasury #10",
+        "address": "0xbcd4042de499d14e55001ccbb24a551f3b954096",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
@@ -52,8 +70,8 @@
         "amount": "37500000"
       },
       {
-        "name": "Faculty Treasury (#7)",
-        "address": "0x14dc79964da2c08b23698b3d3cc7ca32193d9955",
+        "name": "Faculty Treasury #11",
+        "address": "0x71be63f3384f5fb98995898a86b02fb2426c5788",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
@@ -62,8 +80,8 @@
         "amount": "60000000"
       },
       {
-        "name": "Wallfair Community (#8)",
-        "address": "0x23618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f",
+        "name": "Wallfair Community #12",
+        "address": "0xfabb0ac9d68b0b445fb7357272ff202c5651694a",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
@@ -72,8 +90,8 @@
         "amount": "63750000"
       },
       {
-        "name": "Wallfair Community (#8)",
-        "address": "0x23618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f",
+        "name": "Wallfair Community #13",
+        "address": "0x1cbd3b2770909d4e10f157cabc84c7264073c9ec",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
@@ -82,8 +100,8 @@
         "amount": "63750000"
       },
       {
-        "name": "Faculty Community (#9)",
-        "address": "0xa0ee7a142d267c1f36714e4a8f75612f20a79720",
+        "name": "Faculty Community #14",
+        "address": "0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097",
         "startTime": "2021-10-05T00:00:00.000Z",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",

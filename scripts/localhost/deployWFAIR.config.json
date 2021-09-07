@@ -3,14 +3,14 @@
   "transferRequests" :
     [
       {
-        "name": "Wallfair wallet",
+        "name": "Wallfair Public Hot Wallet #1",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        "amount": "500000000"
+        "amount": "1250000"
       },
       {
-        "name": "Hot sale wallet",
+        "name": "Wallfare Private Hot Wallet #2",
         "address": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-        "amount": "500000000"
+        "amount": "7500000"
       }
     ]
 }

@@ -56,22 +56,20 @@ async function main () {
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
 
   // Transfer the tokens to the hot wallets
+  // (TODO: move to utils as it is used by deployTokenLocks too
   for (const transferRequest of deployConfig.transferRequests) {
     console.log('The following transfer request was retrieved:\n', transferRequest);
     await wfairtoken.transfer(transferRequest.address, Q18.mul(toBN(transferRequest.amount)).toString());
-  }
-
-  // Check the balances (assumes receiving address has 0 WFAIR to start with)
-  for (const transferRequest of deployConfig.transferRequests) {
+    // Check the balances (assumes receiving address has 0 WFAIR to start with)
     const balance = await wfairtoken.balanceOf(transferRequest.address);
     if (Q18.mul(toBN(transferRequest.amount)).toString() === balance.toString()) {
       console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount + ' from ' +
         accounts[0].address + ' (verified)');
       const transfer = {
+        name: transferRequest.name,
         from: accounts[0].address,
         to: transferRequest.address,
         amount: transferRequest.amount,
-        name: transferRequest.name,
         timestamp: Date.now().toString(),
       };
       actions.transfers.push(transfer);

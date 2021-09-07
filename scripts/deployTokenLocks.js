@@ -40,7 +40,8 @@ try {
   actions = JSON.parse(fs.readFileSync(actionsFilepath, 'utf-8'));
 } catch (err) {
   if (err.code === 'ENOENT') {
-    console.log('A new actions.log will be created');
+    console.log('TokenLock deployment requires an existing actions.json file to retrieve WFAIR contract');
+    process.exit(1);
   } else {
     console.error(err);
     process.exit(1);
@@ -63,7 +64,6 @@ console.log(lockGroups);
 
 // TODO: check that each element of lockGroups doesn't contain the same address twice
 // as that would over-write the first lock with the second and lose tokens
-// TODO: check that each object in the config file contains only correct keys
 
 // Minimum ETH balance - to be determined from gas analysis
 const MIN_ETH = toBN('100000000000000000'); // TODO: should this be in the deployTokenLockConfig.json file?
@@ -77,6 +77,10 @@ for (const lockRequest of lockConfig.lockRequests) {
     process.exit(1);
   }
   TOTAL = TOTAL.add(toBN(Q18.mul(lockRequest.amount)));
+}
+// increase TOTAL to include quantities from initial release transactions
+for (const transferRequest of lockConfig.transferRequests) {
+  TOTAL = TOTAL.add(toBN(Q18.mul(transferRequest.amount)));
 }
 console.log('WFAIR to be locked: ' + TOTAL.div(Q18));
 
@@ -118,9 +122,12 @@ async function main () {
     // extract correct arguments array from objects in lockGroup elements
     const wallets = [];
     const amounts = [];
+    const totalLockFund = toBN('0');
     for (const entry of lockGroup) {
       wallets.push(entry.address);
       amounts.push(Q18.mul(entry.amount).toString());
+      // keep a running total of the sum of the amounts locked
+      totalLockFund.add(entry.amount);
     }
     console.log('Processing the following lock group:\n', lockGroup);
     const contractParams = [
@@ -144,6 +151,31 @@ async function main () {
       parameters: contractParams,
       timestamp: Date.now().toString(),
     };
+    // and fund the token contract with WFAIR tokens
+    await wfair.transfer(tokenlock.address, Q18.mul(toBN(totalLockFund)).toString());
+  }
+
+  // loop through transferRequests and send tokens to initial release wallets
+  // (TODO: move to utils as it is used by deployWFAIR too
+  for (const transferRequest of lockConfig.transferRequests) {
+    console.log('The following transfer request was retrieved:\n', transferRequest);
+    await wfair.transfer(transferRequest.address, Q18.mul(toBN(transferRequest.amount)).toString());
+    // Check the balances (assumes receiving address has 0 WFAIR to start with)
+    const balance = await wfair.balanceOf(transferRequest.address);
+    if (Q18.mul(toBN(transferRequest.amount)).toString() === balance.toString()) {
+      console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount + ' from ' +
+        accounts[0].address + ' (verified)');
+      const transfer = {
+        name: transferRequest.name,
+        from: accounts[0].address,
+        to: transferRequest.address,
+        amount: transferRequest.amount,
+        timestamp: Date.now().toString(),
+      };
+      actions.transfers.push(transfer);
+    } else {
+      console.log('Error in transfer to ' + transferRequest.address);
+    }
   }
 }
 
