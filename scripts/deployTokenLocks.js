@@ -23,6 +23,7 @@ function multipleGroupByArray (dataArray, groupPropertyArray) {
 // Load the deployment configuration file and set up constants and contract arguments
 const network = hre.hardhatArguments.network;
 console.log('Operating on network: ' + network);
+const actionsFilepath = './scripts/' + network + '/logs/actions.json';
 
 let lockConfig;
 try {
@@ -32,7 +33,26 @@ try {
   process.exit(1);
 }
 
-// create an array of arguments for the total list of lock contracts by grouping entries that
+// Load actions object (TODO: move actions function to utils)
+let actions;
+try {
+  // load actions file
+  actions = JSON.parse(fs.readFileSync(actionsFilepath, 'utf-8'));
+} catch (err) {
+  if (err.code === 'ENOENT') {
+    console.log('A new actions.log will be created');
+  } else {
+    console.error(err);
+    process.exit(1);
+  }
+};
+console.log('Actions will be logged to ' + actionsFilepath);
+// Retrieve WFAIR contract address
+const WFAIR_CONTRACT = actions.contracts.WFAIR.address;
+// Add transfers key if it doesn't exist
+if (!('transfers' in actions)) { actions.transfers = []; };
+
+// Create an array of arguments for the total list of lock contracts by grouping entries that
 // can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial
 // payout values
 const lockGroups = multipleGroupByArray(lockConfig.lockRequests, function (item) {
@@ -44,10 +64,6 @@ console.log(lockGroups);
 // TODO: check that each element of lockGroups doesn't contain the same address twice
 // as that would over-write the first lock with the second and lose tokens
 // TODO: check that each object in the config file contains only correct keys
-
-// Retrieve WFAIR contract address
-const actions = JSON.parse(fs.readFileSync('./scripts/' + network + '/logs/actions.json', 'utf-8'));
-const WFAIR_CONTRACT = actions.WFAIR;
 
 // Minimum ETH balance - to be determined from gas analysis
 const MIN_ETH = toBN('100000000000000000'); // TODO: should this be in the deployTokenLockConfig.json file?
@@ -122,13 +138,26 @@ async function main () {
     const tokenlock = await TokenLock.deploy(...contractParams);
     console.log('TokenLock contract deployed to:', tokenlock.address);
     console.log('Parameters supplied:\n', contractParams);
+    actions.contracts['TokenLock #' + lockGroups.indexOf(lockGroup)] = {
+      name: 'TokenLock #' + lockGroups.indexOf(lockGroup), // can be updated to more human readable form
+      address: tokenlock.address,
+      parameters: contractParams,
+      timestamp: Date.now().toString(),
+    };
   }
-
-  // TODO: log all actions to actions.json
 }
 
 main()
-  .then(() => process.exit(0))
+  .then(() => {
+    // Make backup copy of prior actions.log file
+    fs.renameSync(actionsFilepath, actionsFilepath + '.' + Date.now());
+    // write out new actions object
+    console.log('Writing actions to ' + actionsFilepath);
+    fs.writeFileSync(actionsFilepath, JSON.stringify(actions, null, 2), (err) => {
+      console.error(err.message);
+    });
+    process.exit(0);
+  })
   .catch((err) => {
     console.error(err);
     process.exit(1);

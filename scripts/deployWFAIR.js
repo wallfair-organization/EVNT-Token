@@ -47,7 +47,12 @@ async function main () {
   // Deploy the token contract
   const WFAIRToken = await hre.ethers.getContractFactory('WFAIRToken');
   const wfairtoken = await WFAIRToken.deploy(WALLFAIR_TOTAL_SUPPLY);
-  actions.WFAIR = wfairtoken.address;
+  if (!('contracts' in actions)) { actions.contracts = {}; };
+  actions.contracts.WFAIR = {
+    name: 'WFAIR',
+    address: wfairtoken.address,
+    timestamp: (Date.now().toString()),
+  };
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
 
   // Transfer the tokens to the hot wallets
@@ -62,7 +67,13 @@ async function main () {
     if (Q18.mul(toBN(transferRequest.amount)).toString() === balance.toString()) {
       console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount + ' from ' +
         accounts[0].address + ' (verified)');
-      const transfer = { from: accounts[0].address, to: transferRequest.address, amount: transferRequest.amount };
+      const transfer = {
+        from: accounts[0].address,
+        to: transferRequest.address,
+        amount: transferRequest.amount,
+        name: transferRequest.name,
+        timestamp: Date.now().toString(),
+      };
       actions.transfers.push(transfer);
     } else {
       console.log('Error in transfer to ' + transferRequest.address);
