@@ -1,4 +1,5 @@
 /* ./scripts/deployWFAIR.js */
+import { transfers } from './utils/transfers';
 require('log-timestamp');
 const hre = require('hardhat');
 const toBN = hre.web3.utils.toBN;
@@ -22,17 +23,6 @@ try {
 
 const actions = {};
 actions.transfers = [];
-try {
-  // Make backup copy of prior actions.log file
-  fs.renameSync(actionsFilepath, actionsFilepath + '.' + Date.now());
-} catch (err) {
-  if (err.code === 'ENOENT') {
-    console.log('A new actions.log will be created');
-  } else {
-    console.error(err);
-    process.exit(1);
-  }
-}
 console.log('Actions will be logged to ' + actionsFilepath);
 
 // In the config file we use WFAIR, but in the transactions we use wei <-- perhaps wei everywhere is better
@@ -55,33 +45,23 @@ async function main () {
   };
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
 
-  // Transfer the tokens to the hot wallets
-  // (TODO: move to utils as it is used by deployTokenLocks too
-  for (const transferRequest of deployConfig.transferRequests) {
-    console.log('The following transfer request was retrieved:\n', transferRequest);
-    await wfairtoken.transfer(transferRequest.address, Q18.mul(toBN(transferRequest.amount)).toString());
-    // Check the balances (assumes receiving address has 0 WFAIR to start with)
-    const balance = await wfairtoken.balanceOf(transferRequest.address);
-    if (Q18.mul(toBN(transferRequest.amount)).toString() === balance.toString()) {
-      console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount + ' from ' +
-        accounts[0].address + ' (verified)');
-      const transfer = {
-        name: transferRequest.name,
-        from: accounts[0].address,
-        to: transferRequest.address,
-        amount: transferRequest.amount,
-        timestamp: Date.now().toString(),
-      };
-      actions.transfers.push(transfer);
-    } else {
-      console.log('Error in transfer to ' + transferRequest.address);
-    }
-  }
+  const result = await transfers(wfairtoken, accounts[0].address, deployConfig.transferRequests);
+  actions.transfers.push(...result);
+  console.log('The following transactions were processed: ', result);
 }
 
 main()
   .then(() => {
-    // write out new actions object
+    try {
+      fs.renameSync(actionsFilepath, actionsFilepath + '.' + Date.now());
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        console.log('A new actions.log will be created');
+      } else {
+        console.error(err);
+        process.exit(1);
+      }
+    }
     console.log('Writing actions to ' + actionsFilepath);
     fs.writeFileSync(actionsFilepath, JSON.stringify(actions, null, 2), (err) => {
       console.error(err.message);

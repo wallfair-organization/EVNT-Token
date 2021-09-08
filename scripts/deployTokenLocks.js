@@ -1,4 +1,5 @@
-/* deployTokenLock.js */
+/* ./scripts/deployTokenLock.js */
+import { transfers } from './utils/transfers';
 require('log-timestamp');
 const hre = require('hardhat');
 const toBN = hre.ethers.BigNumber.from;
@@ -103,10 +104,10 @@ async function main () {
   }
 
   // Check WFAIR balance of deployer is sufficient
-  const Wfair = await hre.ethers.getContractFactory('WFAIRToken');
-  const wfair = Wfair.attach(WFAIR_CONTRACT);
+  const WfairToken = await hre.ethers.getContractFactory('WFAIRToken');
+  const wfairtoken = WfairToken.attach(WFAIR_CONTRACT);
   console.log('Attached to WFAIR token contract ' + WFAIR_CONTRACT);
-  const wfairBalance = await wfair.balanceOf(accounts[0].address);
+  const wfairBalance = await wfairtoken.balanceOf(accounts[0].address);
   if (wfairBalance.lt(TOTAL)) {
     console.error('Error: WFAIR balance of deploying address is ' + wfairBalance.div(Q18) +
        ' but ' + TOTAL.div(Q18) + ' is required');
@@ -152,31 +153,13 @@ async function main () {
       timestamp: Date.now().toString(),
     };
     // and fund the token contract with WFAIR tokens
-    await wfair.transfer(tokenlock.address, Q18.mul(toBN(totalLockFund)).toString());
+    await wfairtoken.transfer(tokenlock.address, Q18.mul(toBN(totalLockFund)).toString());
   }
 
   // loop through transferRequests and send tokens to initial release wallets
-  // (TODO: move to utils as it is used by deployWFAIR too
-  for (const transferRequest of lockConfig.transferRequests) {
-    console.log('The following transfer request was retrieved:\n', transferRequest);
-    await wfair.transfer(transferRequest.address, Q18.mul(toBN(transferRequest.amount)).toString());
-    // Check the balances (assumes receiving address has 0 WFAIR to start with)
-    const balance = await wfair.balanceOf(transferRequest.address);
-    if (Q18.mul(toBN(transferRequest.amount)).toString() === balance.toString()) {
-      console.log('Address ' + transferRequest.address + ' received ' + transferRequest.amount + ' from ' +
-        accounts[0].address + ' (verified)');
-      const transfer = {
-        name: transferRequest.name,
-        from: accounts[0].address,
-        to: transferRequest.address,
-        amount: transferRequest.amount,
-        timestamp: Date.now().toString(),
-      };
-      actions.transfers.push(transfer);
-    } else {
-      console.log('Error in transfer to ' + transferRequest.address);
-    }
-  }
+  const result = await transfers(wfairtoken, accounts[0].address, lockConfig.transferRequests);
+  actions.transfers.push(...result);
+  console.log('The following transactions were processed: ', result);
 }
 
 main()
