@@ -9,16 +9,15 @@ require('dotenv-safe').config();
 
 const {
   LOCALHOST_PRIVATE_KEY,
+  LOCALHOST_PRIVATE_KEY2,  
   RINKEBY_API_URL,
   ROPSTEN_API_URL,
   MAINNET_API_URL,
-  BINANCE_API_URL,
   MUMBAI_API_URL,
   MATIC_API_URL,
   RINKEBY_PRIVATE_KEY,
   ROPSTEN_PRIVATE_KEY,
   MAINNET_PRIVATE_KEY,
-  BINANCE_PRIVATE_KEY,
   MUMBAI_PRIVATE_KEY,
   MATIC_PRIVATE_KEY,
   ETHSCAN_API_KEY,
@@ -35,7 +34,7 @@ module.exports = {
       // over-ride chain ID to allow MetaMask to connect to localhost:8545
       // see https://hardhat.org/metamask-issue.html
       chainId: 1337,
-      accounts: [LOCALHOST_PRIVATE_KEY],
+      accounts: [LOCALHOST_PRIVATE_KEY, LOCALHOST_PRIVATE_KEY2],
     },
     rinkeby: {
       url: RINKEBY_API_URL,
@@ -48,11 +47,6 @@ module.exports = {
     mainnet: {
       url: MAINNET_API_URL,
       accounts: [MAINNET_PRIVATE_KEY],
-    },
-    binancetest: {
-      url: BINANCE_API_URL,
-      chainId: 97,
-      accounts: [BINANCE_PRIVATE_KEY],
     },
     mumbai: {
       url: MUMBAI_API_URL,
