@@ -42,6 +42,7 @@ async function main () {
     name: 'WFAIR',
     address: wfairtoken.address,
     timestamp: (Date.now().toString()),
+    deployer: accounts[0].address,
   };
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
 

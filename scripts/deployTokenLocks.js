@@ -125,12 +125,12 @@ async function main () {
     // extract correct arguments array from objects in lockGroup elements
     const wallets = [];
     const amounts = [];
-    const totalLockFund = toBN('0');
+    let totalLockFund = toBN('0');
     for (const entry of lockGroup) {
       wallets.push(entry.address);
       amounts.push(Q18.mul(entry.amount).toString());
       // keep a running total of the sum of the amounts locked
-      totalLockFund.add(entry.amount);
+      totalLockFund = totalLockFund.add(entry.amount);
     }
     console.log('Processing the following lock group:\n', lockGroup);
     const contractParams = [
@@ -156,7 +156,13 @@ async function main () {
     };
     actions.locks.push(contractDetails);
     // and fund the token contract with WFAIR tokens
-    await wfairtoken.transfer(tokenlock.address, Q18.mul(toBN(totalLockFund)).toString());
+    const transferToLock = {
+      name: 'Fund ' + contractDetails.name,
+      address: contractDetails.address,
+      amount: totalLockFund.toString(),
+    };
+    const result = await transfers(wfairtoken, accounts[0].address, [transferToLock]);
+    actions.transfers.push(...result);
   }
 
   // loop through transferRequests and send tokens to initial release wallets
