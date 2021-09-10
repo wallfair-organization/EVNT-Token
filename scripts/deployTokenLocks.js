@@ -54,7 +54,7 @@ const WFAIR_CONTRACT = actions.token.address;
 // Add transfers key if it doesn't exist
 if (!('transfers' in actions)) { actions.transfers = []; };
 // Add locks key if it doesn't exist
-if (!('locks' in actions)) { actions.locks = {}; };
+if (!('locks' in actions)) { actions.locks = []; };
 
 // Create an array of arguments for the total list of lock contracts by grouping entries that
 // can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial
@@ -148,12 +148,13 @@ async function main () {
     const tokenlock = await TokenLock.deploy(...contractParams);
     console.log('TokenLock contract deployed to:', tokenlock.address);
     console.log('Parameters supplied:\n', contractParams);
-    actions.locks['TokenLock #' + lockGroups.indexOf(lockGroup)] = {
+    const contractDetails = {
       name: 'TokenLock #' + lockGroups.indexOf(lockGroup), // can be updated to more human readable form
       address: tokenlock.address,
       parameters: contractParams,
       timestamp: Date.now().toString(),
     };
+    actions.locks.push(contractDetails);
     // and fund the token contract with WFAIR tokens
     await wfairtoken.transfer(tokenlock.address, Q18.mul(toBN(totalLockFund)).toString());
   }
