@@ -29,8 +29,10 @@ for (const transfer of actions.transfers) {
 for (const lock of actions.locks) {
   addressList.push(...lock.parameters[5]);
 }
+// TODO: check for duplicates
 
 async function main () {
+  // Check token details and that all balances are accounted for
   console.log('Checking WFAIR token\n');
   console.log('Wallfair token contract');
   const WFAIR_CONTRACT = actions.token.address;
@@ -47,7 +49,6 @@ async function main () {
   if (deployerBalance > 0) {
     console.error('ERROR: Deployer has balance of ' + deployerBalance.toString() + '. This should be 0!');
   }
-  console.log('\n');
   console.log('Account                                    | Balance');
   console.log('-------------------------------------------+------------------------------');
   let tokenSum = toBN(0);
@@ -63,11 +64,16 @@ async function main () {
     console.error('ERROR: tokens unaccounted for: ' + (totalSupply.sub(tokenSum).toString()));
   }
 
-  console.log('Checking locks');
-  for (const lock in actions.locks) {
-    console.log(lock);
+  // Checking initial deployment of lock - TODO: check unlocked and claimed amounts
+  console.log('\nChecking token locks');
+  for (const lock of actions.locks) {
+    console.log('Token lock contract name: ' + lock.name);
+    console.log('Token lock contract address: ' + lock.address);
+    const balance = await wfairtoken.balanceOf(lock.address);
+    console.log('Current WFAIR balance of contract: ' + balance.toString());
   }
-  console.log('Checking transfers');
+
+  console.log('\nChecking token transfers');
   for (const transfer in actions.transfers) {
     console.log(transfer);
   }
