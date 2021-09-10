@@ -50,11 +50,11 @@ try {
 };
 console.log('Actions will be logged to ' + actionsFilepath);
 // Retrieve WFAIR contract address
-const WFAIR_CONTRACT = actions.token.WFAIR.address;
+const WFAIR_CONTRACT = actions.token.address;
 // Add transfers key if it doesn't exist
 if (!('transfers' in actions)) { actions.transfers = []; };
 // Add locks key if it doesn't exist
-  if (!('locks' in actions)) { actions.locks = []; };
+if (!('locks' in actions)) { actions.locks = {}; };
 
 // Create an array of arguments for the total list of lock contracts by grouping entries that
 // can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial

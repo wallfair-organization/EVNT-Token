@@ -38,7 +38,7 @@ async function main () {
   const WFAIRToken = await hre.ethers.getContractFactory('WFAIRToken');
   const wfairtoken = await WFAIRToken.deploy(WALLFAIR_TOTAL_SUPPLY);
   if (!('token' in actions)) { actions.token = {}; };
-  actions.token.WFAIR = {
+  actions.token = {
     name: 'WFAIR',
     address: wfairtoken.address,
     timestamp: (Date.now().toString()),
