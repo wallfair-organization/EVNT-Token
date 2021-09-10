@@ -1,4 +1,6 @@
 /* hardhat-deploy.config.js */
+require('@babel/register');
+require('@babel/polyfill');
 require('hardhat-gas-reporter');
 require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-truffle5');
