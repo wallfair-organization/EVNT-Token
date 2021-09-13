@@ -10,11 +10,17 @@ require('@nomiclabs/hardhat-web3');
 require('solidity-coverage');
 require('dotenv-safe').config({
   allowEmptyValues: true,
+  // adds support for CI and ensures that inmem HRE uses a blank .env file
+  example: process.env.CI ? '.env.ci.example' : '.env.ci.example'
 });
 
-require('dotenv-safe').config();
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
 
-const { LOCALHOST_PRIVATE_KEY, LOCALHOST_PRIVATE_KEY2 } = process.env;
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+});
 
 module.exports = {
   defaultNetwork: 'hardhat',
