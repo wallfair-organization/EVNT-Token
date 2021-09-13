@@ -156,6 +156,8 @@ async function main () {
     };
     actions.locks.push(contractDetails);
     // and fund the token contract with WFAIR tokens
+    // *** Note: if token contracts are to be funded separately, this small section should be
+    // pulled out into its own script.
     const transferToLock = {
       name: 'Fund ' + contractDetails.name,
       address: contractDetails.address,
