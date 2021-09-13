@@ -155,32 +155,20 @@ contract TokenLock {
     }
 
     function tokensVested(address sender, uint256 timestamp) public view returns (uint256 vestedTokens) {
-        // returns 0 before (start time + cliff period)
-        // initial release is obtained after cliff
-        if (timestamp >= _startTime + _cliffPeriod) {
-            uint256 timeVestedSoFar = Math.min(timestamp - _startTime, _vestingPeriod);
-            uint256 stake = _stakes[sender].totalTokens;
-            // compute initial release as fraction where FRACTION_WHOLE is total
-            uint256 initialRelease = (stake * _initialReleaseFraction) / FRACTION_WHOLE;
-            // return initial release + the remainder proportionally to time from vesting start
-            // mul first for best precision, v.8 compiler reverts on overflows
-            vestedTokens = ((stake - initialRelease) * timeVestedSoFar) / _vestingPeriod + initialRelease;
-        }
+        return tokensVestedInternal(_stakes[sender].totalTokens, timestamp);
     }
 
     function release() public onlyFunded {
         address sender = msg.sender;
-
-        uint256 unlockAmount = tokensVested(sender, block.timestamp) - unlockedTokensOf(sender);
-        UnlockState storage stake = _stakes[sender];
+        UnlockState memory stake = _stakes[sender];
+        uint256 unlockAmount = tokensVestedInternal(stake.totalTokens, block.timestamp) - stake.unlockedTokens;
 
         // this should never happen
         assert(stake.totalTokens >= stake.unlockedTokens + unlockAmount);
 
-        stake.unlockedTokens += unlockAmount;
+        _stakes[sender].unlockedTokens += unlockAmount;
 
         emit LogRelease(sender, unlockAmount);
-
         token().safeTransfer(sender, unlockAmount);
     }
 
@@ -205,5 +193,18 @@ contract TokenLock {
 
         // emit funded log
         emit LogFunded();
+    }
+
+    function tokensVestedInternal(uint256 totalTokens, uint256 timestamp) internal view returns (uint256 vestedTokens) {
+        // returns 0 before (start time + cliff period)
+        // initial release is obtained after cliff
+        if (timestamp >= _startTime + _cliffPeriod) {
+            uint256 timeVestedSoFar = Math.min(timestamp - _startTime, _vestingPeriod);
+            // compute initial release as fraction where FRACTION_WHOLE is total
+            uint256 initialRelease = (totalTokens * _initialReleaseFraction) / FRACTION_WHOLE;
+            // return initial release + the remainder proportionally to time from vesting start
+            // mul first for best precision, v.8 compiler reverts on overflows
+            vestedTokens = ((totalTokens - initialRelease) * timeVestedSoFar) / _vestingPeriod + initialRelease;
+        }
     }
 }
