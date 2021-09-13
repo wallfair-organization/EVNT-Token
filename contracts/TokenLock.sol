@@ -48,6 +48,9 @@ contract TokenLock {
 
     uint256 internal constant DAYS_30_PERIOD = 30 days;
 
+    // a value representing a whole (100%) of decimal fraction
+    uint256 internal constant FRACTION_WHOLE = 10**18;
+
     IERC20 internal immutable _token;
 
     // start time of the vesting, Unix timestamp
@@ -59,7 +62,7 @@ contract TokenLock {
     // cliff period in seconds
     uint256 internal immutable _cliffPeriod;
 
-    // token release on _startTime, decimal fraction where 10**18 is 100%
+    // token release on _startTime, decimal fraction where FRACTION_WHOLE is 100%
     uint256 internal immutable _initialReleaseFraction;
 
     // locked amount held and total amount
@@ -87,8 +90,8 @@ contract TokenLock {
         require(cliffPeriod_ % DAYS_30_PERIOD == 0, "cliffPeriod_ must be divisible by 30 days");
         // cliff must be shorted than total vesting period
         require(cliffPeriod_ < vestingPeriod_, "cliffPeriod_ must be less than vestingPeriod_");
-        // decimal fraction is between 0 and 10**18
-        require(initialReleaseFraction_ <= 10**18, "initialReleaseFraction_ must be in range <0, 10**18>");
+        // decimal fraction is between 0 and FRACTION_WHOLE
+        require(initialReleaseFraction_ <= FRACTION_WHOLE, "initialReleaseFraction_ must be in range <0, 10**18>");
         // cliff cannot be present if initial release is set
         require(
             !(initialReleaseFraction_ > 0 && cliffPeriod_ > 0),
@@ -157,8 +160,8 @@ contract TokenLock {
         if (timestamp >= _startTime + _cliffPeriod) {
             uint256 timeVestedSoFar = Math.min(timestamp - _startTime, _vestingPeriod);
             uint256 stake = _stakes[sender].totalTokens;
-            // compute initial release as fraction where 10**18 is total
-            uint256 initialRelease = (stake * _initialReleaseFraction) / 10**18;
+            // compute initial release as fraction where FRACTION_WHOLE is total
+            uint256 initialRelease = (stake * _initialReleaseFraction) / FRACTION_WHOLE;
             // return initial release + the remainder proportionally to time from vesting start
             // mul first for best precision, v.8 compiler reverts on overflows
             vestedTokens = ((stake - initialRelease) * timeVestedSoFar) / _vestingPeriod + initialRelease;
