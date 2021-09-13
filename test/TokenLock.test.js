@@ -80,8 +80,8 @@ contract('TokenLock', function (accounts) {
         'vestingPeriod_ must be divisible by 30 days',
       );
       await expectRevert(newTokenLock([], { cliff: DAYS_30.subn(1) }), 'cliffPeriod_ must be divisible by 30 days');
-      // vesting period must be at least 30 days
-      await expectRevert(newTokenLock([], { vesting: ZERO }), 'vestingPeriod_ must be at least 30 days');
+      // vesting period cannot be 0
+      await expectRevert(newTokenLock([], { vesting: ZERO }), 'vestingPeriod_ must be greater than 0');
       // cliff must be < vesting
       await expectRevert(
         newTokenLock([], { vesting: DAYS_30, cliff: DAYS_30 }),

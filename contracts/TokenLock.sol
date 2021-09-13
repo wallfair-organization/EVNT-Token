@@ -81,7 +81,7 @@ contract TokenLock {
         require(wallets_.length == amounts_.length, "number of elements in lists must match");
         // we put strong requirements for vesting parameters: this is not a generic vesting contract,
         // we support and test for just a limited range of parameters, see below
-        require(vestingPeriod_ > 0, "vestingPeriod_ must be at least 30 days");
+        require(vestingPeriod_ > 0, "vestingPeriod_ must be greater than 0");
         // all periods must be divisible by 30 days
         require(vestingPeriod_ % DAYS_30_PERIOD == 0, "vestingPeriod_ must be divisible by 30 days");
         require(cliffPeriod_ % DAYS_30_PERIOD == 0, "cliffPeriod_ must be divisible by 30 days");
