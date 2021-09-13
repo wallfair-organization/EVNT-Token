@@ -31,6 +31,18 @@ The `WFAIRToken` contract immediately mints the requested supply to the `msg.sen
 7. All time periods must be multiples of 30 days.
 8. List of stakes (*owner address : total amount due* mapping) is provided at the deployment time and cannot be changed later.
 
+### Funding the Lock with tokens
+`TokenLock` requires that the total amount of tokens passed to the constructor is owned by it, before the release function is available. For that a simple state machine is implemented:
+
+1. Contract is in `Initialized` state after deploymend and until `fund` method is called
+2. After `funded` method successfully completes, the state is changed to `Funded` and `release` function is available to be called.
+
+The actual funding may happen in three ways:
+
+1. The required amount of tokens is transferred to the `TokenLock` instance before `fund` method is called. In that case the method just verifies the instance balance and does the state transition and anyone can call it.
+2. The required amount of tokens is approved as per ERC20 to the `TokenLock` instance before `fund` method is called. In that case the contract will transfer required amount to itself from the sender (msg.sender).
+3. A mix of the above: only the amount missing will be required to be approved and later transferred.
+
 The actual deployment will require several instances of the `TokenLock` to be created to cover all the vesting schedules we need.
 
 ## Deployment

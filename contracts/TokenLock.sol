@@ -16,26 +16,58 @@ contract TokenLock {
         uint256 unlockedTokens;
     }
 
+    // possible state of the Lock
+    // NotFunded is initial state
+    // transition to Funded happens only when required amount of "token" is on contract's balance
+    enum State {
+        Initialized,
+        Funded
+    }
+
     // emitted on token release
     event LogRelease(address indexed sender, uint256 amount);
 
-    uint256 private constant DAYS_30_PERIOD = 30 days;
+    // emitted on token locked
+    event LogLock(address wallet, uint256 amount);
 
-    IERC20 private immutable _token;
+    // emitted when all stakes are added
+    event LogInitialized(uint256 totalLockedAmount);
+
+    // emitted on lock funded
+    event LogFunded();
+
+    modifier onlyFunded() {
+        require(_state == State.Funded, "Not in Initialized state");
+        _;
+    }
+
+    modifier onlyInitialized() {
+        require(_state == State.Initialized, "Not in Funded state");
+        _;
+    }
+
+    uint256 internal constant DAYS_30_PERIOD = 30 days;
+
+    IERC20 internal immutable _token;
 
     // start time of the vesting, Unix timestamp
-    uint256 private immutable _startTime;
+    uint256 internal immutable _startTime;
 
     // period of the vesting in seconds
-    uint256 private immutable _vestingPeriod;
+    uint256 internal immutable _vestingPeriod;
 
     // cliff period in seconds
-    uint256 private immutable _cliffPeriod;
+    uint256 internal immutable _cliffPeriod;
 
     // token release on _startTime, decimal fraction where 10**18 is 100%
-    uint256 private immutable _initialReleaseFraction;
+    uint256 internal immutable _initialReleaseFraction;
 
+    // locked amount held and total amount
     mapping(address => UnlockState) internal _stakes;
+    uint256 internal immutable _totalLockedAmount;
+
+    // current state of the contract
+    State internal _state;
 
     constructor(
         IERC20 token_,
@@ -70,9 +102,17 @@ contract TokenLock {
         _initialReleaseFraction = initialReleaseFraction_;
 
         // create stakes, duplicates override each other and are not checked
+        uint256 totalLockedAmount;
         for (uint256 ii = 0; ii < wallets_.length; ii += 1) {
+            // duplicates in list of wallets are not allowed
+            require(_stakes[wallets_[ii]].totalTokens == 0, "Duplicates in list of wallets not allowed");
+
             _stakes[wallets_[ii]].totalTokens = amounts_[ii];
+            totalLockedAmount += amounts_[ii];
+            emit LogLock(wallets_[ii], amounts_[ii]);
         }
+        _totalLockedAmount = totalLockedAmount;
+        emit LogInitialized(totalLockedAmount);
     }
 
     function token() public view returns (IERC20) {
@@ -103,6 +143,14 @@ contract TokenLock {
         return _stakes[sender].totalTokens;
     }
 
+    function totalLockedTokens() public view returns (uint256) {
+        return _totalLockedAmount;
+    }
+
+    function state() public view returns (State) {
+        return _state;
+    }
+
     function tokensVested(address sender, uint256 timestamp) public view returns (uint256 vestedTokens) {
         // returns 0 before (start time + cliff period)
         // initial release is obtained after cliff
@@ -117,7 +165,7 @@ contract TokenLock {
         }
     }
 
-    function release() public {
+    function release() public onlyFunded {
         address sender = msg.sender;
 
         uint256 unlockAmount = tokensVested(sender, block.timestamp) - unlockedTokensOf(sender);
@@ -131,5 +179,28 @@ contract TokenLock {
         emit LogRelease(sender, unlockAmount);
 
         token().safeTransfer(sender, unlockAmount);
+    }
+
+    function fund() public onlyInitialized {
+        // change state first so there's no re-entry, contract reverts in all error cases
+        _state = State.Funded;
+
+        // transfer only what is missing, that allows to fund contract in two ways
+        // (1) token transfer to contract, then anyone can call fund() function
+        // (2) approve() and transferFrom from msg.sender
+        uint256 owned = _token.balanceOf(address(this));
+        if (owned < _totalLockedAmount) {
+            // attempt to transfer sufficient amount of tokens from sender
+            uint256 due = _totalLockedAmount - owned;
+            // check allowance to provide nice revert code
+            require(
+                token().allowance(msg.sender, address(this)) >= due,
+                "No sufficient allowance to fund the contract"
+            );
+            token().safeTransferFrom(msg.sender, address(this), due);
+        }
+
+        // emit funded log
+        emit LogFunded();
     }
 }
