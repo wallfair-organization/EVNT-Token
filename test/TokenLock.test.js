@@ -2,7 +2,9 @@
 import { deployWFAIR, deployTokenLock } from './utils/deploy';
 import { Q18, WFAIR_TOTAL_SUPPLY, ZERO, DAYS_30 } from './utils/consts';
 import { BN, expectRevert, time, expectEvent } from '@openzeppelin/test-helpers';
+import { LockState } from './utils/state';
 import { expect } from 'hardhat';
+import { web3 } from '@openzeppelin/test-helpers/src/setup';
 const Math = require('mathjs');
 
 const TokenLock = artifacts.require('TokenLock');
@@ -25,10 +27,14 @@ contract('TokenLock', function (accounts) {
       { startDate: START_DATE, vesting: VESTING, cliff: CLIFF, initial: ZERO },
       options || {},
     );
-    return deployTokenLock(WFAIRToken.address,
+    const lock = await deployTokenLock(WFAIRToken.address,
       ...Object.values(lockOpts),
       stakes,
     );
+    // get events generated in constructor
+    lock.receipt = await web3.eth.getTransactionReceipt(lock.transactionHash);
+    lock.receipt.logs = await lock.getPastEvents();
+    return lock;
   }
 
   beforeEach(async () => {
@@ -44,6 +50,9 @@ contract('TokenLock', function (accounts) {
       expect(await lock.vestingPeriod()).to.be.a.bignumber.to.equal(VESTING);
       expect(await lock.cliffPeriod()).to.be.a.bignumber.to.equal(CLIFF);
       expect(await lock.initialReleaseFraction()).to.be.a.bignumber.to.equal(ZERO);
+      expect(await lock.totalLockedTokens()).to.be.a.bignumber.to.equal(ZERO);
+      expect(await lock.state()).to.be.a.bignumber.to.equal(new BN(LockState.Initialized));
+      expectEvent(lock.receipt, 'LogInitialized', { totalLockedAmount: ZERO });
 
       // redeploy to check initial release getter
       lock = await newTokenLock([], { cliff: ZERO, initial: Q18 });
@@ -71,8 +80,8 @@ contract('TokenLock', function (accounts) {
         'vestingPeriod_ must be divisible by 30 days',
       );
       await expectRevert(newTokenLock([], { cliff: DAYS_30.subn(1) }), 'cliffPeriod_ must be divisible by 30 days');
-      // vesting period must be at least 30 days
-      await expectRevert(newTokenLock([], { vesting: ZERO }), 'vestingPeriod_ must be at least 30 days');
+      // vesting period cannot be 0
+      await expectRevert(newTokenLock([], { vesting: ZERO }), 'vestingPeriod_ must be greater than 0');
       // cliff must be < vesting
       await expectRevert(
         newTokenLock([], { vesting: DAYS_30, cliff: DAYS_30 }),
@@ -124,7 +133,7 @@ contract('TokenLock', function (accounts) {
       await deployAndCheck(stakes);
     });
 
-    it('and locks same address many times', async () => {
+    it('and revert on duplicate wallet address', async () => {
       const stakes = [{
         address: accounts[0],
         amount: Q18.mul(new BN('119827932')),
@@ -134,22 +143,29 @@ contract('TokenLock', function (accounts) {
         amount: Q18.mul(new BN('1982791')),
       },
       ];
-      const lock = await newTokenLock(stakes);
-      const total = await lock.totalTokensOf(accounts[0]);
-      // last stake for given addres overrides the rest
-      expect(total).to.be.a.bignumber.to.equal(stakes[1].amount);
+      await expectRevert(newTokenLock(stakes), 'Duplicates in list of wallets not allowed');
     });
 
-    it('and keeps gas below block limit for 250 unlock wallets');
+    it('and keeps gas below block limit for 250 unlock wallets', async () => {
+      const randomAddress = () => web3.utils.toChecksumAddress(web3.utils.randomHex(20));
+
+      const stakes = [...Array(250)].map(() => { return { address: randomAddress(), amount: Q18 }; });
+      const lock = await deployAndCheck(stakes);
+      // this is less than current block limit
+      expect(lock.receipt.gasUsed, 'Gas used must be less than 8.000.000').lt(8000000);
+    });
 
     async function deployAndCheck (stakes) {
       const lock = await newTokenLock(stakes);
 
       for (const s of stakes) {
         expect(await lock.totalTokensOf(s.address)).to.be.bignumber.eq(s.amount);
-        expect(await lock.unlockedTokensOf(s.address)).to.be.bignumber.eq(new BN('0'));
+        expect(await lock.unlockedTokensOf(s.address)).to.be.bignumber.eq(ZERO);
+        expectEvent(lock.receipt, 'LogLock', { wallet: s.address, amount: s.amount });
       }
-
+      const totalAmount = stakes.reduce((p, c) => p.add(c.amount), ZERO);
+      expect(await lock.totalLockedTokens()).to.be.bignumber.eq(totalAmount);
+      expectEvent(lock.receipt, 'LogInitialized', { totalLockedAmount: totalAmount });
       return lock;
     }
   });
@@ -344,6 +360,68 @@ contract('TokenLock', function (accounts) {
     });
   });
 
+  describe('Fund', () => {
+    let lock;
+
+    beforeEach(async () => {
+      lock = await newTokenLock(
+        [{ address: stakedAccountID, amount: LOCK_AMOUNT }],
+      );
+    });
+
+    it(' rejects on not funded lock', async () => {
+      expectRevert(lock.fund({ from: deployer }), 'No sufficient allowance to fund the contract');
+    });
+
+    it(' with token transfer', async () => {
+      await WFAIRToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
+      // anyone can call fund function if contract is funded
+      const tx = await lock.fund({ from: accounts[1] });
+      expectEvent(tx, 'LogFunded');
+    });
+
+    it(' with token transfer above due amount', async () => {
+      // the additional amount will be left in the contract, it's not giving back tokens
+      // if sent with the transfer
+      await WFAIRToken.transfer(lock.address, LOCK_AMOUNT.mul(new BN(2)), { from: deployer });
+      const tx = await lock.fund({ from: deployer });
+      expectEvent(tx, 'LogFunded');
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(LOCK_AMOUNT.mul(new BN(2)));
+    });
+
+    it(' with allowance', async () => {
+      await WFAIRToken.approve(lock.address, LOCK_AMOUNT, { from: deployer });
+      // this must happen from owner account
+      expectRevert(lock.fund({ from: accounts[7] }), 'No sufficient allowance to fund the contract');
+      const tx = await lock.fund({ from: deployer });
+      expectEvent(tx, 'LogFunded');
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(LOCK_AMOUNT);
+    });
+
+    it(' with partial transfer partial allowance', async () => {
+      // transfer Q18 to contract
+      await WFAIRToken.transfer(lock.address, Q18, { from: deployer });
+      // give one wei less so allowance is not enough
+      await WFAIRToken.approve(lock.address, LOCK_AMOUNT.sub(Q18).sub(new BN(1)), { from: deployer });
+      expectRevert(lock.fund({ from: deployer }), 'No sufficient allowance to fund the contract');
+      // send one wei so we have exactly the allowance needed
+      await WFAIRToken.transfer(lock.address, new BN(1), { from: deployer });
+      const tx = await lock.fund({ from: deployer });
+      expectEvent(tx, 'LogFunded');
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(LOCK_AMOUNT);
+    });
+
+    it(' reject double fund', async () => {
+      await WFAIRToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
+      await lock.fund({ from: accounts[1] });
+      expectRevert(lock.fund({ from: deployer }), 'Not in Funded state');
+    });
+
+    it(' reject release before fund', async () => {
+      expectRevert(lock.release({ from: stakedAccountID }), 'Not in Initialized state');
+    });
+  });
+
   describe('Release', () => {
     async function expectTokenBalance (owner, expectedBalance) {
       expect(await WFAIRToken.balanceOf(owner)).to.be.bignumber.eq(expectedBalance);
@@ -385,6 +463,7 @@ contract('TokenLock', function (accounts) {
       const quantum = (await releaseQuantum(LOCK_AMOUNT, vestingPeriod, initialRelease)).addn(1);
       // send tokens to lock contract
       await WFAIRToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
+      await lock.fund();
 
       // check vested now
       let ts = await time.latest();
@@ -469,6 +548,7 @@ contract('TokenLock', function (accounts) {
       const quantum = await releaseQuantum(totalLocked, vestingPeriod, ZERO);
       // send tokens to lock contract
       await WFAIRToken.transfer(lock.address, totalLocked, { from: deployer });
+      await lock.fund();
       // no one can take anything
       let tx = await lock.release({ from: stakedAccountID });
       expectEvent(tx, 'LogRelease', { sender: stakedAccountID, amount: ZERO });
