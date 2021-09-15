@@ -161,7 +161,7 @@ contract TokenLock {
     function release() public onlyFunded {
         address sender = msg.sender;
         UnlockState memory stake = _stakes[sender];
-        uint256 unlockAmount = tokensVestedInternal(stake.totalTokens, block.timestamp) - unlockedTokensOf(sender);
+        uint256 unlockAmount = tokensVestedInternal(stake.totalTokens, block.timestamp) - stake.unlockedTokens;
 
         // this should never happen
         assert(stake.totalTokens >= stake.unlockedTokens + unlockAmount);
