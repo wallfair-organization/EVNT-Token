@@ -75,9 +75,8 @@ async function main () {
   for (const lock of actions.locks) {
     console.log('\nToken lock contract name: ' + lock.name);
     console.log('Token lock contract address: ' + lock.address);
-    // get current number of WFAIR tokens in lock
-    const lockBalance = await wfairtoken.balanceOf(lock.address);
-    console.log('Current WFAIR balance of contract: ' + lockBalance.toString());
+    // TODO: call state of contract view function
+    console.log('State of contract: ');
     // connect to lock contract
     const LockContract = await hre.ethers.getContractFactory('TokenLock');
     const lockContract = LockContract.attach(lock.address);
@@ -102,12 +101,15 @@ async function main () {
       // store data for final tally comparisons
       retrievedContractData.push([stakeholder, totalTokens, vestedTokens, unlockedTokens]);
     }
+    // get current number of WFAIR tokens in lock
+    const lockBalance = await wfairtoken.balanceOf(lock.address);
+    console.log('Current WFAIR balance of contract: ' + lockBalance.toString());
     // check that lock balance = sum of totals minus unlocked
     let totalCalc = toBN(0);
     for (const entry of retrievedContractData) {
       totalCalc = totalCalc.add(entry[1]).sub(entry[3]);
     }
-    console.log('Required currend funds for token lock: ' + totalCalc.toString());
+    console.log('Required funds for token lock    : ' + totalCalc.toString());
     if (totalCalc.eq(lockBalance)) {
       console.log('The token lock is fully funded and able to cover payouts');
     } else {

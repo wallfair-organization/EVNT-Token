@@ -46,7 +46,8 @@ async function main () {
   };
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
 
-  const result = await transfers(wfairtoken, accounts[0].address, deployConfig.transferRequests);
+  // act on transfer requests
+  const result = await transfers(wfairtoken, accounts[0].address, deployConfig.transferRequests, false);
   actions.transfers.push(...result);
   console.log('The following transactions were processed: ', result);
 }
