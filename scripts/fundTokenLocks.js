@@ -2,7 +2,7 @@
 import { transfers } from './utils/transfers';
 import { minEth } from './utils/mineth';
 // import { total } from './utils/total';
-import { toBN, Q18 } from './utils/consts';
+import { toBN, Q18, LockString } from './utils/consts';
 
 require('log-timestamp');
 const hre = require('hardhat');
@@ -74,23 +74,36 @@ async function main () {
 
   // loop through each array of token locks and fund
   for (const lock of actions.locks) {
+    // Connect to lock for fund() execution
+    const TokenLock = await hre.ethers.getContractFactory('TokenLock');
+    const tokenlock = TokenLock.attach(lock.address);
     // extract correct arguments array from objects in actions.locks elements
     console.log('Processing the following lock contract:\n', lock);
-    // TODO: move this into ./utils/total.js and handle different key format from deployTokenLocks
-    let totalLockFund = toBN('0');
-    for (const entry of lock.parameters[6]) {
-      // keep a running total of the sum of the amounts locked
-      totalLockFund = totalLockFund.add(toBN(entry));
+    // check if tokenlock is already funded
+    const contractState = await tokenlock.state();
+    console.log('Contract state: ' + LockString[contractState]);
+    if (LockString[contractState] === 'Funded') {
+      console.error('Contract ' + lock.name + ' is already funded');
+    } else {
+      console.log('Contract ' + lock.name + ' is not funded, so proceeding to fund');
+      // TODO: move this into ./utils/total.js and handle different key format from deployTokenLocks
+      let totalLockFund = toBN('0');
+      for (const entry of lock.parameters[6]) {
+        // keep a running total of the sum of the amounts locked
+        totalLockFund = totalLockFund.add(toBN(entry));
+      }
+      console.log('Required funds calculated as ' + totalLockFund.toString());
+      // Fund the token contract with WFAIR tokens
+      const transferToLock = {
+        name: 'Fund ' + lock.name,
+        address: lock.address,
+        amount: totalLockFund.toString(),
+      };
+      const result = await transfers(wfairtoken, accounts[0].address, [transferToLock], true);
+      actions.transfers.push(...result);
+      console.log('Setting contract to Funded');
+      await tokenlock.fund();
     }
-
-    // Fund the token contract with WFAIR tokens
-    const transferToLock = {
-      name: 'Fund ' + lock.name,
-      address: lock.address,
-      amount: totalLockFund.toString(),
-    };
-    const result = await transfers(wfairtoken, accounts[0].address, [transferToLock], true);
-    actions.transfers.push(...result);
   }
 }
 

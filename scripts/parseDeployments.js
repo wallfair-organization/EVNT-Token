@@ -1,6 +1,6 @@
 /* ./scripts/parseDeployments.js */
 // require('log-timestamp');
-import { toBN } from './utils/consts.js';
+import { toBN, LockString } from './utils/consts.js';
 const hre = require('hardhat');
 const fs = require('fs');
 
@@ -75,11 +75,12 @@ async function main () {
   for (const lock of actions.locks) {
     console.log('\nToken lock contract name: ' + lock.name);
     console.log('Token lock contract address: ' + lock.address);
-    // TODO: call state of contract view function
-    console.log('State of contract: ');
     // connect to lock contract
     const LockContract = await hre.ethers.getContractFactory('TokenLock');
     const lockContract = LockContract.attach(lock.address);
+    // call state of contract view function
+    const contractState = await lockContract.state();
+    console.log('State of contract: ' + LockString[contractState]);
     // loop through each address we have on record, checking total, unlocked and vested quantities
     const retrievedContractData = [];
     console.log('Account                                    |' +
