@@ -1,7 +1,7 @@
 /* ./scripts/parseDeployments.js */
 // require('log-timestamp');
+import { toBN } from './utils/consts.js';
 const hre = require('hardhat');
-const toBN = hre.ethers.BigNumber.from;
 const fs = require('fs');
 
 // const Q18 = toBN(10).pow(toBN(18));
@@ -105,6 +105,7 @@ async function main () {
     const lockBalance = await wfairtoken.balanceOf(lock.address);
     console.log('Current WFAIR balance of contract: ' + lockBalance.toString());
     // check that lock balance = sum of totals minus unlocked
+    // TODO: move this into ./utils/total.js and handle different key format from deployTokenLocks
     let totalCalc = toBN(0);
     for (const entry of retrievedContractData) {
       totalCalc = totalCalc.add(entry[1]).sub(entry[3]);

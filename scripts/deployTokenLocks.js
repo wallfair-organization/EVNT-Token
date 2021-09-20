@@ -2,6 +2,7 @@
 import { Q18, toBN } from './utils/consts';
 import { groupByArray } from './utils/groupbyarray';
 import { minEth } from './utils/mineth';
+import { total } from './utils/total';
 
 require('log-timestamp');
 const hre = require('hardhat');
@@ -58,16 +59,7 @@ console.log(lockGroups);
 // Minimum ETH balance - to be determined from gas analysis
 
 // Calculate total WFAIR supply requirement, check for cliff/initial conflicts,
-// and create arguments for TokenLock contract
-let TOTAL = toBN(0);
-for (const lockRequest of lockConfig.lockRequests) {
-  if ((lockRequest.cliff) > 0 && (lockRequest.initial > 0)) {
-    console.error('Error: Cliff/initial conflict in entry:\n', lockRequest);
-    process.exit(1);
-  }
-  TOTAL = TOTAL.add(toBN(Q18.mul(lockRequest.amount)));
-}
-console.log('WFAIR to be locked: ' + TOTAL.div(Q18));
+total(lockConfig.lockRequests);
 
 //
 // Main async function that connects to contracts and deploys each token lock

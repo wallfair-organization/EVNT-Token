@@ -1,13 +1,12 @@
 /* ./scripts/deployTokenLock.js */
 import { transfers } from './utils/transfers';
+import { minEth } from './utils/mineth';
+// import { total } from './utils/total';
+import { toBN, Q18 } from './utils/consts';
+
 require('log-timestamp');
 const hre = require('hardhat');
-const toBN = hre.ethers.BigNumber.from;
 const fs = require('fs');
-
-const Q18 = toBN(10).pow(toBN(18));
-
-// TODO: move configuration elements fundTokenLocks and deployTockenLocks have in common to utils
 
 // Load the deployment configuration file and set up constants and contract arguments
 const network = hre.hardhatArguments.network;
@@ -36,11 +35,9 @@ if (!('transfers' in actions)) { actions.transfers = []; };
 console.log('Number of TokenLock contracts to fund: ' + actions.locks.length);
 console.log(actions.locks);
 
-// Minimum ETH balance - to be determined from gas analysis
-const MIN_ETH = toBN('100000000000000000'); // TODO: should this be in the deployTokenLockConfig.json file?
-
 // Calculate total WFAIR supply requirement, check for cliff/initial conflicts,
 // and create arguments for TokenLock contract
+// TODO: move this into ./utils/total.js and handle different key format from deployTokenLocks
 let TOTAL = toBN(0);
 for (const lock of actions.locks) {
   for (const amount of lock.parameters[6]) {
@@ -58,14 +55,7 @@ async function main () {
   console.log('Signing account is ' + accounts[0].address);
 
   // Check ETH balance of deployer is sufficient
-  const ethBalance = await accounts[0].getBalance();
-  if (ethBalance < MIN_ETH) {
-    console.error('Error: ETH balance of deploying address is ' + ethBalance +
-      ' but ' + MIN_ETH + ' is required');
-    process.exit(1);
-  } else {
-    console.log('ETH balance of ' + ethBalance + ' is sufficient for gas');
-  }
+  minEth(accounts[0]);
 
   // Check WFAIR balance of deployer is sufficient
   const WfairToken = await hre.ethers.getContractFactory('WFAIRToken');
@@ -86,6 +76,7 @@ async function main () {
   for (const lock of actions.locks) {
     // extract correct arguments array from objects in actions.locks elements
     console.log('Processing the following lock contract:\n', lock);
+    // TODO: move this into ./utils/total.js and handle different key format from deployTokenLocks
     let totalLockFund = toBN('0');
     for (const entry of lock.parameters[6]) {
       // keep a running total of the sum of the amounts locked
