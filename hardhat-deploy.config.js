@@ -36,7 +36,6 @@ module.exports = {
       // over-ride chain ID to allow MetaMask to connect to localhost:8545
       // see https://hardhat.org/metamask-issue.html
       chainId: 1337,
-      accounts: [LOCALHOST_PRIVATE_KEY, LOCALHOST_PRIVATE_KEY2],
     },
     rinkeby: {
       url: RINKEBY_API_URL,

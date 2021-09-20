@@ -1,7 +1,5 @@
 /* ./scripts/utils/transfers.js */
-const hre = require('hardhat');
-const toBN = hre.web3.utils.toBN;
-const Q18 = (toBN('10')).pow(toBN('18'));
+import { Q18, toBN } from './consts.js';
 
 export async function transfers (tokenObject, from, transferRequests, wei) {
   const actionList = [];

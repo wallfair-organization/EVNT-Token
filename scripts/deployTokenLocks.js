@@ -1,24 +1,11 @@
 /* ./scripts/deployTokenLock.js */
+import { Q18, toBN } from './utils/consts';
+import { groupByArray } from './utils/groupbyarray';
+import { minEth } from './utils/mineth';
+
 require('log-timestamp');
 const hre = require('hardhat');
-const toBN = hre.ethers.BigNumber.from;
 const fs = require('fs');
-
-const Q18 = toBN(10).pow(toBN(18));
-
-// @dev - group array by multiple keys - used to fold multiple lock requirements into
-// the same token lock contract
-function multipleGroupByArray (dataArray, groupPropertyArray) {
-  const groups = {};
-  dataArray.forEach(item => {
-    const group = JSON.stringify(groupPropertyArray(item));
-    groups[group] = groups[group] || [];
-    groups[group].push(item);
-  });
-  return Object.keys(groups).map(function (group) {
-    return groups[group];
-  });
-}
 
 // Load the deployment configuration file and set up constants and contract arguments
 const network = hre.hardhatArguments.network;
@@ -59,7 +46,7 @@ if (!('locks' in actions)) { actions.locks = []; };
 // Create an array of arguments for the total list of lock contracts by grouping entries that
 // can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial
 // payout values
-const lockGroups = multipleGroupByArray(lockConfig.lockRequests, function (item) {
+const lockGroups = groupByArray(lockConfig.lockRequests, function (item) {
   return [item.vestingPeriod, item.cliffPeriod, item.initialReleaseFraction, item.delay];
 });
 console.log('Number of lock functions to deploy: ' + lockGroups.length);
@@ -69,7 +56,6 @@ console.log(lockGroups);
 // as that would over-write the first lock with the second and lose tokens
 
 // Minimum ETH balance - to be determined from gas analysis
-const MIN_ETH = toBN('100000000000000000'); // TODO: should this be in the deployTokenLockConfig.json file?
 
 // Calculate total WFAIR supply requirement, check for cliff/initial conflicts,
 // and create arguments for TokenLock contract
@@ -92,14 +78,7 @@ async function main () {
   console.log('Signing account is ' + accounts[0].address);
 
   // Check ETH balance of deployer is sufficient
-  const ethBalance = await accounts[0].getBalance();
-  if (ethBalance < MIN_ETH) {
-    console.error('Error: ETH balance of deploying address is ' + ethBalance +
-      ' but ' + MIN_ETH + ' is required');
-    process.exit(1);
-  } else {
-    console.log('ETH balance of ' + ethBalance + ' is sufficient for gas');
-  }
+  minEth(accounts[0]);
 
   // loop through each array of token locks and deploy
   for (const lockGroup of lockGroups) {
