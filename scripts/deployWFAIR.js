@@ -1,16 +1,15 @@
 /* ./scripts/deployWFAIR.js */
 import { transfers } from './utils/transfers';
+import { minEth } from './utils/mineth';
+import { toBN, Q18 } from './utils/consts';
 require('log-timestamp');
 const hre = require('hardhat');
-const toBN = hre.web3.utils.toBN;
 const fs = require('fs');
-
-const Q18 = (toBN('10')).pow(toBN('18'));
 
 // Load the deployment configuration file and set up constants
 const network = hre.hardhatArguments.network;
 console.log('Script is running on ' + network);
-const actionsFilepath = './scripts/' + network + '/logs/actions.json';
+const actionsDirpath = './scripts/' + network + '/logs/';
 const configFilepath = './scripts/' + network + '/deployWFAIR.config.json';
 
 let deployConfig;
@@ -19,11 +18,12 @@ try {
   console.log('Configuration is retrieved from ' + configFilepath);
 } catch (err) {
   console.error(err.message);
+  process.exit(1);
 }
 
 const actions = {};
 actions.transfers = [];
-console.log('Actions will be logged to ' + actionsFilepath);
+console.log('Actions will be logged to ' + actionsDirpath + 'actions.json');
 
 // In the config file we use WFAIR, but in the transactions we use wei <-- perhaps wei everywhere is better
 const WALLFAIR_TOTAL_SUPPLY = Q18.mul(toBN(deployConfig.wallfairTotalSupply)).toString();
@@ -33,6 +33,9 @@ async function main () {
   // Verify the signers for contracts and transactions
   const accounts = await hre.ethers.getSigners();
   console.log('Signing account is ' + accounts[0].address);
+
+  // Check ETH balance of deployer is sufficient
+  minEth(accounts[0]);
 
   // Deploy the token contract
   const WFAIRToken = await hre.ethers.getContractFactory('WFAIRToken');
@@ -54,18 +57,25 @@ async function main () {
 
 main()
   .then(() => {
+    // Check log folder exists
     try {
-      fs.renameSync(actionsFilepath, actionsFilepath + '.' + Date.now());
+      fs.accessSync(actionsDirpath);
+    } catch {
+      fs.mkdirSync(actionsDirpath);
+    }
+    // Check if a new actions log is required
+    try {
+      fs.renameSync(actionsDirpath + 'actions.json', actionsDirpath + 'actions.json.' + Date.now());
     } catch (err) {
       if (err.code === 'ENOENT') {
-        console.log('A new actions.log will be created');
+        console.log('A new actions.json will be created');
       } else {
         console.error(err);
         process.exit(1);
       }
     }
-    console.log('Writing actions to ' + actionsFilepath);
-    fs.writeFileSync(actionsFilepath, JSON.stringify(actions, null, 2), (err) => {
+    console.log('Writing actions to ' + actionsDirpath);
+    fs.writeFileSync(actionsDirpath + 'actions.json', JSON.stringify(actions, null, 2), (err) => {
       console.error(err.message);
     });
     process.exit(0);
