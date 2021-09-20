@@ -3,6 +3,7 @@ import { Q18, toBN } from './utils/consts';
 import { groupByArray } from './utils/groupbyarray';
 import { minEth } from './utils/mineth';
 import { total } from './utils/total';
+import { monthsToSeconds } from './utils/monthstoseconds';
 
 require('log-timestamp');
 const hre = require('hardhat');
@@ -87,9 +88,9 @@ async function main () {
     console.log('Processing the following lock group:\n', lockGroup);
     const contractParams = [
       WFAIR_CONTRACT,
-      (TGE_TIME + (lockGroup[0].delay * 30 * 24 * 60 * 60)).toString(),
-      (parseInt(lockGroup[0].vestingPeriod) * 30 * 24 * 60 * 60).toString(),
-      (parseInt(lockGroup[0].cliffPeriod) * 30 * 24 * 60 * 60).toString(),
+      (TGE_TIME + monthsToSeconds(lockGroup[0].delay)).toString(),
+      (monthsToSeconds(lockGroup[0].vestingPeriod)).toString(),
+      (monthsToSeconds(lockGroup[0].cliffPeriod)).toString(),
       (Q18.mul(lockGroup[0].initialReleaseFraction)).toString(),
       wallets,
       amounts,
