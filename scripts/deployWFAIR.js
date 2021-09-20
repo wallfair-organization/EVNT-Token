@@ -26,8 +26,8 @@ actions.transfers = [];
 console.log('Actions will be logged to ' + actionsDirpath + 'actions.json');
 
 // In the config file we use WFAIR, but in the transactions we use wei <-- perhaps wei everywhere is better
-const WALLFAIR_TOTAL_SUPPLY = Q18.mul(toBN(deployConfig.wallfairTotalSupply)).toString();
-console.log('Total supply: ' + WALLFAIR_TOTAL_SUPPLY.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' wei');
+const WALLFAIR_TOTAL_SUPPLY = Q18.mul(toBN(deployConfig.wallfairTotalSupply));
+console.log('Total supply: ' + WALLFAIR_TOTAL_SUPPLY.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' wei');
 
 async function main () {
   // Verify the signers for contracts and transactions
