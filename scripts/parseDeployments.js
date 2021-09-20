@@ -113,9 +113,13 @@ async function main () {
     }
     console.log('Required funds for token lock    : ' + totalCalc.toString());
     if (totalCalc.eq(lockBalance)) {
-      console.log('The token lock is fully funded and able to cover payouts');
+      if (LockString[contractState] === 'Funded') {
+        console.log('The token lock is fully funded and able to cover payouts');
+      } else {
+        console.log('❌ ERROR: The token lock is fully funded but not set to Funded!');
+      }
     } else {
-      console.log('❌ ERROR: token amount in contract does not match required funding');
+      console.log('❌ ERROR: token amount in contract does not match required funding!');
     }
   }
 
