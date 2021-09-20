@@ -8,11 +8,6 @@ require('@nomiclabs/hardhat-etherscan');
 require('@nomiclabs/hardhat-ethers');
 require('@nomiclabs/hardhat-web3');
 require('solidity-coverage');
-require('dotenv-safe').config({
-  allowEmptyValues: true,
-  // adds support for CI and ensures that inmem HRE uses a blank .env file
-  example: process.env.CI ? '.env.ci.example' : '.env.ci.example'
-});
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
