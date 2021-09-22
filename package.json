@@ -25,7 +25,7 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "deploy": "echo 'Not implemented'",
-    "deploy:localhost": "echo 'Not implemented'",
+    "deploy:localhost": "./scripts/deployAllLocalhost.sh",
     "deploy:rinkeby": "echo 'Not implemented'",
     "deploy:mumbai": "echo 'Not implemented'",
     "deploy:matic": "echo 'Not implemented'",
@@ -34,6 +34,7 @@
     "lint:js:fix": "eslint --ignore-path .gitignore ./test ./app -/scripts --fix",
     "lint:sol": "solhint 'contracts/**/*.sol'",
     "node": "npx hardhat node",
+    "node:deploy": "npx hardhat node --config hardhat-deploy.config.js",
     "test": "npx hardhat test",
     "test:deploy": "npx hardhat test",
     "test:localhost": "npx hardhat test --network localhost --config hardhat-deploy.config.js",
