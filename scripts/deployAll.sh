@@ -32,10 +32,10 @@ export LOGFILE="./scripts/$1/logs/console-$( date '+%F_%H:%M:%S' ).log"
 
 # TODO: get input from user for each script confirming before running to allow them to 
 # terminate a deployment sequence
-npx hardhat run ./scripts/deployWFAIR.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee "$LOGFILE"
+npx hardhat run ./scripts/deployWFAIR.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee -a "$LOGFILE"
 
-npx hardhat run ./scripts/deployTokenLocks.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee "$LOGFILE"
+npx hardhat run ./scripts/deployTokenLocks.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee -a "$LOGFILE"
 
-npx hardhat run scripts/fundTokenLocks.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee "$LOGFILE"
+npx hardhat run scripts/fundTokenLocks.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee -a "$LOGFILE"
 
-npx hardhat run scripts/parseDeployments.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee "$LOGFILE"
+npx hardhat run scripts/parseDeployments.js --network $1 --config hardhat-deploy.config.js 2>&1 | tee -a "$LOGFILE"
