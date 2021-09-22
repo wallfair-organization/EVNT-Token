@@ -11,6 +11,7 @@ const fs = require('fs');
 
 // Load the deployment configuration file and set up constants and contract arguments
 const network = hre.hardhatArguments.network;
+const knownWallets = require('./' + network + '/knownWallets.json');
 console.log('Operating on network: ' + network);
 const actionsFilepath = './scripts/' + network + '/logs/actions.json';
 let lockConfig;
@@ -80,7 +81,7 @@ async function main () {
     const amounts = [];
     let totalLockFund = toBN('0');
     for (const entry of lockGroup) {
-      wallets.push(entry.address);
+      wallets.push(knownWallets[entry.name]);
       amounts.push(Q18.mul(entry.amount).toString());
       // keep a running total of the sum of the amounts locked
       totalLockFund = totalLockFund.add(entry.amount);

@@ -9,6 +9,7 @@ const fs = require('fs');
 
 // Load the deployment configuration file and set up constants
 const network = hre.hardhatArguments.network;
+const knownWallets = require('./' + network + '/knownWallets.json');
 console.log('Script is running on ' + network);
 const actionsDirpath = './scripts/' + network + '/logs/';
 const configFilepath = './scripts/' + network + '/deployWFAIR.config.json';
@@ -52,6 +53,9 @@ async function main () {
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
 
   // act on transfer requests
+  for (const entry of deployConfig.transferRequests) {
+    entry.address = knownWallets[entry.name];
+  }
   const result = await transfers(wfairtoken, accounts[0].address, deployConfig.transferRequests, false);
   actions.transfers.push(...result);
   console.log('The following transactions were processed: ', result);
