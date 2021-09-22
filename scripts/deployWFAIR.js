@@ -24,6 +24,7 @@ try {
 
 const actions = {};
 actions.transfers = [];
+actions.locks = [];
 console.log('Actions will be logged to ' + actionsDirpath + 'actions.json');
 
 // In the config file we use WFAIR, but in the transactions we use wei <-- perhaps wei everywhere is better

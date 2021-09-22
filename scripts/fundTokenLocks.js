@@ -32,6 +32,10 @@ console.log('Actions will be logged to ' + actionsFilepath);
 const WFAIR_CONTRACT = actions.token.address;
 // Add transfers key if it doesn't exist
 if (!('transfers' in actions)) { actions.transfers = []; };
+if (actions.locks.length === 0) {
+  console.error('No TokenLock contracts found!');
+  process.exit(1);
+};
 console.log('Number of TokenLock contracts to fund: ' + actions.locks.length);
 console.log(actions.locks);
 
@@ -83,7 +87,7 @@ async function main () {
     const contractState = await tokenlock.state();
     console.log('Contract state: ' + LockString[contractState]);
     if (LockString[contractState] === 'Funded') {
-      console.error('Contract ' + lock.name + ' is already funded');
+      console.error('Contract ' + lock.name + ' is already in Funded state');
     } else {
       console.log('Contract ' + lock.name + ' is not funded, so proceeding to fund');
       // TODO: move this into ./utils/total.js and handle different key format from deployTokenLocks
@@ -93,14 +97,22 @@ async function main () {
         totalLockFund = totalLockFund.add(toBN(entry));
       }
       console.log('Required funds calculated as ' + totalLockFund.toString());
-      // Fund the token contract with WFAIR tokens
-      const transferToLock = {
-        name: 'Fund ' + lock.name,
-        address: lock.address,
-        amount: totalLockFund.toString(),
-      };
-      const result = await transfers(wfairtoken, accounts[0].address, [transferToLock], true);
-      actions.transfers.push(...result);
+      const currentLockBalance = await wfairtoken.balanceOf(lock.address);
+      console.log('Current funds are ' + currentLockBalance.toString());
+      const difference = totalLockFund.sub(currentLockBalance);
+      if (difference.gt(0)) {
+        console.log('Required funds calculated as ' + difference.toString());
+        // Fund the token contract with WFAIR tokens
+        const transferToLock = {
+          name: 'Fund ' + lock.name,
+          address: lock.address,
+          amount: difference.toString(),
+        };
+        const result = await transfers(wfairtoken, accounts[0].address, [transferToLock], true);
+        actions.transfers.push(...result);
+      } else {
+        console.log('Contract is fully funded');
+      }
       console.log('Setting contract to Funded');
       await tokenlock.fund();
     }
