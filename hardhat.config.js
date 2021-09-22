@@ -1,14 +1,13 @@
 /* hardhat.config.js */
-require("@babel/register");
-require("@babel/polyfill");
+require('@babel/register');
+require('@babel/polyfill');
 require('chai/register-should');
-require("hardhat-gas-reporter");
-require("@nomiclabs/hardhat-truffle5");
-require("@nomiclabs/hardhat-etherscan");
-require("solidity-coverage");
-require('dotenv-safe').config({
-  allowEmptyValues: true
-});
+require('hardhat-gas-reporter');
+require('@nomiclabs/hardhat-truffle5');
+require('@nomiclabs/hardhat-etherscan');
+require('@nomiclabs/hardhat-ethers');
+require('@nomiclabs/hardhat-web3');
+require('solidity-coverage');
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -19,11 +18,9 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
-      // over-ride chain ID to allow MetaMask to connect to localhost:8545
-      // see https://hardhat.org/metamask-issue.html
       chainId: 1337
     },
     coverage: {
@@ -33,12 +30,12 @@ module.exports = {
     },
   },
   solidity: {
-    version: "0.8.7",
+    version: '0.8.7',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
-      }
-    }
-  }
-}
+        runs: 200,
+      },
+    },
+  },
+};

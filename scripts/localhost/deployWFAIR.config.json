@@ -1,0 +1,16 @@
+{
+  "wallfairTotalSupply": "1000000000",
+  "transferRequests" :
+    [
+      {
+        "name": "Wallfair Hot Sale Wallet #1",
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "amount": "95000000"
+      },
+      {
+        "name": "DEX Liquidity #3",
+        "address": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+        "amount": "2500000"
+      }
+    ]
+}
