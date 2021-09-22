@@ -3,19 +3,9 @@
   "transferRequests" :
     [
       {
-        "name": "Wallfair Public Seed Wallet #1",
+        "name": "Wallfair Hot Sale Wallet #1",
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        "amount": "30000000"
-      },
-      {
-        "name": "Wallfare Public Sale Hot Wallet #2",
-        "address": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-        "amount": "5000000"
-      },
-      {
-        "name": "Wallfare Private Sale Hot Wallet #19",
-        "address": "0x8626f6940e2eb28930efb4cef49b2d1f2c9c1199",
-        "amount": "60000000"
+        "amount": "95000000"
       },
       {
         "name": "DEX Liquidity #3",
