@@ -10,8 +10,6 @@ require('@nomiclabs/hardhat-web3');
 require('dotenv-safe').config();
 
 const {
-  LOCALHOST_PRIVATE_KEY,
-  LOCALHOST_PRIVATE_KEY2,  
   RINKEBY_API_URL,
   ROPSTEN_API_URL,
   MAINNET_API_URL,
