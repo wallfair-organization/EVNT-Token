@@ -45,6 +45,30 @@ The actual funding may happen in three ways:
 
 The actual deployment requires several instances of the `TokenLock` to be created to cover all the vesting schedules Wallfair needs.
 
+## LeaverTokenLock
+`LeaverTokenLock` implements a lock that defines two events that lead to slashing the stake of particular wallet. Those events are called `bad leaver` and `good leaver` and indicate that given wallet holder left the project and must give up on part of his/her tokens. `LeaverTokenLock` will be used for Team token allocation. Below are basic implementation requirements, we also provide simulations of vesting schedules [here](sims/vesting.html)).
+
+1. `LeaverTokenLock` inherits from `TokenLock` and does change its behavior if events above are not triggered.
+2. Manager role is added. Only that role can trigger the leaver event for any wallet (except the manager itself). Manager can also hold own stake and on production deployment will be a mutlisig.
+3. The tokens slashed from wallet that left are booked to manager wallet. The total number of tokens that will be released from the lock is invariant.
+
+The amount of slashed tokens are computed as follows.
+
+1. The original mechanism of vesting is not changed - tokens are released from *vesting start* and goes on for *vesting priod*. However we introduce another mechanism that starts one *vesting period* before *vesting start* called `accumulation` (see [simulations](sims/vesting.html)).
+2. The team token lock starts vesting tokens after 12 months of delay. Accumulation then effectively begins on the day of TGE. Accumulation is decoupled for actual token release with `release` function.
+
+### Good Leaver
+
+* Keeps all the tokens accumulated until the event date.
+* Keeps half (1/2) of the tokens that would be accumulated from the event date until the end of vesting period.
+* Further vesting (unlocking) of the tokens proceeds unchanged but with the modified total stake for the wallet
+
+### Bad Leaver
+
+* Before the *vesting start* - keeps 10% (1/10) of the tokens accumulated until the event date.
+* After the *vesting start* - keeps 10% (1/10) of the tokens accumulated until the event date or the amount of tokens that were vested - whichever is higher. The reason for that is that vested tokens cannot be taken back as they were released from the contract.
+* Has no title to any tokens accumulated after event date.
+
 ## Deployment
 The deployment procedure is as follows:
 1. `WFAIRToken` instance is deployed and the full supply is minted to `msg.sender` (`deployer`).
