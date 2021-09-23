@@ -15,6 +15,12 @@ contract LeaverTokenLock is TokenLock {
 
     event LogLeave(address indexed leaver, LeaverType leaverType, uint256 newTotalStake);
 
+    // part of the accumulated tokens that stays with bad leaver
+    uint256 internal constant BAD_LEAVER_DIVISOR = 10;
+
+    // part of the tokens accumulated in the future that stays with the good leaver
+    uint256 internal constant GOOD_LEAVER_DIVISOR = 2;
+
     // manager address that can execute leave method
     address internal _manager;
 
@@ -50,29 +56,20 @@ contract LeaverTokenLock is TokenLock {
         return _leavers[wallet];
     }
 
-    function leaveWallet(address wallet, bool isBadLeaver) public onlyManager onlyNonLeaver(wallet) {
+    function leaveWallet(address wallet, bool isBadLeaver) public onlyManager onlyFunded onlyNonLeaver(wallet) {
         require(msg.sender != wallet, "Manager cannot leave");
 
         UnlockState memory stake = _stakes[wallet];
         uint256 tokensVestedSoFar = tokensVestedInternal(stake.totalTokens, block.timestamp);
+        uint256 accumulatedSoFar = tokensAccumulatedInternal(stake.totalTokens, block.timestamp);
         uint256 newTotalStake = 0;
-        if (tokensVestedSoFar == 0) {
-            // nothing got released yet - use accumulation function instead
-            uint256 accumulatedSoFar = tokensAccumulatedInternal(stake.totalTokens, block.timestamp);
-            if (isBadLeaver) {
-                // keep only 10%
-                newTotalStake = accumulatedSoFar / 10;
-            } else {
-                // keeps all accumulated + 50% of what remains
-                newTotalStake = accumulatedSoFar + (stake.totalTokens - accumulatedSoFar) / 2;
-            }
+
+        if (isBadLeaver) {
+            // bad leavers keep what was released as tokens cannot be taken back and keeps 10% of accumulated max
+            newTotalStake = Math.max(tokensVestedSoFar, accumulatedSoFar / BAD_LEAVER_DIVISOR);
         } else {
-            // leavers keep what was released
-            newTotalStake = tokensVestedSoFar;
-            if (!isBadLeaver) {
-                // 50% of what remains if not bad leaver
-                newTotalStake += tokensVestedSoFar + (stake.totalTokens - tokensVestedSoFar) / 2;
-            }
+            // 50% of what will be accumulated if not bad leaver
+            newTotalStake = accumulatedSoFar + (stake.totalTokens - accumulatedSoFar) / GOOD_LEAVER_DIVISOR;
         }
 
         // return unlocked tokens
