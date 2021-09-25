@@ -60,32 +60,16 @@ contract LeaverTokenLock is TokenLock {
         require(msg.sender != wallet, "Manager cannot leave");
 
         UnlockState memory stake = _stakes[wallet];
-        uint256 tokensVestedSoFar = tokensVestedInternal(stake.totalTokens, block.timestamp);
         uint256 accumulatedSoFar = tokensAccumulatedInternal(stake.totalTokens, block.timestamp);
         uint256 newTotalStake = 0;
 
         if (isBadLeaver) {
             // bad leavers keep what was released as tokens cannot be taken back and keeps 10% of accumulated max
-            newTotalStake = Math.max(tokensVestedSoFar, accumulatedSoFar / BAD_LEAVER_DIVISOR);
+            newTotalStake = Math.max(stake.unlockedTokens, accumulatedSoFar / BAD_LEAVER_DIVISOR);
         } else {
             // 50% of what will be accumulated if not bad leaver
             newTotalStake = accumulatedSoFar + (stake.totalTokens - accumulatedSoFar) / GOOD_LEAVER_DIVISOR;
         }
-
-        // return unlocked tokens
-        uint256 unlockAmount = tokensVestedSoFar - stake.unlockedTokens;
-        if (unlockAmount > 0) {
-            // this should never happen
-            assert(stake.totalTokens >= stake.unlockedTokens + unlockAmount);
-
-            // if anything was unlocked - book it
-            _stakes[wallet].unlockedTokens += unlockAmount;
-
-            // send the original wallet what is now due
-            token().safeTransfer(wallet, unlockAmount);
-            emit LogRelease(wallet, unlockAmount);
-        }
-
         // set new stake for leaver
         // total stake in the contract must be invariant
         // we take (stake.totalTokens - newTotalStake) from _stakes[wallet].totalTokens (leaver stake)

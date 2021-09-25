@@ -110,8 +110,6 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
 
   describe('Should leave', () => {
     const vestingPeriod = DAYS_30.muln(12);
-    // number of blocks shifted between start of the test and deployment of all contracts
-    const testBlockDiff = 4;
 
     async function lockWithFund (startDate, vestingPeriod) {
       const lock = await newTokenLock(
@@ -131,6 +129,9 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
 
     describe('manager to reposses stake', () => {
       describe('before unlock', () => {
+        // number of blocks shifted between start of the test and deployment of all contracts
+        const testBlockDiff = 4;
+
         async function expectLeaverScenarioBeforeUnlock (
           startDateDelta,
           calcNewStake,
@@ -243,7 +244,14 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           await expectLeaverScenarioBeforeUnlock(deltaSec, ZERO, false, accounts[7], ZERO, LOCK_AMOUNT);
         });
       });
+
       describe('after unlock', () => {
+        // number of blocks shifted between start of the test and `leaveWallt` where amounts are calculated
+        const testBlockDiff = 5;
+        // in case of bad leaver that released > 10% acc the amount is the number of released tokens which is calculed
+        // one block before `leaveWallet`
+        const testBlockDiffBadGt10P = testBlockDiff - 1;
+
         async function expectLeaverScenarioAfterUnlock (
           startDateDelta,
           calcNewStake,
@@ -255,13 +263,15 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           // start into the past to simulate already unlocking contract
           const startDate = initialTs.sub(startDateDelta);
           const lock = await lockWithFund(startDate, vestingPeriod);
+          // wallet takes out all that is due just before the leave as it would be real life
+          await lock.release({ from: wallet });
           // the actual leave will happen few blocsk ahead so add it in advance
           const accumulated = await lock.tokensAccumulated(wallet, initialTs.addn(testBlockDiff));
-          const vested = await lock.tokensVested(wallet, initialTs.addn(testBlockDiff));
+          const released = await lock.unlockedTokensOf(wallet);
           let expectedStake;
           if (isBadLeaver) {
             const penalizedAcc = accumulated.divn(BAD_LEAVER_DIVISOR);
-            expectedStake = vested.gt(penalizedAcc) ? vested : penalizedAcc;
+            expectedStake = released.gt(penalizedAcc) ? released : penalizedAcc;
           } else {
             expectedStake = (accumulated).add(lockAmount.sub(accumulated).divn(GOD_LEAVER_DIVISOR));
           }
@@ -272,11 +282,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           const tx = await lock.leaveWallet(wallet, isBadLeaver, { from: manager });
           const expectedLeaverType = isBadLeaver ? new BN(LeaverType.BadLeaver) : new BN(LeaverType.GoodLeaver);
           expectEvent(tx, 'LogLeave', { leaver: wallet, leaverType: expectedLeaverType, newTotalStake: calcNewStake });
-          if (vested.gt(ZERO)) {
-            // all vested tokens are sent out
-            expectEvent(tx, 'LogRelease', { sender: wallet, amount: vested });
-          }
-          await expectTokenBalance(wallet, vested);
+          await expectTokenBalance(wallet, released);
           // has leaved
           expect(await lock.hasLeaved(wallet)).to.be.bignumber.eq(expectedLeaverType);
           // new stake to unlock
@@ -289,18 +295,18 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           if (startDateDelta.gte(vestingPeriod)) {
             // for test cases where leaver event happens AFTER all tokens are unlocked
             // this is obvious edge case but must be tested because it's possible
-            expect(vestedAfterLeave).to.be.bignumber.eq(vested);
+            expect(vestedAfterLeave).to.be.bignumber.eq(released);
           } else {
-            expect(vestedAfterLeave).to.be.bignumber.lte(vested);
+            expect(vestedAfterLeave).to.be.bignumber.lte(released);
           }
           // now claim in the future (if initialTs allows)
           const futureDate1 = startDate.add(vestingPeriod.sub(DAYS_30));
           if (futureDate1.gt(initialTs)) {
             await time.increaseTo(futureDate1);
-            // if we have situation that less is vested then was already taken from the contract
+            // if we have situation that less is vested than was already taken from the contract
             // expect arithmetic overflow
             const vestedFuture1 = await lock.tokensVested(wallet, futureDate1);
-            if (vestedFuture1.gte(vested)) {
+            if (vestedFuture1.gte(released)) {
               await lock.release({ from: wallet });
             } else {
               // for our test cases possible only for bad leavers
@@ -329,7 +335,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
         it('of bad leaver month after - released > 10% of acc', async () => {
           // leave 30 days after unlock starts - you get to keep only what was unlocked
           // actually calc the value (use addn 4 because a few blocks has passed till moment of measure)
-          const calcNewStake = LOCK_AMOUNT.mul(DAYS_30.addn(testBlockDiff)).div(vestingPeriod);
+          const calcNewStake = LOCK_AMOUNT.mul(DAYS_30.addn(testBlockDiffBadGt10P)).div(vestingPeriod);
           await expectLeaverScenarioAfterUnlock(DAYS_30, calcNewStake, true);
         });
 
@@ -351,12 +357,12 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
         it('of bad leaver random timestamp - released > 10% of acc', async () => {
           const deltaSec = new BN('7657126');
           // bad leaver takes what was released and nothing else
-          const calcNewStake = LOCK_AMOUNT.mul(deltaSec.addn(testBlockDiff)).div(vestingPeriod);
+          const calcNewStake = LOCK_AMOUNT.mul(deltaSec.addn(testBlockDiffBadGt10P)).div(vestingPeriod);
           await expectLeaverScenarioAfterUnlock(deltaSec, calcNewStake, true);
         });
 
         it('of bad leaver precalculated value - released > 10% of acc', async () => {
-          const deltaSec = DAYS_30.muln(6).subn(testBlockDiff);
+          const deltaSec = DAYS_30.muln(6).subn(testBlockDiffBadGt10P);
           const calcNewStake = new BN(Q18.muln(500000));
           await expectLeaverScenarioAfterUnlock(deltaSec, calcNewStake, true);
         });
@@ -402,6 +408,70 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           await expectLeaverScenarioAfterUnlock(deltaSec, ZERO, false, accounts[7], ZERO, LOCK_AMOUNT);
         });
       });
+    });
+
+    it('in multiple leaver scenario', async () => {
+      const testDelta = 8;
+      // manager also has a stake initially
+      const managerAmount = Q18.mul(new BN('50000000'));
+      const badLeaver = accounts[2];
+      const badLeaverAmount = Q18.mul(new BN('2570000'));
+      const goodLeaver = accounts[3];
+      const goodLeaverAmount = Q18.mul(new BN('12000000'));
+
+      // 4 accounts
+      const stakes = [
+        { address: stakedAccountID, amount: LOCK_AMOUNT },
+        { address: manager, amount: managerAmount },
+        { address: badLeaver, amount: badLeaverAmount },
+        { address: goodLeaver, amount: goodLeaverAmount },
+      ];
+      const totalStake = stakes.reduce((p, c) => p.add(c.amount), ZERO);
+      const initialTs = await time.latest();
+      const startDate = initialTs.add(vestingPeriod);// startDateDelta.add(initialTs);
+      const lock = await newTokenLock(
+        stakes,
+        { startDate, vesting: vestingPeriod },
+      );
+      // send tokens to lock contract
+      await WFAIRToken.transfer(lock.address, totalStake, { from: deployer });
+      await lock.fund();
+      // move to 3/4 of acc period which is 1/2 of vesting period
+      await time.increaseTo(initialTs.add(vestingPeriod.muln(3).divn(2)));
+      // bad leaver releases
+      await lock.release({ from: badLeaver });
+      // manager releases
+      await lock.release({ from: manager });
+      // good leaver does not
+      await lock.leaveWallet(badLeaver, true, { from: manager });
+      await lock.leaveWallet(goodLeaver, false, { from: manager });
+      // good leaver releases now
+      await lock.release({ from: goodLeaver });
+      // manager releases now
+      await lock.release({ from: manager });
+      // move to the end
+      await time.increaseTo(initialTs.add(vestingPeriod.muln(2).addn(testDelta)));
+      // everyone releases
+      for (const { address } of stakes) {
+        await lock.release({ from: address });
+      }
+      await lock.release({ from: manager });
+      // all taken from the contract
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(ZERO);
+      // total taken == total staked
+      let endStakes = ZERO;
+      for (const { address } of stakes) {
+        endStakes = endStakes.add(await WFAIRToken.balanceOf(address));
+      }
+      expect(endStakes).to.be.bignumber.eq(totalStake);
+      expect(await WFAIRToken.balanceOf(stakedAccountID)).to.be.bignumber.eq(LOCK_AMOUNT);
+
+      const actualGoodLeaver = await WFAIRToken.balanceOf(goodLeaver);
+      expect(actualGoodLeaver.sub(Q18.muln(10500000).abs())).to.be.bignumber.lt(Q18);
+
+      // bad leaver took all unlocked tokens just before leaving so 1/2 of initial stake
+      const actualBadLeaver = await WFAIRToken.balanceOf(badLeaver);
+      expect(actualBadLeaver.sub(badLeaverAmount.divn(2)).abs()).to.be.bignumber.lt(Q18);
     });
   });
 
