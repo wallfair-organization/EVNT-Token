@@ -52,12 +52,12 @@ contract LeaverTokenLock is TokenLock {
         return _manager;
     }
 
-    function hasLeaved(address wallet) public view returns (LeaverType) {
+    function hasLeft(address wallet) public view returns (LeaverType) {
         return _leavers[wallet];
     }
 
     function leaveWallet(address wallet, bool isBadLeaver) public onlyManager onlyFunded onlyNonLeaver(wallet) {
-        require(msg.sender != wallet, "Manager cannot leave");
+        require(wallet != _manager, "Manager cannot leave");
 
         UnlockState memory stake = _stakes[wallet];
         uint256 accumulatedSoFar = tokensAccumulatedInternal(stake.totalTokens, block.timestamp);

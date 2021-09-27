@@ -17,7 +17,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
   const START_DATE = new BN(1612137600);
 
   const BAD_LEAVER_DIVISOR = 10;
-  const GOD_LEAVER_DIVISOR = 2;
+  const GOOD_LEAVER_DIVISOR = 2;
 
   let WFAIRToken;
 
@@ -148,12 +148,12 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           if (isBadLeaver) {
             expectedStake = accumulated.divn(BAD_LEAVER_DIVISOR);
           } else {
-            expectedStake = accumulated.add(lockAmount.sub(accumulated).divn(GOD_LEAVER_DIVISOR));
+            expectedStake = accumulated.add(lockAmount.sub(accumulated).divn(GOOD_LEAVER_DIVISOR));
           }
           expect(expectedStake).to.bignumber.eq(calcNewStake);
 
           // not yet leaved
-          expect(await lock.hasLeaved(wallet)).to.be.bignumber.eq(ZERO);
+          expect(await lock.hasLeft(wallet)).to.be.bignumber.eq(ZERO);
           const tx = await lock.leaveWallet(wallet, isBadLeaver, { from: manager });
           const expectedLeaverType = isBadLeaver ? new BN(LeaverType.BadLeaver) : new BN(LeaverType.GoodLeaver);
           expectEvent(tx, 'LogLeave', { leaver: wallet, leaverType: expectedLeaverType, newTotalStake: calcNewStake });
@@ -161,7 +161,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           // and the rest is shifted to manager
           expect(await lock.totalTokensOf(manager)).to.be.bignumber.eq(lockAmount.sub(calcNewStake));
           // has leaved
-          expect(await lock.hasLeaved(wallet)).to.be.bignumber.eq(expectedLeaverType);
+          expect(await lock.hasLeft(wallet)).to.be.bignumber.eq(expectedLeaverType);
           // now claim in the future
           await time.increaseTo(startDate.add(vestingPeriod.divn(2)));
           await lock.release({ from: wallet });
@@ -212,14 +212,14 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
         // leave 30 days before unlock starts so in 11/24 of acc period
         // keeps what's accumulated + 50% of what is to be accumulated
           const accumulated = LOCK_AMOUNT.mul(DAYS_30.muln(11).addn(testBlockDiff)).div(vestingPeriod.muln(2));
-          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOD_LEAVER_DIVISOR);
+          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOOD_LEAVER_DIVISOR);
           const calcNewStake = accumulated.add(halfFutureAcc);
           await expectLeaverScenarioBeforeUnlock(DAYS_30, calcNewStake, false);
         });
 
         it('of good leaver even before anything is accumulated', async () => {
         // bad leaver gets half of all what is in the future
-          const calcNewStake = LOCK_AMOUNT.divn(GOD_LEAVER_DIVISOR);
+          const calcNewStake = LOCK_AMOUNT.divn(GOOD_LEAVER_DIVISOR);
           await expectLeaverScenarioBeforeUnlock(DAYS_30.muln(13), calcNewStake, false);
         });
 
@@ -228,7 +228,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           const accumulated = LOCK_AMOUNT.mul(
             vestingPeriod.sub(deltaSec).addn(testBlockDiff)).div(vestingPeriod.muln(2),
           );
-          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOD_LEAVER_DIVISOR);
+          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOOD_LEAVER_DIVISOR);
           const calcNewStake = accumulated.add(halfFutureAcc);
           await expectLeaverScenarioBeforeUnlock(deltaSec, calcNewStake, false);
         });
@@ -273,18 +273,18 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
             const penalizedAcc = accumulated.divn(BAD_LEAVER_DIVISOR);
             expectedStake = released.gt(penalizedAcc) ? released : penalizedAcc;
           } else {
-            expectedStake = (accumulated).add(lockAmount.sub(accumulated).divn(GOD_LEAVER_DIVISOR));
+            expectedStake = (accumulated).add(lockAmount.sub(accumulated).divn(GOOD_LEAVER_DIVISOR));
           }
           expect(expectedStake).to.bignumber.eq(calcNewStake);
 
           // not yet leaved
-          expect(await lock.hasLeaved(wallet)).to.be.bignumber.eq(ZERO);
+          expect(await lock.hasLeft(wallet)).to.be.bignumber.eq(ZERO);
           const tx = await lock.leaveWallet(wallet, isBadLeaver, { from: manager });
           const expectedLeaverType = isBadLeaver ? new BN(LeaverType.BadLeaver) : new BN(LeaverType.GoodLeaver);
           expectEvent(tx, 'LogLeave', { leaver: wallet, leaverType: expectedLeaverType, newTotalStake: calcNewStake });
           await expectTokenBalance(wallet, released);
           // has leaved
-          expect(await lock.hasLeaved(wallet)).to.be.bignumber.eq(expectedLeaverType);
+          expect(await lock.hasLeft(wallet)).to.be.bignumber.eq(expectedLeaverType);
           // new stake to unlock
           expect(await lock.totalTokensOf(wallet)).to.be.bignumber.eq(calcNewStake);
           // and the rest is shifted to manager
@@ -376,7 +376,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
         // leave 30 days after unlock starts so in 13/24 of acc period
         // keeps what's accumulated + 50% of what is to be accumulated
           const accumulated = LOCK_AMOUNT.mul(DAYS_30.muln(13).addn(testBlockDiff)).div(vestingPeriod.muln(2));
-          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOD_LEAVER_DIVISOR);
+          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOOD_LEAVER_DIVISOR);
           const calcNewStake = accumulated.add(halfFutureAcc);
           await expectLeaverScenarioAfterUnlock(DAYS_30, calcNewStake, false);
         });
@@ -392,7 +392,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
           const accumulated = LOCK_AMOUNT.mul(
             vestingPeriod.add(deltaSec).addn(testBlockDiff)).div(vestingPeriod.muln(2),
           );
-          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOD_LEAVER_DIVISOR);
+          const halfFutureAcc = LOCK_AMOUNT.sub(accumulated).divn(GOOD_LEAVER_DIVISOR);
           const calcNewStake = accumulated.add(halfFutureAcc);
           await expectLeaverScenarioAfterUnlock(deltaSec, calcNewStake, false);
         });
