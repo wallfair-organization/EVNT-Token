@@ -1,43 +1,37 @@
 /* ./scripts/deployTokenLock.js */
+import hre from 'hardhat';
+import fs from 'fs';
+import assert from 'assert';
 import { Q18, toBN } from './utils/consts';
-import { groupByArray } from './utils/groupbyarray';
-import { minEth } from './utils/mineth';
-import { total } from './utils/total';
-import { monthsToSeconds } from './utils/monthstoseconds';
+import { groupByArray, minEth, total, monthsToSeconds, loadActionsLog } from './utils/helpers';
 
 require('log-timestamp');
-const hre = require('hardhat');
-const fs = require('fs');
 
 // Load the deployment configuration file and set up constants and contract arguments
 const network = hre.hardhatArguments.network;
 const knownWallets = require('./' + network + '/knownWallets.json');
 console.log('Operating on network: ' + network);
 const actionsFilepath = './scripts/' + network + '/logs/actions.json';
-let lockConfig;
-try {
-  lockConfig = JSON.parse(fs.readFileSync('./scripts/' + network + '/deployTokenLock.config.json', 'utf-8'));
-} catch (err) {
-  console.error(err);
-  process.exit(1);
-}
-// Calculate Unix timestamp from UTC datetime
-const TGE_TIME = Math.floor(new Date(lockConfig.TGETime).getTime() / 1000);
 
-// Load actions object (TODO: move actions function to utils)
-let actions;
-try {
-  // load actions file
-  actions = JSON.parse(fs.readFileSync(actionsFilepath, 'utf-8'));
-} catch (err) {
-  if (err.code === 'ENOENT') {
-    console.log('TokenLock deployment requires an existing actions.json file to retrieve WFAIR contract');
-    process.exit(1);
-  } else {
+// from where to load lock request. env LOCK_CONFIG is used for override
+const lockConfigFileStem = 'LOCK_CONFIG' in process.env ? process.env.LOCK_CONFIG : 'deployTokenLock';
+
+function loadLockConfig () {
+  try {
+    console.log(`Loading lock config from ${lockConfigFileStem}`);
+    return JSON.parse(fs.readFileSync(`./scripts/${network}/${lockConfigFileStem}.config.json`, 'utf-8'));
+  } catch (err) {
     console.error(err);
     process.exit(1);
   }
-};
+}
+const lockConfig = loadLockConfig();
+
+// Calculate Unix timestamp from UTC datetime
+const TGE_TIME = Math.floor(new Date(lockConfig.TGETime).getTime() / 1000);
+
+// Load actions object
+const actions = loadActionsLog(actionsFilepath);
 console.log('Actions will be logged to ' + actionsFilepath);
 
 // Retrieve WFAIR contract address from config file
@@ -46,22 +40,72 @@ const WFAIR_CONTRACT = actions.token.address;
 // Add locks key if it doesn't exist
 if (!('locks' in actions)) { actions.locks = []; };
 
+// resolve all the names in lock requests
+const splitLockRequests = [];
+for (const entry of lockConfig.lockRequests) {
+  if ('name' in entry) {
+    entry.address = knownWallets[entry.name];
+    assert('amount' in entry, `amount must be present in lock request if name is specified ${entry}`);
+    splitLockRequests.push(entry);
+  } else if ('address' in entry) {
+    assert('amount' in entry, `amount must be present in lock request if address is specified ${entry}`);
+    splitLockRequests.push(entry);
+  } else if ('addresses' in entry) {
+    const addresses = entry.addresses;
+    const amounts = entry.amounts;
+    delete entry.addresses;
+    delete entry.amounts;
+    for (let idx = 0; idx < addresses.length; idx += 1) {
+      const entryDup = Object.assign({}, entry);
+      entryDup.address = addresses[idx];
+      entryDup.amount = amounts[idx];
+      splitLockRequests.push(entryDup);
+    }
+  } else {
+    assert(false, `entry ${entry} is malformed`);
+  }
+}
+
 // Create an array of arguments for the total list of lock contracts by grouping entries that
 // can be deployed to the same lock contract due to identical startDate, vesting period, cliff, and initial
 // payout values
-const lockGroups = groupByArray(lockConfig.lockRequests, function (item) {
+const lockGroups = groupByArray(splitLockRequests, function (item) {
   return [item.vestingPeriod, item.cliffPeriod, item.initialReleaseFraction, item.delay];
 });
 console.log('Number of lock functions to deploy: ' + lockGroups.length);
-console.log(lockGroups);
-
-// TODO: check that each element of lockGroups doesn't contain the same address twice
-// as that would over-write the first lock with the second and lose tokens
-
-// Minimum ETH balance - to be determined from gas analysis
 
 // Calculate total WFAIR supply requirement, check for cliff/initial conflicts,
-total(lockConfig.lockRequests);
+total(splitLockRequests);
+
+async function deployTokenLock (lockGroup, wallets, amounts) {
+  let contractParams;
+  if (lockConfig.Artifact === 'TokenLock') {
+    contractParams = [
+      WFAIR_CONTRACT,
+      (TGE_TIME + monthsToSeconds(lockGroup[0].delay)).toString(),
+      (monthsToSeconds(lockGroup[0].vestingPeriod)).toString(),
+      (monthsToSeconds(lockGroup[0].cliffPeriod)).toString(),
+      (Q18.mul(lockGroup[0].initialReleaseFraction)).toString(),
+      wallets,
+      amounts,
+    ];
+  } else {
+    contractParams = [
+      WFAIR_CONTRACT,
+      (TGE_TIME + monthsToSeconds(lockGroup[0].delay)).toString(),
+      (monthsToSeconds(lockGroup[0].vestingPeriod)).toString(),
+      knownWallets[lockConfig.Manager],
+      wallets,
+      amounts,
+    ];
+  }
+  // Deploy the token contract for each argument array
+  const TokenLock = await hre.ethers.getContractFactory(lockConfig.Artifact);
+  const instance = await TokenLock.deploy(...contractParams);
+  // wait for tx to be mined
+  await instance.deployTransaction.wait();
+  return [instance, contractParams];
+}
 
 //
 // Main async function that connects to contracts and deploys each token lock
@@ -72,7 +116,7 @@ async function main () {
   console.log('Signing account is ' + accounts[0].address);
 
   // Check ETH balance of deployer is sufficient
-  minEth(accounts[0]);
+  await minEth(accounts[0]);
 
   // loop through each array of token locks and deploy
   for (const lockGroup of lockGroups) {
@@ -81,31 +125,24 @@ async function main () {
     const amounts = [];
     let totalLockFund = toBN('0');
     for (const entry of lockGroup) {
-      wallets.push(knownWallets[entry.name]);
+      wallets.push(entry.address);
       amounts.push(Q18.mul(entry.amount).toString());
       // keep a running total of the sum of the amounts locked
       totalLockFund = totalLockFund.add(entry.amount);
     }
     console.log('Processing the following lock group:\n', lockGroup);
-    const contractParams = [
-      WFAIR_CONTRACT,
-      (TGE_TIME + monthsToSeconds(lockGroup[0].delay)).toString(),
-      (monthsToSeconds(lockGroup[0].vestingPeriod)).toString(),
-      (monthsToSeconds(lockGroup[0].cliffPeriod)).toString(),
-      (Q18.mul(lockGroup[0].initialReleaseFraction)).toString(),
-      wallets,
-      amounts,
-    ];
-    // Deploy the token contract for each argument array
-    const TokenLock = await hre.ethers.getContractFactory('TokenLock');
-    const tokenlock = await TokenLock.deploy(...contractParams);
+    const [tokenlock, contractParams] = await deployTokenLock(lockGroup, wallets, amounts);
     console.log('TokenLock contract deployed to:', tokenlock.address);
     console.log('Parameters supplied:\n', contractParams);
     const contractDetails = {
-      name: 'TokenLock #' + lockGroups.indexOf(lockGroup), // can be updated to more human readable form
+      name: `TokenLock #${lockGroups.indexOf(lockGroup)} in ${lockConfigFileStem}`,
       address: tokenlock.address,
       parameters: contractParams,
       timestamp: Date.now().toString(),
+      artifact: lockConfig.Artifact,
+      wallets,
+      amounts,
+      lockConfigFile: lockConfigFileStem,
     };
     actions.locks.push(contractDetails);
   }
