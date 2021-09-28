@@ -1,10 +1,10 @@
 {
-  "TGETime": "2021-10-05T00:00:00.000Z",
+  "TGETime": "2021-08-05T00:00:00.000Z",
   "Artifact": "TokenLock",
   "lockRequests": 
     [
       {
-        "name": "Wallfair Initial Release #4",
+        "name": "Wallfair Initial Release",
         "initialReleaseFraction": "1",
         "vestingPeriod": "1",
         "cliffPeriod": "0",
@@ -12,7 +12,7 @@
         "amount": "887500"
       },
       {
-        "name": "Joint Initial Release #5",
+        "name": "Joint Initial Release",
         "initialReleaseFraction": "1",
         "vestingPeriod": "1",
         "cliffPeriod": "0",
@@ -20,7 +20,7 @@
         "amount": "6000000"
       },
       {
-        "name": "Wallfair Advisors #7",
+        "name": "Wallfair Advisors",
         "initialReleaseFraction": "0",
         "vestingPeriod": "9",
         "cliffPeriod": "0",
@@ -28,7 +28,7 @@
         "amount": "2250000"
       },
       {
-        "name": "Wallfair Advisors #8",
+        "name": "Wallfair Advisors",
         "initialReleaseFraction": "0",
         "vestingPeriod": "3",
         "cliffPeriod": "0",
@@ -36,7 +36,7 @@
         "amount": "18750000"
       },
       {
-        "name": "Joint Advisors #9",
+        "name": "Joint Advisors",
 
         "initialReleaseFraction": "0",
         "vestingPeriod": "9",
@@ -45,7 +45,7 @@
         "amount": "54000000"
       },
       {
-        "name": "Wallfair Treasury #10",
+        "name": "Wallfair Treasury",
 
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
@@ -54,7 +54,7 @@
         "amount": "37500000"
       },
       {
-        "name": "Joint Treasury #11",
+        "name": "Joint Treasury",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
         "cliffPeriod": "0",
@@ -62,7 +62,7 @@
         "amount": "60000000"
       },
       {
-        "name": "Wallfair Community #12",
+        "name": "Wallfair Community",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
         "cliffPeriod": "0",
@@ -70,7 +70,7 @@
         "amount": "63750000"
       },
       {
-        "name": "Wallfair Community #13",
+        "name": "Wallfair Community",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
         "cliffPeriod": "0",
@@ -78,7 +78,7 @@
         "amount": "123750000"
       },
       {
-        "name": "Joint Community #14",
+        "name": "Joint Community",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
         "cliffPeriod": "0",
@@ -86,7 +86,7 @@
         "amount": "60000000"
       },
       {
-        "name": "Wallfair Ecosystem #15",
+        "name": "Wallfair Ecosystem",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
         "cliffPeriod": "0",
@@ -94,7 +94,7 @@
         "amount": "30245000"
       },
       {
-        "name": "Wallfair Ecosystem #16",
+        "name": "Wallfair Ecosystem",
 
         "initialReleaseFraction": "0",
         "vestingPeriod": "18",
@@ -103,7 +103,7 @@
         "amount": "225367500"
       },
       {
-        "name": "Joint Ecosystem #17",
+        "name": "Joint Ecosystem",
         "initialReleaseFraction": "0",
         "vestingPeriod": "12",
         "cliffPeriod": "0",

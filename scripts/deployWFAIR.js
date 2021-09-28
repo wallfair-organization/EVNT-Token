@@ -1,7 +1,7 @@
 /* ./scripts/deployWFAIR.js */
-import { transfers } from './utils/transfers';
-import { minEth } from './utils/mineth';
+import { minEth, transfers } from './utils/helpers';
 import { toBN, Q18 } from './utils/consts';
+import { web3 } from '@openzeppelin/test-helpers/src/setup';
 
 require('log-timestamp');
 const hre = require('hardhat');
@@ -38,11 +38,22 @@ async function main () {
   console.log('Signing account is ' + accounts[0].address);
 
   // Check ETH balance of deployer is sufficient
-  minEth(accounts[0]);
+  await minEth(accounts[0]);
+
+  // gather transfer list and validate entries
+  for (const entry of deployConfig.transferRequests) {
+    if ('name' in entry) {
+      entry.address = web3.utils.toChecksumAddress(knownWallets[entry.name]);
+    } else if (!('address' in entry)) {
+      throw new Error('address or name must be present in transfer request');
+    }
+  }
 
   // Deploy the token contract
   const WFAIRToken = await hre.ethers.getContractFactory('WFAIRToken');
   const wfairtoken = await WFAIRToken.deploy(WALLFAIR_TOTAL_SUPPLY);
+  // wait for tx to be mined
+  await wfairtoken.deployTransaction.wait();
   if (!('token' in actions)) { actions.token = {}; };
   actions.token = {
     name: 'WFAIR',
@@ -53,9 +64,6 @@ async function main () {
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
 
   // act on transfer requests
-  for (const entry of deployConfig.transferRequests) {
-    entry.address = knownWallets[entry.name];
-  }
   const result = await transfers(wfairtoken, accounts[0].address, deployConfig.transferRequests, false);
   actions.transfers.push(...result);
   console.log('The following transactions were processed: ', result);

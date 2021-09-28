@@ -1,0 +1,27 @@
+{
+    "TGETime": "2021-08-05T00:00:00.000Z",
+    "Artifact": "LeaverTokenLock",
+    "Manager": "Team Wallet",
+    "lockRequests": [
+        {
+            "name": "Team Wallet",
+            "initialReleaseFraction": "0",
+            "vestingPeriod": "12",
+            "cliffPeriod": "0",
+            "delay": "12",
+            "amount": "98557616"
+        },
+        {
+            "addresses": [
+                "0x2C8842C4C8dd6E36BD7289f1b9E8721D67BA353F",
+                "0xaED54FD0f08416Ee8535C166669f0C40417Db5E5",
+                "0x99CF7734c15207CB8e646092aE01ED7165ED5d9D"
+            ],
+            "initialReleaseFraction": "0",
+            "vestingPeriod": "12",
+            "cliffPeriod": "0",
+            "delay": "12",
+            "amounts": ["1000000", "250000", "192384"]
+        }
+    ]
+}

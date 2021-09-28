@@ -11,16 +11,15 @@ require('dotenv-safe').config();
 
 const {
   RINKEBY_API_URL,
-  ROPSTEN_API_URL,
+  GOERLI_API_URL,
   MAINNET_API_URL,
   MUMBAI_API_URL,
   MATIC_API_URL,
   RINKEBY_PRIVATE_KEY,
-  ROPSTEN_PRIVATE_KEY,
+  GOERLI_PRIVATE_KEY,
   MAINNET_PRIVATE_KEY,
   MUMBAI_PRIVATE_KEY,
   MATIC_PRIVATE_KEY,
-  ETHSCAN_API_KEY,
 } = process.env;
 
 module.exports = {
@@ -37,14 +36,21 @@ module.exports = {
     },
     rinkeby: {
       url: RINKEBY_API_URL,
+      chainId: 4,
+      gas: 'auto',
+      gasLimit: 2000000000, // 2 gwei
       accounts: [RINKEBY_PRIVATE_KEY],
     },
-    ropsten: {
-      url: ROPSTEN_API_URL,
-      accounts: [ROPSTEN_PRIVATE_KEY],
+    goerli: {
+      url: GOERLI_API_URL,
+      chainId: 5,
+      // gas: "auto",
+      gasLimit: 1000000000, // 3 gwei
+      accounts: [GOERLI_PRIVATE_KEY],
     },
     mainnet: {
       url: MAINNET_API_URL,
+      chainId: 1,
       accounts: [MAINNET_PRIVATE_KEY],
     },
     mumbai: {
@@ -55,9 +61,6 @@ module.exports = {
       url: MATIC_API_URL,
       accounts: [MATIC_PRIVATE_KEY],
     },
-  },
-  etherscan: {
-    apiKey: ETHSCAN_API_KEY,
   },
   solidity: {
     version: '0.8.7',

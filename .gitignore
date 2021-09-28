@@ -11,6 +11,7 @@ app/node_modules/
 # Hardhat files
 cache
 artifacts
+flattens
 
 # dotenv secret
 .env
