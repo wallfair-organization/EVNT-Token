@@ -1,0 +1,27 @@
+{
+  "transfers": [
+    {
+      "name": "Wallfair Hot Sale Wallet",
+      "from": "0x6756766Ad3b2585e541a6f369AF05A31a3836724",
+      "to": "0x553A2f3732F20f308F2f9b03cd7234fBA421a5b1",
+      "amount": "95000000",
+      "timestamp": "1632687690868",
+      "txid": "0x8b5294d6802471fa6942472ef18cda5fdd4eb339c729c799acfc8ee9185468bc"
+    },
+    {
+      "name": "DEX Liquidity",
+      "from": "0x6756766Ad3b2585e541a6f369AF05A31a3836724",
+      "to": "0xC9AA194d782f42769800503A58C5463B54f9D766",
+      "amount": "2500000",
+      "timestamp": "1632687693624",
+      "txid": "0x8ed38081316c42409857db59db4abe080fc730c9b26541aa903e0ba5d1b9b7a7"
+    }
+  ],
+  "locks": [],
+  "token": {
+    "name": "WFAIR",
+    "address": "0x3D01B461c7231E7acB9DeaBDB03D7Ccba074B722",
+    "timestamp": "1632687670207",
+    "deployer": "0x6756766Ad3b2585e541a6f369AF05A31a3836724"
+  }
+}
