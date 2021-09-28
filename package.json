@@ -32,7 +32,7 @@
     "deploy:mainnet": "./scripts/deployAll.sh mainnet",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:js": "eslint --ignore-path .gitignore ./test ./app ./scripts ./",
-    "lint:js:fix": "eslint --ignore-path .gitignore ./test ./app -/scripts ./ --fix",
+    "lint:js:fix": "eslint --ignore-path .gitignore ./test ./app ./scripts ./ --fix",
     "lint:sol": "solhint 'contracts/**/*.sol'",
     "node": "npx hardhat node",
     "node:deploy": "npx hardhat node --config hardhat-deploy.config.js",

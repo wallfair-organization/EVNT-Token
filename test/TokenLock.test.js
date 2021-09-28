@@ -1,4 +1,3 @@
-// import Math from 'mathjs';
 import { deployWFAIR, deployTokenLock } from './utils/deploy';
 import { Q18, WFAIR_TOTAL_SUPPLY, ZERO, DAYS_30 } from './utils/consts';
 import { BN, expectRevert, time, expectEvent } from '@openzeppelin/test-helpers';
