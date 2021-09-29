@@ -55,6 +55,7 @@ async function main () {
   // wait for tx to be mined
   await wfairtoken.deployTransaction.wait();
   if (!('token' in actions)) { actions.token = {}; };
+  // dump token info
   actions.token = {
     name: 'WFAIR',
     address: wfairtoken.address,
@@ -62,6 +63,14 @@ async function main () {
     deployer: accounts[0].address,
   };
   console.log('WFAIR ERC20 contract deployed to:', wfairtoken.address);
+
+  // dump network
+  actions.network = {
+    name: network,
+    chainId: hre.network.config.chainId,
+    gas: hre.network.config.gas,
+    gasPrice: hre.network.config.gasPrice,
+  };
 
   // act on transfer requests
   const result = await transfers(wfairtoken, accounts[0].address, deployConfig.transferRequests, false);

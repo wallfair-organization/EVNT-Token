@@ -38,14 +38,14 @@ module.exports = {
       url: RINKEBY_API_URL,
       chainId: 4,
       gas: 'auto',
-      gasLimit: 2000000000, // 2 gwei
+      gasPrice: 2000000000, // 2 gwei
       accounts: [RINKEBY_PRIVATE_KEY],
     },
     goerli: {
       url: GOERLI_API_URL,
       chainId: 5,
       // gas: "auto",
-      gasLimit: 1000000000, // 3 gwei
+      gasPrice: 1000000000, // 1 gwei
       accounts: [GOERLI_PRIVATE_KEY],
     },
     mainnet: {
