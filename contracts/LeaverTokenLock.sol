@@ -14,6 +14,7 @@ contract LeaverTokenLock is TokenLock {
     }
 
     event LogLeave(address indexed leaver, LeaverType leaverType, uint256 newTotalStake);
+    event LogLockAmount(address indexed wallet, uint256 amount);
 
     // part of the accumulated tokens that stays with bad leaver
     uint256 internal constant BAD_LEAVER_DIVISOR = 10;
@@ -54,6 +55,22 @@ contract LeaverTokenLock is TokenLock {
 
     function hasLeft(address wallet) public view returns (LeaverType) {
         return _leavers[wallet];
+    }
+
+    function lockAmount(address wallet, uint256 amount) public onlyManager onlyFunded onlyNonLeaver(wallet) {
+        require(wallet != _manager, "Manager cannot restake itself");
+
+        UnlockState memory managerStake = _stakes[_manager];
+
+        // manager cannot give more stake than it has unlocked
+        require(managerStake.unlockedTokens + amount <= managerStake.totalTokens, "Not enough available stake to add");
+
+        // add stake to existing or new account
+        _stakes[wallet].totalTokens += amount;
+        // decrease manager stake
+        _stakes[_manager].totalTokens = managerStake.totalTokens - amount;
+
+        emit LogLockAmount(wallet, amount);
     }
 
     function leaveWallet(address wallet, bool isBadLeaver) public onlyManager onlyFunded onlyNonLeaver(wallet) {
