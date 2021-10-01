@@ -1,0 +1,27 @@
+{
+  "short_name": "Wallfair",
+  "name": "Wallfair",
+  "description": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quam accusantium officiis, id cumque nostrum",
+  "iconPath": "beastlogo120.png",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

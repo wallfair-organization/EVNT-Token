@@ -1,111 +1,40 @@
-import Web3 from 'web3';
-import WFAIRTokenArtifact from '../../build/contracts/WFAIRToken.json';
-import tokenLockArtifact from '../../build/contracts/FriendsTokenlock.json';
+import SafeProvider from '@gnosis.pm/safe-apps-react-sdk'
+import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
+import App from './App'
+import { store } from './app/store'
+import { NetworkContextName } from './constants/misc'
+import './index.css'
+import * as serviceWorker from './serviceWorker'
+import getLibrary from './utils/getLibrary'
 
-const App = {
-  web3: null,
-  account: null,
-  meta: null,
-  tokenLock: null,
+const ROOT_ELEMENT = document.getElementById('root')
+const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
-  start: async function () {
-    const { web3 } = this;
+ReactDOM.render(
+  <React.StrictMode>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <Web3ProviderNetwork getLibrary={getLibrary}>
+        <Provider store={store}>
+          {/* <SafeProvider
+          loader={
+            <>
+              <p>Loading...</p>
+            </>
+          }
+        > */}
+          <App />
+          {/* </SafeProvider> */}
+        </Provider>
+      </Web3ProviderNetwork>
+    </Web3ReactProvider>
+  </React.StrictMode>,
+  ROOT_ELEMENT,
+)
 
-    try {
-      // get contract instance
-      const networkId = await web3.eth.net.getId();
-
-      const deployedWFAIRToken = WFAIRTokenArtifact.networks[networkId];
-      this.meta = new web3.eth.Contract(
-        WFAIRTokenArtifact.abi,
-        deployedWFAIRToken.address,
-      );
-
-      const deployedTokenLock = tokenLockArtifact.networks[networkId];
-      this.tokenLock = new web3.eth.Contract(
-        tokenLockArtifact.abi,
-        deployedTokenLock.address,
-      );
-
-      // get accounts
-      const accounts = await web3.eth.getAccounts();
-      this.account = accounts[0];
-    } catch (error) {
-      console.error(error);
-      console.error('Could not connect to contract or chain.');
-    }
-  },
-
-  setStatus: function (message) {
-    const status = document.getElementById('status');
-    status.innerHTML = message;
-  },
-
-  mintToken: async function () {
-    const { mint } = this.meta.methods;
-    const input = parseInt(document.getElementById('amount').value);
-    const amount = BigInt(input) * BigInt(10 ** 18);
-    await mint(amount).send({ from: this.account });
-    App.setStatus(`Successful mint of ${input} WFAIR to ${this.account}.`);
-  },
-
-  getBalance: async function () {
-    const { balanceOf } = this.meta.methods;
-    const balance = await balanceOf(this.account).call({ from: this.account });
-
-    App.setStatus(`${balance} WFAIR`);
-  },
-
-  getFamilyUnlock: async function () {
-    const { release } = this.tokenLock.methods;
-    const unlock = await release().send({ from: this.account });
-
-    App.setStatus(`${unlock}`);
-  },
-
-  getFamilyToken: async function () {
-    const { token } = this.tokenLock.methods;
-    const unlockPercentage = await token().call({ from: this.account });
-
-    console.log(unlockPercentage);
-    App.setStatus(`${unlockPercentage}`);
-  },
-
-  getFamilyUnlockPercentage: async function () {
-    const { percentage } = this.tokenLock.methods;
-    const unlockPercentage = await percentage().call({ from: this.account });
-
-    App.setStatus(`${unlockPercentage / 100}%`);
-  },
-
-  getFamilyUnlockedMonths: async function () {
-    const { unlockedMonths } = this.tokenLock.methods;
-    const unlockPercentage = await unlockedMonths().call({ from: this.account });
-
-    App.setStatus(`${unlockPercentage}`);
-  },
-
-  getFamilyUnlockableMonths: async function () {
-    const { unlockableMonths } = this.tokenLock.methods;
-    const unlockPercentage = await unlockableMonths().call({ from: this.account });
-
-    App.setStatus(`${unlockPercentage}`);
-  },
-};
-
-async function load () {
-  if (window.ethereum) {
-    // use MetaMask's provider
-    App.web3 = new Web3(window.ethereum);
-    await window.ethereum.enable(); // get permission to access accounts
-  } else {
-    console.warn('No web3 detected.');
-  }
-
-  App.start();
-}
-
-window.App = App;
-window.load = load;
-
-window.addEventListener('load', load);
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
+serviceWorker.register()
