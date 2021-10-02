@@ -66,7 +66,7 @@ const getAddresses = () => {
 const getABIs = () => {
   console.time("copying ABIs");
   const baseOutputPath = path.join(__dirname, `../src/config/abi/`);
-  const artifactsPath = path.join(__dirname, `../../artifacts/contracts`);
+  const artifactsPath = path.join(__dirname, `../../build/contracts`);
 
   fs.readdirSync(artifactsPath, { withFileTypes: true })
     .filter((obj) => obj.isDirectory())
