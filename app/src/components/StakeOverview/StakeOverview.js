@@ -1,11 +1,9 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
-import { selectStakes, selectBlockedTx, setBlockedState, setBalance, selectHistory } from "../../state/wallfair/slice";
+import { selectStakes, selectHistory } from "../../state/wallfair/slice";
 import addresses from "../../config/constants/addresses";
 import TokenLockAbi from "../../config/abi/TokenLock.json";
 import { Contract } from "@ethersproject/contracts";
-import Spinny from "../Spinner/Spinner";
-import { uuidv4 } from "../../utils/misc";
 import TxModal from "../TxModal";
 import SafeCall from "../SafeContractCall/SafeContractCall";
 import { ALL_SUPPORTED_CHAIN_IDS } from "../../constants/chains";
@@ -35,10 +33,10 @@ const StakeOverview = ({ provider, setter, hash }) => {
       lockValues.push(
         <div key={lockNum}>
           <p>TokenLock: {lockNum}</p>
-          <p>totalTokensOf: {parseFloat(lockStake[0]).toFixed(2)}</p>
-          <p>unlockedTokensOf: {parseFloat(lockStake[1]).toFixed(2)}</p>
-          <p>tokensVested: {parseFloat(lockStake[2]).toFixed(2)}</p>
-          <p>Unlockable Tokens: {parseFloat(unlockableTokens).toFixed(2)}</p>
+          <p>totalTokensOf: {totalTokensOf}</p>
+          <p>unlockedTokensOf: {unlockedTokensOf}</p>
+          <p>tokensVested: {tokensVested}</p>
+          <p>Unlockable Tokens: {unlockableTokens}</p>
           <button
             className={"ReleaseStakeButton"}
             disabled={unlockableTokens < 1}

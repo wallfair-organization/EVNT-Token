@@ -1,12 +1,11 @@
 import { isMobile } from "react-device-detect";
 import WalletModal from "../WalletModal";
-import styled from "styled-components";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import { NetworkContextName } from "../../constants/misc";
 import { useWalletModalToggle } from "../../state/application/hooks";
 
 function Web3StatusInner() {
-  const { account, connector, error } = useWeb3React();
+  const { account, error } = useWeb3React();
   const toggleWalletModal = useWalletModalToggle();
 
   const wallet_address = (() => {
@@ -29,7 +28,7 @@ function Web3StatusInner() {
 }
 
 export default function Web3Status() {
-  const { active, account } = useWeb3React();
+  const { active } = useWeb3React();
   const contextNetwork = useWeb3React(NetworkContextName);
 
   return (

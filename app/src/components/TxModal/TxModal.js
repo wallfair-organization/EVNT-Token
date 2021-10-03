@@ -1,5 +1,3 @@
-import styled from "styled-components";
-
 const TxModal = ({ hash, action, blocked, success, setModalOpen }) => {
   return (
     <div className={"ModalWrapper"}>

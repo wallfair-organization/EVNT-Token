@@ -1,15 +1,12 @@
 import { useWeb3React } from "@web3-react/core";
 import React from "react";
-import { useDispatch } from "react-redux";
-import styled from "styled-components";
 import { NetworkContextName } from "../../constants/misc";
 import { useWalletModalToggle } from "../../state/application/hooks";
 import WalletModal from "../WalletModal";
 
 const WalletConnectInner = () => {
-  const { account, connector, error } = useWeb3React();
+  const { account, error } = useWeb3React();
   const toggleWalletModal = useWalletModalToggle();
-  const dispatch = useDispatch();
 
   const wallet_address = (() => {
     let isMobile = window.innerWidth <= 375;
@@ -22,7 +19,7 @@ const WalletConnectInner = () => {
     return <div className="WalletDisconnectButton">{wallet_address}</div>;
   } else if (error) {
     // NOT CONNECTED, GOT ERROR
-    return <div className="WalletDisconnectButton">{"ERROR"}</div>;
+    return <div className="WalletDisconnectButton">{"ERROR:" + error}</div>;
   } else {
     // NOT CONNECTED, CONNECT TO A WALLET
     return (
@@ -34,7 +31,7 @@ const WalletConnectInner = () => {
 };
 
 const WalletConnect = () => {
-  const { active, account } = useWeb3React();
+  const { active } = useWeb3React();
   const contextNetwork = useWeb3React(NetworkContextName);
 
   return (

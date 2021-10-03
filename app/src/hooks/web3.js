@@ -1,17 +1,10 @@
-import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useDispatch } from 'react-redux'
 import { gnosisSafe, injected } from '../connectors'
-import { IS_IN_IFRAME, NetworkContextName } from '../constants/misc'
-import { resetState, setAddress, setChainId, setConnectionState } from '../state/wallfair/slice'
-
-export function useActiveWeb3React() {
-  const context = useWeb3React()
-  const contextNetwork = useWeb3React(NetworkContextName)
-  return context.active ? context : contextNetwork
-}
+import { IS_IN_IFRAME } from '../constants/misc'
+import { resetState } from '../state/wallfair/slice'
 
 export function useEagerConnect() {
   const { activate, active } = useWeb3React()
@@ -105,5 +98,5 @@ export function useInactiveListener(suppress = false) {
       }
     }
     return undefined
-  }, [active, error, suppress, activate])
+  }, [active, error, suppress, activate, dispatch])
 }

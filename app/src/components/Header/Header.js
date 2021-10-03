@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from "react";
-import WalletConnect from "../WalletButton";
+import React from "react";
 import { NavLink } from "react-router-dom";
-import styled from "styled-components";
-import { isMobile } from "../../utils/detection";
 import Web3Status from "../Web3Status";
 
 const Header = () => {

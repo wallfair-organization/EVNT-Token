@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
-import { selectBalances, setBalance } from "../../state/wallfair/slice";
-import { uuidv4 } from "../../utils/misc";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectBalances } from "../../state/wallfair/slice";
 import TxModal from "../TxModal";
 import WFAIRTransfer from "../WFAIRTransfer";
 

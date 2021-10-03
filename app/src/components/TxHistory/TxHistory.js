@@ -1,11 +1,8 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { ethers } from "ethers";
-import addresses from "../../config/constants/addresses";
+import React from "react";
 import { useSelector } from "react-redux";
 import { selectHistory } from "../../state/wallfair/slice";
 
-const TxHistory = ({}) => {
+const TxHistory = () => {
   const historyData = useSelector(selectHistory);
 
   const historyTxData = [];
@@ -25,15 +22,13 @@ const TxHistory = ({}) => {
         );
       });
     }
-    {
-      historyTxData.length !== 0 &&
+    historyTxData.length !== 0 &&
         bruh.push(
           <div key={lockIdx}>
             <p>Lock{lockIdx}:</p>
             {historyTxData}
           </div>
         );
-    }
   });
   console.log(bruh);
   return (
