@@ -13,9 +13,9 @@ import {
   setStakes,
   setHistory,
 } from "../../state/wallfair/slice";
-import { ZERO } from "../../constants/misc"
+import { ZERO } from "../../utils/constants"
 import StakeOverview from "../../components/StakeOverview/StakeOverview";
-import addresses from "../../config/constants/addresses";
+import { WFAIRAddress, lockAddresses, currentChainId ,currentNetwork } from "../../config/config";
 
 const Home = () => {
   const [hash, setHash] = useState("");
@@ -29,7 +29,8 @@ const Home = () => {
   }, [account, active, dispatch]);
 
   useEffect(() => {
-    // if ([account, library, signer, hash] === prevDeps) return;
+    if (chainId !== currentChainId)
+      return;
     signer?.getBalance().then((result) => {
       dispatch(
         setBalance({
@@ -57,6 +58,14 @@ const Home = () => {
     }); // eslint-disable-next-line
   }, [account, library, signer, hash]);
 
+  if (chainId !== currentChainId) {
+    return (
+      <>
+        <h1 style={{ textAlign: "center" }}>Please change your network to {currentNetwork.label}</h1>
+      </>
+    );
+  }
+
   if (!account) {
     return (
       <>
@@ -76,7 +85,6 @@ const Home = () => {
 };
 
 const getHistory = async ({ address, dispatch, provider }) => {
-  const lockAddresses = addresses.WallfairTokenLock[provider?._network?.chainId] || [];
   for (const lockAddress of lockAddresses) {
     const tokenLock = new Contract(lockAddress, WFairTokenLockABI, provider);
     const filter = tokenLock.filters.LogRelease(address);
@@ -103,8 +111,6 @@ const getHistory = async ({ address, dispatch, provider }) => {
 
 const getStakeValues = async ({ address, provider, dispatch }) => {
   // loop over all lock addresses
-  const lockAddresses = addresses.WallfairTokenLock[provider?._network?.chainId] || [];
-  const activeLockAddresses = [];
   for (const lockAddress of lockAddresses) {
     const tokenLock = new Contract(lockAddress, WFairTokenLockABI, provider);
 
@@ -121,16 +127,12 @@ const getStakeValues = async ({ address, provider, dispatch }) => {
           data: [totalTokensOf, unlockedTokensOf, tokensVested].map(ethers.utils.formatEther),
         })
       );
-      activeLockAddresses.push(lockAddress);
     }
   }
-  return activeLockAddresses;
 };
 
 const getBalanceWFAIR = async ({ address, provider }) => {
-  const contractAddress = addresses.Wallfair[provider?._network?.chainId];
-  console.log("contractAddress", contractAddress);
-  const contract = new Contract(contractAddress, WFairABI, provider);
+  const contract = new Contract(WFAIRAddress, WFairABI, provider);
   const balance = await contract.balanceOf(address);
 
   return ethers.utils.formatEther(balance);

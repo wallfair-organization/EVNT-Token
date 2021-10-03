@@ -51,11 +51,11 @@ const StakeOverview = ({ provider, setter, hash }) => {
         >
           Release Stake
         </button>
-        <div>
+        <div key={"history" + lockAddress}>
           <h4>history</h4>
           {historyData[lockAddress]?.map((data) => {
             return (
-              <div className="HistoryItem" key={lockAddress}>
+              <div className="HistoryItem" key={data[0]}>
                 <p>TxHash: {data[0]}</p>
                 <p>Amount: {parseFloat(data[1]).toFixed(2)}</p>
                 <p>to: {(new Date(data[2] * 1000)).toLocaleDateString("en-US")}</p>

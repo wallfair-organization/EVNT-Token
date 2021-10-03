@@ -1,15 +1,10 @@
 import { ethers } from "ethers";
-import addresses from "../../config/constants/addresses";
+import { WFAIRAddress } from "../../config/config";
 import WFAIRAbi from "../../config/abi/WFAIRToken.json";
 import SafeCall from "../SafeContractCall";
 
-const WFAIRTransfer = ({ provider, setter, tokenAmount, to_address, setBlocked, setTXSuccess, setModalOpen }) => {
-  const contractAddress = addresses.Wallfair[provider?._network?.chainId];
-  if (!contractAddress) {
-    console.log("no contract :)");
-    return;
-  }
-  if (!ethers.utils.isAddress(to_address)) {
+const WFAIRTransfer = ({ provider, setter, tokenAmount, to_address: toAddress, setBlocked, setTXSuccess, setModalOpen }) => {
+  if (!ethers.utils.isAddress(toAddress)) {
     alert("Invalid Address");
     return;
   } else if (tokenAmount === "0") {
@@ -24,8 +19,7 @@ const WFAIRTransfer = ({ provider, setter, tokenAmount, to_address, setBlocked, 
     console.log("Gas price in Gwei:", gas_price);
 
     const signer = provider?.getSigner();
-    console.log(signer);
-    const wfairToken = new ethers.Contract(contractAddress, WFAIRAbi, signer);
+    const wfairToken = new ethers.Contract(WFAIRAddress, WFAIRAbi, signer);
 
     // .5 => 0.5 || 6. => 6.0
     tokenAmount =
@@ -36,10 +30,9 @@ const WFAIRTransfer = ({ provider, setter, tokenAmount, to_address, setBlocked, 
         : tokenAmount;
 
     wfairToken
-      .transfer(to_address, ethers.utils.parseEther(tokenAmount)) // transfer tokens
+      .transfer(toAddress, ethers.utils.parseEther(tokenAmount)) // transfer tokens
       .then((tx) => {
         // Waiting for transaction receipt
-
         SafeCall({
           tx: tx,
           callback: (success) => {
@@ -49,16 +42,6 @@ const WFAIRTransfer = ({ provider, setter, tokenAmount, to_address, setBlocked, 
           },
           setter: setter,
         });
-
-        // tx.wait()
-        //   .catch((err) => {
-        //     // receiving receipt
-        //     console.error(err)
-        //   })
-        //   .finally(() => {
-        //     setBlocked(false)
-        //     setter(tx.hash) // setting state of parent to tx hash for rerender purposes
-        //   })
       })
       .catch((err) => {
         // Transaction did fail, unblocking
