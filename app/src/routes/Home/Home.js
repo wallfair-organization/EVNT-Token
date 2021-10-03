@@ -58,18 +58,18 @@ const Home = () => {
     }); // eslint-disable-next-line
   }, [account, library, signer, hash]);
 
-  if (chainId !== currentChainId) {
-    return (
-      <>
-        <h1 style={{ textAlign: "center" }}>Please change your network to {currentNetwork.label}</h1>
-      </>
-    );
-  }
-
   if (!account) {
     return (
       <>
         <h1 style={{ textAlign: "center" }}>Please connect your Wallet</h1>
+      </>
+    );
+  }
+
+  if (chainId !== currentChainId) {
+    return (
+      <>
+        <h1 style={{ textAlign: "center" }}>Please change your network to {currentNetwork.label}</h1>
       </>
     );
   }
