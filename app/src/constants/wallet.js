@@ -1,4 +1,4 @@
-import { walletconnect, injected } from '../connectors/index'
+import { walletconnect, injected, gnosisSafe} from '../connectors/index'
 
 export const SUPPORTED_WALLETS = {
   INJECTED: {
@@ -21,4 +21,10 @@ export const SUPPORTED_WALLETS = {
     href: null,
     mobile: true,
   },
+  GNOSIS_SAFE: {
+    connector: gnosisSafe,
+    name: "Gnosis Safe",
+    description: 'Connect to Gnosis Safe app',
+    href: null
+  }
 }
