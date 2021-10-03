@@ -8,15 +8,8 @@ const INITIAL_STATE = {
     ETH: "0.0",
     WFAIR: "0.0",
   },
-  history: [[]],
-  stakes: {
-    Lock0: [],
-    Lock1: [],
-    Lock2: [],
-    Lock3: [],
-    Lock4: [],
-    Lock5: [],
-  },
+  history: {},
+  stakes: {},
 };
 
 export const wfSlice = createSlice({

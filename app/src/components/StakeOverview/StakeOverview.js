@@ -1,12 +1,10 @@
 import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { selectStakes, selectHistory } from "../../state/wallfair/slice";
-import addresses from "../../config/constants/addresses";
 import TokenLockAbi from "../../config/abi/TokenLock.json";
 import { Contract } from "@ethersproject/contracts";
 import TxModal from "../TxModal";
 import SafeCall from "../SafeContractCall/SafeContractCall";
-import { ALL_SUPPORTED_CHAIN_IDS } from "../../constants/chains";
 
 const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory);
@@ -23,53 +21,51 @@ const StakeOverview = ({ provider, setter, hash }) => {
   }, [modalOpen]);
 
   let lockValues = [];
-  for (const lockNum in stakes) {
-    const lockStake = stakes[lockNum];
-    if (lockStake.length !== 0) {
-      const totalTokensOf = parseFloat(lockStake[0]).toFixed(2);
-      const unlockedTokensOf = parseFloat(lockStake[1]).toFixed(2);
-      const tokensVested = parseFloat(lockStake[2]).toFixed(2);
-      const unlockableTokens = tokensVested - unlockedTokensOf;
-      lockValues.push(
-        <div key={lockNum}>
-          <p>TokenLock: {lockNum}</p>
-          <p>totalTokensOf: {totalTokensOf}</p>
-          <p>unlockedTokensOf: {unlockedTokensOf}</p>
-          <p>tokensVested: {tokensVested}</p>
-          <p>Unlockable Tokens: {unlockableTokens}</p>
-          <button
-            className={"ReleaseStakeButton"}
-            disabled={unlockableTokens < 1}
-            onClick={() => {
-              setBlocked(true);
-              ReleaseStake({
-                provider: provider,
-                setter: setter,
-                lockNum: lockNum,
-                setTXSuccess: setTXSuccess,
-                setBlocked: setBlocked,
-                setModalOpen: setModalOpen,
-              });
-            }}
-          >
-            Release Stake
-          </button>
-          <div>
-            <h4>history</h4>
-            {historyData[parseInt(lockNum.replace("Lock", ""))]?.map((lockHistory, lockIdx) => {
-              return (
-                <div className="HistoryItem" key={lockIdx}>
-                  <p>TxNum: {lockIdx}</p>
-                  <p>From: {lockHistory[0]}</p>
-                  <p>to: {lockHistory[1]}</p>
-                </div>
-              );
-            }) || <p>no history found</p>}
-          </div>
-          <hr></hr>
+  for (const lockAddress in stakes) {
+    const lockStake = stakes[lockAddress];
+    const totalTokensOf = parseFloat(lockStake[0]).toFixed(2);
+    const unlockedTokensOf = parseFloat(lockStake[1]).toFixed(2);
+    const tokensVested = parseFloat(lockStake[2]).toFixed(2);
+    const unlockableTokens = tokensVested - unlockedTokensOf;
+    lockValues.push(
+      <div key={lockAddress}>
+        <p>TokenLock: {lockAddress}</p>
+        <p>totalTokensOf: {totalTokensOf}</p>
+        <p>unlockedTokensOf: {unlockedTokensOf}</p>
+        <p>tokensVested: {tokensVested}</p>
+        <p>Unlockable Tokens: {unlockableTokens}</p>
+        <button
+          className={"ReleaseStakeButton"}
+          disabled={unlockableTokens < 1}
+          onClick={() => {
+            setBlocked(true);
+            ReleaseStake({
+              provider,
+              setter,
+              lockAddress,
+              setTXSuccess: setTXSuccess,
+              setBlocked: setBlocked,
+              setModalOpen: setModalOpen,
+            });
+          }}
+        >
+          Release Stake
+        </button>
+        <div>
+          <h4>history</h4>
+          {historyData[lockAddress]?.map((data) => {
+            return (
+              <div className="HistoryItem" key={lockAddress}>
+                <p>TxHash: {data[0]}</p>
+                <p>Amount: {parseFloat(data[1]).toFixed(2)}</p>
+                <p>to: {(new Date(data[2] * 1000)).toLocaleDateString("en-US")}</p>
+              </div>
+            );
+          }) || <p>no history found</p>}
         </div>
-      );
-    }
+        <hr></hr>
+      </div>
+    );
   }
 
   if (lockValues.length === 0) {
@@ -93,12 +89,8 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
 export default React.memo(StakeOverview);
 
-const ReleaseStake = ({ provider, setter, lockNum, setTXSuccess, setBlocked, setModalOpen }) => {
-  const lockAddr = addresses.WallfairTokenLock[provider?._network?.chainId][lockNum.split("Lock")[1]];
-  const tokenLock = new Contract(lockAddr, TokenLockAbi, provider?.getSigner());
-  if (!ALL_SUPPORTED_CHAIN_IDS.includes(provider?._network?.chainId)) {
-    return;
-  }
+const ReleaseStake = ({ provider, setter, lockAddress, setTXSuccess, setBlocked, setModalOpen }) => {
+  const tokenLock = new Contract(lockAddress, TokenLockAbi, provider?.getSigner());
   setModalOpen(true);
   tokenLock
     .release() // release locked tokens
