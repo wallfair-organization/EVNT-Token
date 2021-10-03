@@ -1,6 +1,4 @@
 const PendingView = ({ error, setPendingError, tryActivation, connector }) => {
-  const isMetamask = window?.ethereum?.isMetaMask;
-
   return <div>{error ? <span>ERROR</span> : <span>Loading...</span>}</div>;
 };
 

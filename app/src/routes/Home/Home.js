@@ -11,33 +11,28 @@ import {
   selectBalances,
   setBalance,
   setStakes,
-  setConnectionState,
   selectHistory,
   setHistory,
 } from "../../state/wallfair/slice";
 import StakeOverview from "../../components/StakeOverview/StakeOverview";
 import addresses from "../../config/constants/addresses";
 import { ALL_SUPPORTED_CHAIN_IDS } from "../../constants/chains";
-import TxHistory from "../../components/TxHistory";
-import usePrevious from "../../hooks/usePrevious";
 
 const Home = () => {
   const [hash, setHash] = useState("");
   const dispatch = useDispatch();
-  const { active, activate, library, account, chainId } = useWeb3React();
+  const { active, library, account, chainId } = useWeb3React();
   const balances = useSelector(selectBalances);
   const historyData = useSelector(selectHistory);
   const signer = library?.getSigner();
 
-  const prevDeps = usePrevious([account, library, signer, hash]);
-
   useEffect(() => {
     console.log(historyData);
-  }, []);
+  }, [historyData]);
 
   useEffect(() => {
     dispatch(resetState());
-  }, [account, active]);
+  }, [account, active, dispatch]);
 
   useEffect(() => {
     // if ([account, library, signer, hash] === prevDeps) return;
