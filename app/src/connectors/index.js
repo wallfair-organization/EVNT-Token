@@ -1,8 +1,8 @@
 import { SafeAppConnector } from "@gnosis.pm/safe-apps-web3-react";
 import { InjectedConnector } from "@web3-react/injected-connector";
+import { NetworkConnector } from "@web3-react/network-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { ALL_SUPPORTED_CHAIN_IDS, SupportedChainId } from "../constants/chains";
-import { NetworkConnector } from "./NetworkConnector";
 
 const NETWORK_URLS = {
   [SupportedChainId.LOCAL]: `http://localhost:8545/`,
