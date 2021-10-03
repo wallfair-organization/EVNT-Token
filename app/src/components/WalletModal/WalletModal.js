@@ -20,7 +20,7 @@ const WALLET_VIEWS = {
 const WalletModal = () => {
   const { active, account, connector, activate, error } = useWeb3React();
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT);
-  const [pendingWallet, setPendingWallet] = useState(undefined);
+  const [, setPendingWallet] = useState(undefined);
   const [pendingError, setPendingError] = useState(false);
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET);
   const toggleWalletModal = useWalletModalToggle();
@@ -48,15 +48,6 @@ const WalletModal = () => {
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious]);
 
   const tryActivation = async (connector) => {
-    let name = "";
-
-    Object.keys(SUPPORTED_WALLETS).map((key) => {
-      if (connector === SUPPORTED_WALLETS[key].connector) {
-        return (name = SUPPORTED_WALLETS[key].name);
-      }
-      return true;
-    });
-
     setPendingWallet(connector);
     setWalletView(WALLET_VIEWS.PENDING);
 
@@ -78,7 +69,6 @@ const WalletModal = () => {
     const isMetamask =
       (window.ethereum && window.ethereum.isMetaMask && !(window.ethereum.isMathWallet || window.ethereum.isMew)) ||
       false;
-    const isInjected = window.ethereum ? true : false;
     console.log("metamask?", isMetamask);
     return Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key];
@@ -104,34 +94,22 @@ const WalletModal = () => {
         return null;
       }
 
-      if (option.name === "MetaMask" && !isMetamask) {
-        return null;
-      }
-
-      if (option.name === "Injected" && isMetamask) {
-        return null;
-      }
-
-      if (option.name === "Injected" && !isInjected) {
-        return null;
-      }
-
+      // overwrite injected when needed
       if (option.connector === injected) {
+        // don't show injected if there's no injected provider
+        // @ts-ignore
         if (!(window.web3 || window.ethereum)) {
-          if (option.name === "MetaMask") {
-            //TODO: return "install metamask" thingy
-          }
+          return null
+        }
+        // don't return metamask if injected provider isn't metamask
+        else if (option.name === 'MetaMask' && !isMetamask) {
+          return null
+        }
+        // likewise for generic
+        else if (option.name === 'Injected' && isMetamask) {
+          return null
         }
       }
-
-      //   // don't return metamask if injected provider isn't metamask
-      //   else if (option.name === 'MetaMask' && !isMetamask) {
-      //     return null
-      //   }
-      //   // likewise for generic
-      //   else if (option.name === 'Injected' && isMetamask) {
-      //     return null
-      //   }
 
       // return rest of options
       return (
