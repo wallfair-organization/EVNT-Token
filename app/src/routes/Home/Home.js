@@ -86,7 +86,8 @@ const Home = () => {
 
 const getHistory = async ({ address, dispatch, provider }) => {
   for (const lockAddress of lockAddresses) {
-    const tokenLock = new Contract(lockAddress, WFairTokenLockABI, provider);
+    console.log(WFairTokenLockABI.abi);
+    const tokenLock = new Contract(lockAddress, WFairTokenLockABI.abi, provider);
     const filter = tokenLock.filters.LogRelease(address);
     const logs = await tokenLock.queryFilter(filter);
     if (logs.length > 0) {
@@ -112,7 +113,7 @@ const getHistory = async ({ address, dispatch, provider }) => {
 const getStakeValues = async ({ address, provider, dispatch }) => {
   // loop over all lock addresses
   for (const lockAddress of lockAddresses) {
-    const tokenLock = new Contract(lockAddress, WFairTokenLockABI, provider);
+    const tokenLock = new Contract(lockAddress, WFairTokenLockABI.abi, provider);
 
     const currentTime = Math.ceil(Date.now() / 1000);
 
@@ -132,7 +133,7 @@ const getStakeValues = async ({ address, provider, dispatch }) => {
 };
 
 const getBalanceWFAIR = async ({ address, provider }) => {
-  const contract = new Contract(WFAIRAddress, WFairABI, provider);
+  const contract = new Contract(WFAIRAddress, WFairABI.abi, provider);
   const balance = await contract.balanceOf(address);
 
   return ethers.utils.formatEther(balance);

@@ -31,9 +31,10 @@
   },
   "scripts": {
     "start": "echo 'use start:localhost or start:rinkeby'",
-    "start:localhost": "node scripts/generateAddressesConfig.js localhost 1337 && react-scripts start",
-    "start:rinkeby": "node scripts/generateAddressesConfig.js rinkeby 4 && react-scripts start",
-    "build": "react-scripts build",
+    "start:localhost": "./scripts/configure.sh localhost && react-scripts start",
+    "start:rinkeby": "./scripts/configure.sh rinkeby rinkeby && react-scripts start",
+    "build:localhost": "./scripts/configure.sh localhost && react-scripts build",
+    "build:rinkeby": "./scripts/configure.sh rinkeby && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
