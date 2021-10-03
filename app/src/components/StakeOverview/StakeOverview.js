@@ -90,7 +90,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
 export default React.memo(StakeOverview);
 
 const ReleaseStake = ({ provider, setter, lockAddress, setTXSuccess, setBlocked, setModalOpen }) => {
-  const tokenLock = new Contract(lockAddress, TokenLockAbi, provider?.getSigner());
+  const tokenLock = new Contract(lockAddress, TokenLockAbi.abi, provider?.getSigner());
   setModalOpen(true);
   tokenLock
     .release() // release locked tokens
