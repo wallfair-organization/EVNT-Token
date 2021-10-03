@@ -1,4 +1,4 @@
-import { walletconnect, injected, gnosisSafe} from '../connectors/index'
+import { walletconnect, injected, gnosisSafe} from './connectors'
 
 export const SUPPORTED_WALLETS = {
   INJECTED: {

@@ -2,8 +2,8 @@ import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useDispatch } from 'react-redux'
-import { gnosisSafe, injected } from '../connectors'
-import { IS_IN_IFRAME } from '../constants/misc'
+import { gnosisSafe, injected } from '../config/connectors'
+import { IS_IN_IFRAME } from '../utils/constants'
 import { resetState } from '../state/wallfair/slice'
 
 export function useEagerConnect() {

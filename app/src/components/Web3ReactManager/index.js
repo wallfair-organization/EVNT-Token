@@ -1,8 +1,8 @@
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { NetworkContextName } from '../../constants/misc'
+import { NetworkContextName } from '../../utils/constants'
 import { useEagerConnect, useInactiveListener } from '../../hooks/web3'
-import { network } from '../../connectors/index'
+import { network } from '../../config/connectors'
 
 const Web3ReactManager = ({ children }) => {
   const { active } = useWeb3React()
@@ -40,6 +40,7 @@ const Web3ReactManager = ({ children }) => {
   }
 
   if (!active && !networkActive) {
+    // TODO: style this
     return showLoader ? <h1>Loading...</h1> : null
   }
 

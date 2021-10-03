@@ -1,6 +1,6 @@
 import { useWeb3React } from "@web3-react/core";
 import React from "react";
-import { NetworkContextName } from "../../constants/misc";
+import { NetworkContextName } from "../../utils/constants";
 import { useWalletModalToggle } from "../../state/application/hooks";
 import WalletModal from "../WalletModal";
 
