@@ -1,0 +1,40 @@
+@import '../../styles/all';
+
+.header {
+  max-width: 1140px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 45px 0 55px;
+
+  .headerTitle {
+    color: $colorWhite;
+    font-family: $fontBold;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.13;
+    letter-spacing: 1px;
+    margin-bottom: 95px;
+    display: inline-block;
+
+    span {
+      font-family: initial;
+      color: $colorYellowLight;
+    }
+  }
+
+  .walletWelcome {
+    h2 {
+      color: $colorWhite;
+      font-family: $fontRegular;
+      font-size: 36px;
+      word-spacing: 12px;
+      margin-bottom: 16px;
+    }
+    p {
+      color: $colorGrayLight9;
+      font-family: $fontRegular;
+      font-size: 18px;
+      word-spacing: 2px;
+    }
+  }
+}
