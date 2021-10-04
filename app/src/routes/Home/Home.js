@@ -114,18 +114,23 @@ const getStakeValues = async ({ address, provider, dispatch }) => {
   // loop over all lock addresses
   for (const lockAddress of lockAddresses) {
     const tokenLock = new Contract(lockAddress, WFairTokenLockABI.abi, provider);
-
-    const currentTime = Math.ceil(Date.now() / 1000);
-
     const totalTokensOf = await tokenLock.totalTokensOf(address);
-    const unlockedTokensOf = await tokenLock.unlockedTokensOf(address);
-    const tokensVested = await tokenLock.tokensVested(address, currentTime);
 
     if (totalTokensOf.gt(ZERO)) {
+      const unlockedTokensOf = await tokenLock.unlockedTokensOf(address);
+      const currentTime = Math.ceil(Date.now() / 1000);
+      const tokensVested = await tokenLock.tokensVested(address, currentTime);
+      // start timestamp in seconds
+      const startTimestamp = await tokenLock.startTime();
+      const vestingPeriod = await tokenLock.vestingPeriod();
+      // this is when vesting ends
+      const endTimestamp = startTimestamp.add(vestingPeriod);
+      const amounts = [totalTokensOf, unlockedTokensOf, tokensVested].map(ethers.utils.formatEther);
+      const timestamps = [startTimestamp, endTimestamp, vestingPeriod].map(t => t.toString());
       dispatch(
         setStakes({
           lock: lockAddress,
-          data: [totalTokensOf, unlockedTokensOf, tokensVested].map(ethers.utils.formatEther),
+          data: [...amounts, ...timestamps],
         })
       );
     }
