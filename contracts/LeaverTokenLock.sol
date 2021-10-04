@@ -62,8 +62,8 @@ contract LeaverTokenLock is TokenLock {
 
         UnlockState memory managerStake = _stakes[_manager];
 
-        // manager cannot give more stake than it has unlocked
-        require(managerStake.unlockedTokens + amount <= managerStake.totalTokens, "Not enough available stake to add");
+        // the difference between total tokens and unlocked tokens can be restaked to other accounts
+        require(managerStake.totalTokens - managerStake.unlockedTokens >= amount, "Not enough available stake to add");
 
         // add stake to existing or new account
         _stakes[wallet].totalTokens += amount;
