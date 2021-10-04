@@ -69,6 +69,9 @@ The amount of slashed tokens are computed as follows.
 * After the *vesting start* - keeps 10% (1/10) of the tokens accumulated until the event date or the amount of tokens that were vested - whichever is higher. The reason for that is that vested tokens cannot be taken back as they were released from the contract.
 * Has no title to any tokens accumulated after event date.
 
+### Transfering stake
+Manager can transfer stake that s/he will eventually unlock to existing or a new wallet. That allows to (1) redistribute reposesed tokens from leaver events (2) give additional bonuses to existing or new team members. The amount of tokens available for transfer is a total amount that may be unlocked until the end of vesting period. For more details see `lockAmount` function and tests.
+
 ## Deployment
 The deployment procedure is as follows:
 1. `WFAIRToken` instance is deployed and the full supply is minted to `msg.sender` (`deployer`).
