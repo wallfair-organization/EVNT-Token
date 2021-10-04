@@ -1,0 +1,447 @@
+@import 'styles/all';
+
+// Global Style
+@font-face {
+  font-family: $fontBold;
+  src: url('/fonts/webfonts/PlusJakartaSans-Bold.woff2') format('woff2'),
+    url('/fonts/webfonts/PlusJakartaSans-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: $fontRegular;
+  src: url('/fonts/webfonts/PlusJakartaSans-Regular.woff2') format('woff2'),
+    url('/fonts/webfonts/PlusJakartaSans-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: $fontLight;
+  src: url('/fonts/webfonts/PlusJakartaSans-Light.woff2') format('woff2'),
+    url('/fonts/webfonts/PlusJakartaSans-Light.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: $fontMedium;
+  src: url('/fonts/webfonts/PlusJakartaSans-Medium.woff2') format('woff2'),
+    url('/fonts/webfonts/PlusJakartaSans-Medium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  max-width: 100vw;
+}
+
+body,
+html {
+  height: 100%;
+  font-family: $fontRegular;
+  color: $colorWhite;
+  > div {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+body {
+  background-color: $colorPrimaryLight;
+}
+
+a {
+  color: inherit;
+}
+
+// code {
+//   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+// }
+
+// #WEB3_CONNECT_MODAL_ID {
+//   z-index: 999;
+// }
+
+// .ModalWrapper {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100vh;
+//   z-index: 900;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-items: center;
+// }
+
+// .ModalContent {
+//   z-index: 902;
+//   background: white;
+//   display: block;
+//   padding: 2rem 1rem;
+//   border-radius: 1rem;
+//   width: clamp(250px, 33vw, 450px);
+// }
+
+// .ModalBG::before {
+//   content: ' ';
+// }
+// .ModalBG {
+//   position: absolute;
+//   height: 100%;
+//   width: 100%;
+//   background: rgba(0, 0, 0, 0.5);
+//   z-index: 901;
+// }
+
+// .ReleaseStakeButton:disabled,
+// .ReleaseStakeButton,
+// [disabled] {
+//   background: gainsboro;
+// }
+
+// .ReleaseStakeButton {
+//   display: inline-block;
+//   border-radius: 12em;
+//   background-color: white;
+//   padding: 1em;
+//   border: 2px solid gainsboro;
+//   color: black;
+//   box-shadow: none;
+//   transition: all 200ms ease;
+//   font-weight: bold;
+//   margin-left: 15px;
+//   letter-spacing: 0.05em;
+//   min-width: 140px;
+// }
+
+// .Stake {
+//   margin-top: 30px;
+//   justify-content: center;
+//   background-position: center;
+//   align-items: center;
+//   text-align: center;
+// }
+
+// .Balance {
+//   background-position: center;
+//   background-size: cover;
+//   overflow: hidden;
+//   font-size: 1rem;
+//   padding: 10em 5em;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   color: black;
+//   flex-direction: column;
+//   text-align: center;
+//   position: relative;
+// }
+
+// .Balance::after {
+//   content: '';
+//   width: 100%;
+//   height: 100%;
+//   position: absolute;
+//   bottom: 0;
+//   z-index: 1;
+// }
+
+// .Balance h1 {
+//   margin: 0;
+//   margin-bottom: 2rem;
+//   font-size: 2em;
+//   letter-spacing: 0.075em;
+//   word-spacing: 0.25em;
+//   z-index: 2;
+// }
+
+// .FooterWrapper {
+//   background: black;
+//   color: white;
+//   display: block;
+//   width: 100%;
+//   margin: 0 auto;
+//   padding: 0 1rem;
+//   overflow: hidden;
+//   margin-top: 2rem;
+// }
+
+// .FooterContainer {
+//   display: block;
+//   width: 100%;
+//   margin: 0 auto;
+//   padding: 5rem 1rem;
+//   max-width: 1200px;
+//   display: flex;
+//   flex-direction: column;
+// }
+
+// .FooterContentRows {
+//   display: flex;
+//   justify-content: space-around;
+// }
+
+// header.HeaderComponent {
+//   transition: all 200ms ease;
+//   display: flex;
+//   justify-content: space-between;
+//   background: white;
+//   align-items: center;
+//   position: sticky;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   width: 100%;
+//   z-index: 888;
+//   padding: 1em 1em;
+//   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.125);
+// }
+
+// .HeaderMainLink {
+//   text-decoration: none;
+//   font-size: 2em;
+//   font-weight: bold;
+//   color: black;
+// }
+
+// .LinkAndWalletWrapper {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+// }
+
+// .Investor {
+//   background-position: center;
+//   background-size: cover;
+//   overflow: hidden;
+//   font-size: 1rem;
+//   padding: 10em 5em;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   color: white;
+//   flex-direction: column;
+//   text-align: center;
+//   position: relative;
+// }
+
+// .Investor::after {
+//   content: '';
+//   background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75));
+//   width: 100%;
+//   height: 100%;
+//   position: absolute;
+//   bottom: 0;
+//   z-index: 1;
+// }
+
+// .Investor h1 {
+//   margin: 0;
+//   margin-bottom: 2rem;
+//   font-size: 3em;
+//   letter-spacing: 0.075em;
+//   word-spacing: 0.25em;
+//   z-index: 2;
+//   text-shadow: 0 0 1rem black;
+// }
+
+// .Investor h4 {
+//   margin: 0;
+//   font-size: 1.5em;
+//   max-width: 600px;
+//   font-weight: initial;
+//   z-index: 2;
+//   text-shadow: 0 0 0.25rem black;
+// }
+
+// @-webkit-keyframes loader {
+//   0% {
+//     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+//   }
+//   5%,
+//   95% {
+//     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+//   }
+//   10%,
+//   59% {
+//     box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em, -0.173em -0.812em 0 -0.44em,
+//       -0.256em -0.789em 0 -0.46em, -0.297em -0.775em 0 -0.477em;
+//   }
+//   20% {
+//     box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em, -0.555em -0.617em 0 -0.44em,
+//       -0.671em -0.488em 0 -0.46em, -0.749em -0.34em 0 -0.477em;
+//   }
+//   38% {
+//     box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em, -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em,
+//       -0.82em -0.09em 0 -0.477em;
+//   }
+//   100% {
+//     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+//   }
+// }
+// @keyframes loader {
+//   0% {
+//     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+//   }
+//   5%,
+//   95% {
+//     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+//   }
+//   10%,
+//   59% {
+//     box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em, -0.173em -0.812em 0 -0.44em,
+//       -0.256em -0.789em 0 -0.46em, -0.297em -0.775em 0 -0.477em;
+//   }
+//   20% {
+//     box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em, -0.555em -0.617em 0 -0.44em,
+//       -0.671em -0.488em 0 -0.46em, -0.749em -0.34em 0 -0.477em;
+//   }
+//   38% {
+//     box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em, -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em,
+//       -0.82em -0.09em 0 -0.477em;
+//   }
+//   100% {
+//     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+//   }
+// }
+// @-webkit-keyframes round {
+//   0% {
+//     -webkit-transform: rotate(0deg);
+//     transform: rotate(0deg);
+//   }
+//   100% {
+//     -webkit-transform: rotate(360deg);
+//     transform: rotate(360deg);
+//   }
+// }
+// @keyframes round {
+//   0% {
+//     -webkit-transform: rotate(0deg);
+//     transform: rotate(0deg);
+//   }
+//   100% {
+//     -webkit-transform: rotate(360deg);
+//     transform: rotate(360deg);
+//   }
+// }
+
+// div.Spinny {
+//   color: #000000;
+//   font-size: 3rem;
+//   text-indent: -9999em;
+//   overflow: hidden;
+//   width: 1em;
+//   height: 1em;
+//   border-radius: 50%;
+//   margin: auto;
+//   position: relative;
+//   -webkit-transform: translateZ(0);
+//   -ms-transform: translateZ(0);
+//   transform: translateZ(0);
+//   -webkit-animation: loader 1.7s infinite ease, round 1.7s infinite ease;
+//   animation: loader 1.7s infinite ease, round 1.7s infinite ease;
+// }
+
+// .Transfer {
+//   justify-content: center;
+//   background-position: center;
+//   align-items: center;
+//   text-align: center;
+// }
+
+// .TransferButton {
+//   display: inline-block;
+//   border-radius: 12em;
+//   background-color: white;
+//   padding: 1em;
+//   border: 2px solid gainsboro;
+//   color: black;
+//   box-shadow: none;
+//   transition: all 200ms ease;
+//   font-weight: bold;
+//   margin-left: 15px;
+//   letter-spacing: 0.05em;
+//   min-width: 140px;
+// }
+
+// .TransferButton:hover {
+//   cursor: pointer;
+//   box-shadow: 0px 5px 0.5rem 0px rgba(0, 0, 0, 0.2);
+// }
+// .TxHistorySection {
+//   margin-top: 30px;
+//   justify-content: center;
+//   background-position: center;
+//   align-items: center;
+//   text-align: center;
+// }
+
+// .WalletConnectButton {
+//   display: inline-block;
+//   border-radius: 12em;
+//   background-color: black;
+//   padding: 1em;
+//   border: 2px solid black;
+//   color: white;
+//   box-shadow: none;
+//   transition: all 250ms ease;
+//   font-weight: bold;
+//   letter-spacing: 0.05em;
+//   margin-left: 1rem;
+//   min-width: 140px;
+// }
+
+// .WalletConnectButton:hover {
+//   cursor: pointer;
+//   color: white;
+//   background-color: rgb(0, 153, 238);
+//   border-color: rgb(0, 153, 238);
+//   box-shadow: 0px 5px 1rem 0px rgba(0, 153, 238, 0.75);
+// }
+
+// .WalletDisconnectButton {
+//   display: inline-block;
+//   border-radius: 12em;
+//   background-color: white;
+//   padding: 1em;
+//   border: 2px solid gainsboro;
+//   margin-left: 1rem;
+//   color: black;
+//   box-shadow: none;
+//   transition: all 200ms ease;
+//   font-weight: bold;
+//   letter-spacing: 0.05em;
+//   min-width: 140px;
+// }
+
+// .OptionWrap {
+//   background: white;
+//   border-radius: 0.5rem;
+//   padding: 0.75rem;
+//   background: rgba(0, 0, 0, 0.1);
+// }
+// .OptionWrap:hover {
+//   cursor: pointer;
+// }
+// .OptionWrap :not(:last-child) {
+//   margin-bottom: 0.5rem;
+// }
+
+// .FallbackWrapper {
+//   position: absolute;
+//   top: 0;
+//   width: 100%;
+//   z-index: 999;
+//   background: white;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   bottom: 0;
+// }

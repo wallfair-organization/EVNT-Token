@@ -1,0 +1,11 @@
+$fontLight: 'PlusJakarta-Light';
+$fontRegular: 'PlusJakarta-Regular';
+$fontBold: 'PlusJakarta-Bold';
+$fontMedium: 'PlusJakarta-Medium';
+
+:export {
+  fontLight: $fontLight;
+  fontRegular: $fontRegular;
+  fontBold: $fontBold;
+  fontMedium: $fontMedium;
+}

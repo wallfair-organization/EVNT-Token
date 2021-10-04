@@ -1,0 +1,174 @@
+@import '../../styles/all';
+
+.balanceWrapper {
+  .balanceDetails,
+  .balanceHistory {
+    background-color: $colorBlueDarkShade;
+    padding: 64px;
+    border-radius: 10px;
+    margin-bottom: 35px;
+
+    @media all and (max-width: $screen-sm) {
+      padding: 15px;
+    }
+  }
+
+  .balanceDetails {
+    .balanceTokens {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 60px;
+      justify-content: space-between;
+      @media all and (max-width: $screen-sm) {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .balanceMain {
+        padding: 0 15px;
+
+        @media all and (max-width: $screen-sm) {
+          padding: 0 15px;
+          margin-bottom: 40px;
+        }
+
+        .balanceTitle {
+          font-family: $fontRegular;
+          color: $colorDarkGray1;
+          word-spacing: 2px;
+          letter-spacing: 1px;
+          margin-bottom: 25px;
+          font-size: 14px;
+          position: relative;
+          text-align: left;
+
+          &::before {
+            position: absolute;
+            content: '';
+            height: 8px;
+            width: 8px;
+            border-radius: 100%;
+            left: -18px;
+            top: 5px;
+            background-color: $colorWhite;
+          }
+        }
+        .titleOne {
+          &::before {
+            background-color: $colorDarkGray;
+          }
+        }
+        .titleTwo {
+          &::before {
+            background-color: $colorDarkBlue;
+          }
+        }
+        .titleThree {
+          &::before {
+            background-color: $colorLightPurple;
+          }
+        }
+
+        .balanceAmount {
+          font-size: 20px;
+          color: $colorWhite;
+          font-family: $fontBold;
+
+          sup {
+            font-size: 10px;
+            margin-left: 5px;
+            font-family: $fontRegular;
+          }
+        }
+      }
+    }
+
+    .buttonActions {
+      margin-bottom: 40px;
+
+      .unlockButton,
+      .transferButton {
+        display: block;
+        margin: 0 auto 15px;
+        background-image: url('../../data/backgrounds/highlight-deposit.svg');
+        width: 100%;
+        max-width: 460px;
+        height: 60px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-family: $fontBold;
+        cursor: pointer;
+      }
+      .transferButton {
+        background: transparent;
+        border: 2px solid #282f47;
+        color: $colorWhite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .timeDetails {
+      p {
+        font-size: 12px;
+        color: $colorDarkGray1;
+        word-spacing: 2px;
+        letter-spacing: 1px;
+      }
+      strong {
+        font-size: 20px;
+        display: inline-block;
+        margin: 18px 0;
+        word-spacing: 2px;
+        letter-spacing: 1px;
+      }
+    }
+  }
+
+  .balanceHistory {
+    .historyHeader,
+    .historyRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 50px;
+
+      .historyHeaderRightCol {
+        text-align: right;
+      }
+
+      h4 {
+        font-family: $fontBold;
+        font-size: 24px;
+        color: $colorWhite;
+      }
+      p {
+        margin-top: 8px;
+        color: $colorDarkGray1;
+        font-size: 14px;
+      }
+    }
+    .historyRow {
+      padding: 30px 0;
+      margin: 0;
+      border-top: 1px solid $colorDarkGray1;
+      h4 {
+        font-family: $fontRegular;
+        font-size: 18px;
+      }
+      .historyHeaderLeftCol {
+        text-align: left;
+        h4 {
+          word-break: break-all;
+          max-width: 90%;
+        }
+      }
+    }
+  }
+}

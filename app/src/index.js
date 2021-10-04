@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import App from './App'
 import { store } from './app/store'
 import { NetworkContextName } from './utils/constants'
-import './index.css'
+import './styles.module.scss'
 import * as serviceWorker from './serviceWorker'
 import getLibrary from './utils/getLibrary'
 
@@ -30,7 +30,7 @@ ReactDOM.render(
       </Web3ProviderNetwork>
     </Web3ReactProvider>
   </React.StrictMode>,
-  ROOT_ELEMENT,
+  ROOT_ELEMENT
 )
 
 // If you want your app to work offline and load faster, you can change
