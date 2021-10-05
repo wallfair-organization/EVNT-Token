@@ -15,7 +15,7 @@ const Home = () => {
   const dispatch = useDispatch()
   const [hash, setHash] = useState('')
   const [stakesLoading, setStakesLoading] = useState(true)
-  const { active, library, account, chainId } = useWeb3React()
+  const { active, library, account, chainId, deactivate } = useWeb3React()
   const balances = useSelector(selectBalances)
   const signer = library?.getSigner()
 
@@ -65,6 +65,13 @@ const Home = () => {
     return (
       <>
         <h1 style={{ textAlign: 'center' }}>Please change your network to {currentNetwork.label}</h1>
+        <button
+              onClick={() => {
+                library.provider.close();
+              }}
+            >
+              Disconnect
+            </button>
       </>
     )
   }
@@ -86,6 +93,13 @@ const Home = () => {
         />
       )}
       {account && <TokenTransfer provider={library} setter={setHash} hash={hash} />}
+      {library && <button
+              onClick={() => {
+                library.provider.close();
+              }}
+            >
+              Disconnect
+            </button>}
     </>
   )
 }

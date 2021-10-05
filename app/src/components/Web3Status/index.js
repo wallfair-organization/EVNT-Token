@@ -17,7 +17,7 @@ function Web3StatusInner () {
   if (account) {
     return (
       <>
-        <h2>{`Hi Investor [${walletAddress}]`}</h2>
+        <h2>{`Hi Investor ${walletAddress}`}</h2>
         <p>{`Here's your participation in {Lock Wallet Name}!`}</p>
       </>
     )
@@ -33,13 +33,10 @@ function Web3StatusInner () {
 }
 
 export default function Web3Status () {
-  const { active } = useWeb3React()
-  const contextNetwork = useWeb3React(NetworkContextName)
-
   return (
     <>
       <Web3StatusInner />
-      {(contextNetwork.active || active) && <WalletModal />}
+      <WalletModal />
     </>
   )
 }

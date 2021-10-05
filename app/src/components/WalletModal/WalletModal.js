@@ -59,7 +59,8 @@ const WalletModal = () => {
     }
 
     connector &&
-      activate(connector, undefined, true).catch(error => {
+      activate(connector, undefined, true).catch((error) => {
+        console.log(error);
         if (error instanceof UnsupportedChainIdError) {
           activate(connector)
         } else {

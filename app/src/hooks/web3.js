@@ -31,7 +31,7 @@ export function useEagerConnect() {
 
   // then, if that fails, try connecting to an injected connector
   useEffect(() => {
-    if (!active && triedSafe) {
+    if (!active && triedSafe && !tried) {
       injected.isAuthorized().then((isAuthorized) => {
         if (isAuthorized) {
           activate(injected, undefined, true).catch(() => {
@@ -48,7 +48,7 @@ export function useEagerConnect() {
         }
       })
     }
-  }, [activate, active, triedSafe])
+  }, [tried, active, triedSafe, activate])
 
   // wait until we get confirmation of a connection to flip the flag
   useEffect(() => {
@@ -68,8 +68,13 @@ export function useInactiveListener(suppress = false) {
     const { ethereum } = window
 
     if (ethereum && ethereum.on && !active && !error && !suppress) {
-      const handleChainChanged = (cid) => {
-        console.log('handleChainChanged', cid)
+      const handleConnect = () => {
+        console.log("Handling 'connect' event");
+        activate(injected);
+      }
+
+      const handleChainChanged = (chainId) => {
+        console.log('handleChainChanged', chainId)
         // eat errors
         activate(injected, undefined, true).catch((error) => {
           dispatch(resetState())
@@ -87,11 +92,20 @@ export function useInactiveListener(suppress = false) {
         }
       }
 
+      const handleNetworkChanged = (networkId) => {
+        console.log("Handling 'networkChanged' event with payload", networkId)
+        activate(injected)
+      }
+
+      ethereum.on('connect', handleConnect)
       ethereum.on('chainChanged', handleChainChanged)
       ethereum.on('accountsChanged', handleAccountsChanged)
+      ethereum.on('networkChanged', handleNetworkChanged)
+      ethereum.removeListener('networkChanged', handleNetworkChanged)
 
       return () => {
         if (ethereum.removeListener) {
+          ethereum.removeListener('connect', handleConnect)
           ethereum.removeListener('chainChanged', handleChainChanged)
           ethereum.removeListener('accountsChanged', handleAccountsChanged)
         }

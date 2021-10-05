@@ -6,17 +6,10 @@ import { network } from '../../config/connectors'
 
 const Web3ReactManager = ({ children }) => {
   const { active } = useWeb3React()
-  const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName)
-
+  
   const triedEager = useEagerConnect()
 
-  useEffect(() => {
-    if (triedEager && !networkActive && !networkError && !active) {
-      activateNetwork(network)
-    }
-  }, [triedEager, networkActive, networkError, activateNetwork, active])
-
-  useInactiveListener(!triedEager)
+  useInactiveListener()
 
   const [showLoader, setShowLoader] = useState(false)
   useEffect(() => {
@@ -34,15 +27,15 @@ const Web3ReactManager = ({ children }) => {
     return null
   }
 
-  if (!active && networkError) {
+  /*if (!active && networkError) {
     console.log(networkError)
     return <h1>Web3ReactManager: unknown error</h1>
-  }
+  }*/
 
-  if (!active && !networkActive) {
-    // TODO: style this
-    return showLoader ? <h1>Loading...</h1> : null
-  }
+  // if (!active) {
+  //   // TODO: style this
+  //   return showLoader ? <h1>Loading...</h1> : null
+  // }
 
   return children
 }
