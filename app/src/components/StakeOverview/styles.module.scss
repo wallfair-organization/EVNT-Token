@@ -91,7 +91,6 @@
       .transferButton {
         display: block;
         margin: 0 auto 15px;
-        background-image: url('../../data/backgrounds/highlight-deposit.svg');
         width: 100%;
         max-width: 460px;
         height: 60px;
@@ -99,6 +98,13 @@
         font-size: 18px;
         font-family: $fontBold;
         cursor: pointer;
+        background: $colorWhite;
+        background-image: url('../../data/backgrounds/highlight-deposit.svg');
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.3;
+        }
       }
       .transferButton {
         background: transparent;

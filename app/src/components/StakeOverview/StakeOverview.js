@@ -92,7 +92,7 @@ const StakeOverview = ({ provider, setter, hash, balances }) => {
                 })
               }}
             >
-              <img src={walletImage} />
+              <img src={walletImage} alt={`Wallet`} />
               Transfer to other wallet
             </button>
           </div>
