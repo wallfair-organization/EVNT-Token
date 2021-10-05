@@ -9,6 +9,11 @@ import { isMobile } from 'react-device-detect'
 import { SUPPORTED_WALLETS } from '../../config/wallets'
 import Modal from '../Modal'
 import Option from './Option'
+import {
+  NoEthereumProviderError,
+  UserRejectedRequestError as UserRejectedRequestErrorInjected
+} from '@web3-react/injected-connector'
+import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import PendingView from './PendingView'
 import WalletSvg from '../../data/icons/wallet-2.svg'
 import styles from './styles.module.scss'
@@ -18,6 +23,24 @@ const WALLET_VIEWS = {
   OPTIONS: 'OPTIONS',
   ACCOUNT: 'ACCOUNT',
   PENDING: 'PENDING'
+}
+
+function isUserRejected(error) {
+  return error instanceof UserRejectedRequestErrorInjected || error instanceof UserRejectedRequestErrorWalletConnect ||
+        (error.message && error.message === 'User denied account authorization');
+}
+
+function getErrorMessage(error) {
+  if (error instanceof NoEthereumProviderError) {
+    return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
+  } else if (error instanceof UnsupportedChainIdError) {
+    return "You're connected to an unsupported network."
+  } else if (isUserRejected(error)) {
+    return 'Please authorize this website to access your Ethereum account.'
+  } else {
+    console.error(error)
+    return error.message || "Unknown error";
+  }
 }
 
 const WalletModal = () => {
@@ -61,10 +84,14 @@ const WalletModal = () => {
     connector &&
       activate(connector, undefined, true).catch((error) => {
         console.log(error);
-        if (error instanceof UnsupportedChainIdError) {
-          activate(connector)
+        if (isUserRejected(error)) {
+          // TODO: ignore error and show the options again
+          setPendingError(true);
         } else {
-          setPendingError(true)
+          // TODO: show error message and let the window close
+          const message = getErrorMessage(error);
+          console.log(message);
+          setPendingError(false);
         }
       })
   }
@@ -77,7 +104,7 @@ const WalletModal = () => {
       const option = SUPPORTED_WALLETS[key]
 
       if (isMobile) {
-        if (!window.web3 && !window.ethereum && option.mobile) {
+        if (option.mobile) {
           return (
             <Option
               id={`connect-${key}`}
@@ -168,7 +195,7 @@ const WalletModal = () => {
 
   const getModalContent = () => {
     if (error) {
-      return <span>{error instanceof UnsupportedChainIdError ? 'WRONG NETWORK' : 'ERROR'}</span>
+      return <span>{error instanceof UnsupportedChainIdError ? 'WRONG NETWORK' : 'ERROR IN MODAL'}</span>
     }
 
     if (account && walletView === WALLET_VIEWS.ACCOUNT) {

@@ -1,4 +1,4 @@
-import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
+import { Web3ReactProvider } from '@web3-react/core'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'

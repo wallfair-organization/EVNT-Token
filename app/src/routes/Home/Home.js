@@ -15,9 +15,10 @@ const Home = () => {
   const dispatch = useDispatch()
   const [hash, setHash] = useState('')
   const [stakesLoading, setStakesLoading] = useState(true)
-  const { active, library, account, chainId, deactivate } = useWeb3React()
+  const { active, library, account, chainId } = useWeb3React()
   const balances = useSelector(selectBalances)
   const signer = library?.getSigner()
+  const ETHBalance = parseFloat(balances["ETH"]);
 
   useEffect(() => {
     dispatch(resetState())
@@ -53,18 +54,15 @@ const Home = () => {
     }) // eslint-disable-next-line
   }, [account, library, signer, hash])
 
+  // do not render further
   if (!account) {
-    return (
-      <>
-        <h1 style={{ textAlign: 'center' }}>Please connect your wallet</h1>
-      </>
-    )
+    return (<></>)
   }
 
   if (chainId !== currentChainId) {
     return (
       <>
-        <h1 style={{ textAlign: 'center' }}>Please change your network to {currentNetwork.label}</h1>
+        <h2 style={{ textAlign: 'center' }}>Please change your network to {currentNetwork.label}</h2>
         <button
               onClick={() => {
                 library.provider.close();
@@ -83,6 +81,16 @@ const Home = () => {
   return (
     <>
       {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>}
+      // TODO: style this: shows when you use account with 0 ether
+      // the link is invisible below
+      {ETHBalance < 0.001 &&
+        <div>
+        You do not have enough Ether in your wallet to unlock or transfer the tokens. If you use Metamask ot Trust Wallet, you can make purchase within the app.
+        You can also use <a href="https://global.transak.com/">Transak</a> directly. <br/>
+        The amount in range of 100 USD should let you to unlock the WFAIR and make several transfers in order, for example, to trade or stake the WFAIR token.
+      </div>
+      }
+
       {account && (
         <StakeOverview
           provider={library}

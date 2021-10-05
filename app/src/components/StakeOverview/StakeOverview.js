@@ -1,7 +1,9 @@
+import { useWeb3React } from '@web3-react/core'
 import { useSelector } from 'react-redux'
 import React, { useEffect, useState } from 'react'
-import { selectStakes, selectHistory } from '../../state/wallfair/slice'
+import { selectStakes, selectHistory, selectBalances } from '../../state/wallfair/slice'
 import TokenLockAbi from '../../config/abi/TokenLock.json'
+import { currentNetwork } from '../../config/config'
 import { Contract } from '@ethersproject/contracts'
 import TxModal from '../TxModal'
 import SafeCall from '../SafeContractCall/SafeContractCall'
@@ -16,9 +18,11 @@ import timerStyles from './timer-styles.module.scss'
 const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory)
   const stakes = useSelector(selectStakes)
+  const balances = useSelector(selectBalances)
   const [blocked, setBlocked] = useState(false)
   const [TXSuccess, setTXSuccess] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const { account } = useWeb3React()
 
   useEffect(() => {
     if (!modalOpen) {
@@ -27,23 +31,22 @@ const StakeOverview = ({ provider, setter, hash }) => {
     }
   }, [modalOpen])
 
+  const WFAIRBalance = Math.floor(parseFloat(balances["WFAIR"]));
+
   let lockValues = []
   for (const lockAddress in stakes) {
     const lockStake = stakes[lockAddress]
     const totalTokensOf = parseFloat(lockStake[0]).toFixed(2)
     const unlockedTokensOf = parseFloat(lockStake[1]).toFixed(2)
     const tokensVested = parseFloat(lockStake[2]).toFixed(2)
-    const vestingPeriod = lockStake[3] * 1000
+    // take end timestamp
+    const vestingPeriod = lockStake[4] * 1000
     const fullVestingPeriodDate = new Date(vestingPeriod)
     const unlockableTokens = tokensVested - unlockedTokensOf
-    let mainHistorySum = 0
-    historyData[lockAddress] &&
-      historyData[lockAddress].forEach(e => {
-        mainHistorySum += parseFloat(e[1])
-      })
 
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
+        <p>{`Here's your participation in {Lock Wallet Name}!`}</p>
         <div className={styles.balanceDetails}>
           <BalanceDetails
             totalTokensOf={totalTokensOf}
@@ -88,7 +91,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
             >
               Unlock now
             </button>
-            <button
+            {WFAIRBalance > 0 && <button
               className={styles.transferButton}
               disabled={unlockableTokens < 1}
               onClick={() => {
@@ -104,8 +107,8 @@ const StakeOverview = ({ provider, setter, hash }) => {
               }}
             >
               <img src={walletImage} alt={`Wallet`} />
-              Transfer to other wallet
-            </button>
+              Transfer {numberWithCommas(Math.floor(WFAIRBalance))} WFAIR
+            </button>}
           </div>
           <div className={styles.timeDetails}>
             <p>Time to full unlock:</p>
@@ -118,19 +121,15 @@ const StakeOverview = ({ provider, setter, hash }) => {
             </p>
           </div>
         </div>
-        <div key={'history' + lockAddress} className={styles.balanceHistory}>
+        {unlockedTokensOf > 0 && <div key={'history' + lockAddress} className={styles.balanceHistory}>
           <div className={styles.historyHeader}>
-            <h4>{`Claimed History`}</h4>
-            <div className={styles.historyHeaderRightCol}>
-              <h4>{numberWithCommas(mainHistorySum)}</h4>
-              <p>WFAIR</p>
-            </div>
+            <h4>{`Your Past Claims`}</h4>
           </div>
           {historyData[lockAddress]?.map(data => {
             return (
               <div key={data[0]} className={styles.historyRow}>
                 <div className={styles.historyHeaderLeftCol}>
-                  <h4>{data[0]}</h4>
+                  <h4><a href={`${currentNetwork.explorer}tx/${data[0]}`}>{data[0]}</a></h4>
                   <p>{new Date(data[2] * 1000).toLocaleDateString('en-US')}</p>
                 </div>
                 <div className={styles.historyHeaderRightCol}>
@@ -140,14 +139,19 @@ const StakeOverview = ({ provider, setter, hash }) => {
               </div>
             )
           }) || <p>No history found</p>}
-        </div>
+        </div>}
         <hr></hr>
       </div>
     )
   }
 
   if (lockValues.length === 0) {
-    return <div className='Stake'>No Stake found</div>
+    // TODO: style this, looks really bad
+    return <div className='Stake'>
+      Unfortunately we could not find any tokens for you to unlock. Please make sure that the wallet address
+      <br/><b>{account}</b><br/>
+      you used to connect is the same address you used in the IDO or during private or seed sale
+      </div>
   }
   return (
     <>
