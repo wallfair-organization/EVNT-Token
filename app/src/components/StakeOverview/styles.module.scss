@@ -134,6 +134,13 @@
         word-spacing: 2px;
         letter-spacing: 1px;
       }
+      .timeContainer {
+        display: flex;
+        justify-content: center;
+        z-index: 2;
+        margin-bottom: 20px;
+        margin-top: 20px;
+      }
     }
   }
 

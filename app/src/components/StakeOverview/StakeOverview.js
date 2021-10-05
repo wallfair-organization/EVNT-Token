@@ -10,6 +10,8 @@ import styles from './styles.module.scss'
 import classNames from 'classnames'
 import walletImage from '../../data/icons/wallet.png'
 import { numberWithCommas } from '../../utils/common'
+import TimeCounter from '../TimeCounter'
+import timerStyles from './timer-styles.module.scss'
 
 const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory)
@@ -31,7 +33,15 @@ const StakeOverview = ({ provider, setter, hash }) => {
     const totalTokensOf = parseFloat(lockStake[0]).toFixed(2)
     const unlockedTokensOf = parseFloat(lockStake[1]).toFixed(2)
     const tokensVested = parseFloat(lockStake[2]).toFixed(2)
+    const vestingPeriod = lockStake[3] * 1000
+    const fullVestingPeriodDate = new Date(vestingPeriod)
     const unlockableTokens = tokensVested - unlockedTokensOf
+    let mainHistorySum = 0
+    historyData[lockAddress] &&
+      historyData[lockAddress].forEach(e => {
+        mainHistorySum += parseFloat(e[1])
+      })
+
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
         <div className={styles.balanceDetails}>
@@ -99,15 +109,20 @@ const StakeOverview = ({ provider, setter, hash }) => {
           </div>
           <div className={styles.timeDetails}>
             <p>Time to full unlock:</p>
-            <strong>123 days</strong>
-            <p>05 | 07 | 2021</p>
+            <div className={styles.timeContainer}>
+              <TimeCounter endDate={vestingPeriod} externalStyles={timerStyles} />
+            </div>
+            <p>
+              {fullVestingPeriodDate.getDate()} | {fullVestingPeriodDate.getMonth()} |{' '}
+              {fullVestingPeriodDate.getFullYear()}
+            </p>
           </div>
         </div>
         <div key={'history' + lockAddress} className={styles.balanceHistory}>
           <div className={styles.historyHeader}>
             <h4>{`Claimed History`}</h4>
             <div className={styles.historyHeaderRightCol}>
-              <h4>{`2.000`}</h4>
+              <h4>{numberWithCommas(mainHistorySum)}</h4>
               <p>WFAIR</p>
             </div>
           </div>

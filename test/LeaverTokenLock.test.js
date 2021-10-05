@@ -410,6 +410,25 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
       });
     });
 
+    it('of bad leaver that didn\'t unlock after vesting period', async () => {
+      const initialTs = await time.latest();
+      const startDate = initialTs.add(vestingPeriod);
+      const lock = await newTokenLock(
+        [{ address: stakedAccountID, amount: LOCK_AMOUNT }],
+        { startDate, vesting: vestingPeriod },
+      );
+      await WFAIRToken.transfer(lock.address, LOCK_AMOUNT, { from: deployer });
+      await lock.fund();
+      // way after end
+      await time.increaseTo(initialTs.add(vestingPeriod.muln(3)));
+      const nowTs = await time.latest();
+      // confirm all available
+      expect(await lock.tokensVested(stakedAccountID, nowTs)).to.be.bignumber.eq(LOCK_AMOUNT);
+      // then bad leaver happens and stake is reduced to 10%
+      await lock.leaveWallet(stakedAccountID, true, { from: manager });
+      expect(await lock.tokensVested(stakedAccountID, nowTs)).to.be.bignumber.eq(LOCK_AMOUNT.divn(BAD_LEAVER_DIVISOR));
+    });
+
     it('in multiple leaver scenario', async () => {
       const testDelta = 8;
       // manager also has a stake initially
@@ -428,7 +447,7 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
       ];
       const totalStake = stakes.reduce((p, c) => p.add(c.amount), ZERO);
       const initialTs = await time.latest();
-      const startDate = initialTs.add(vestingPeriod);// startDateDelta.add(initialTs);
+      const startDate = initialTs.add(vestingPeriod);
       const lock = await newTokenLock(
         stakes,
         { startDate, vesting: vestingPeriod },
@@ -475,6 +494,191 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
     });
   });
 
+  describe('manager to add stake', () => {
+    const startDateDelta = new BN(4);
+    const lockAmount = (new BN('1000000')).mul(Q18).add(new BN(1));
+    const stakers = [manager, stakedAccountID, accounts[2]];
+    let lock, initialTs, startDate;
+
+    beforeEach(async () => {
+      initialTs = await time.latest();
+      // start at the beginning of accumulation period
+      startDate = startDateDelta.add(initialTs).add(VESTING);
+      lock = await newTokenLock([
+        { address: manager, amount: lockAmount }, { address: stakedAccountID, amount: lockAmount }],
+      { startDate, vesting: VESTING },
+      );
+      await WFAIRToken.transfer(lock.address, lockAmount.muln(2), { from: deployer });
+      await lock.fund();
+    });
+
+    async function expectReleaseAll (lock) {
+      // move past end of unlock
+      await time.increaseTo(initialTs.add(VESTING.muln(3)));
+      // everyone releases
+      for (const address of stakers) {
+        await lock.release({ from: address });
+      }
+      // all taken from the contract
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(ZERO);
+      let endStakes = ZERO;
+      for (const address of stakers) {
+        endStakes = endStakes.add(await WFAIRToken.balanceOf(address));
+      }
+      // total stake was released
+      expect(endStakes).to.be.bignumber.eq(lockAmount.muln(2));
+    }
+
+    async function expectSimpleRestake (startTs, nextTs) {
+      const restakeAmount = lockAmount.divn(4);
+
+      if (startTs.gt(ZERO)) {
+        await time.increaseTo(startTs);
+      }
+
+      let rtx = await lock.lockAmount(accounts[2], restakeAmount, { from: manager });
+      await expectEvent(rtx, 'LogLockAmount', { wallet: accounts[2], amount: restakeAmount });
+      expect(await lock.totalTokensOf(accounts[2])).to.be.bignumber.eq(restakeAmount);
+      rtx = await lock.lockAmount(stakedAccountID, restakeAmount, { from: manager });
+      await expectEvent(rtx, 'LogLockAmount', { wallet: stakedAccountID, amount: restakeAmount });
+      expect(await lock.totalTokensOf(stakedAccountID)).to.be.bignumber.eq(restakeAmount.add(lockAmount));
+
+      await time.increaseTo(nextTs);
+
+      // restake again
+      rtx = await lock.lockAmount(accounts[2], restakeAmount, { from: manager });
+      await expectEvent(rtx, 'LogLockAmount', { wallet: accounts[2], amount: restakeAmount });
+      expect(await lock.totalTokensOf(accounts[2])).to.be.bignumber.eq(restakeAmount.muln(2));
+      rtx = await lock.lockAmount(stakedAccountID, restakeAmount, { from: manager });
+      await expectEvent(rtx, 'LogLockAmount', { wallet: stakedAccountID, amount: restakeAmount });
+      expect(await lock.totalTokensOf(stakedAccountID)).to.be.bignumber.eq(restakeAmount.muln(2).add(lockAmount));
+      // manager should have 1 wei
+      expect(await lock.totalTokensOf(manager)).to.be.bignumber.eq(new BN(1));
+
+      return lock;
+    }
+
+    it('before unlock', async () => {
+      // move to 1/4 of acc period in second step
+      const lock = await expectSimpleRestake(ZERO, initialTs.add(VESTING.divn(2)));
+      await expectReleaseAll(lock);
+    });
+
+    it('after unlock', async () => {
+      // move to 3/4 of acc period in first and 4/5 in second step
+      const lock = await expectSimpleRestake(
+        initialTs.add(VESTING.muln(3).divn(2)),
+        initialTs.add(VESTING.muln(8).divn(5)));
+      await expectReleaseAll(lock);
+    });
+
+    it('after vesting period is over', async () => {
+      const lock = await expectSimpleRestake(
+        initialTs.add(VESTING.muln(2).addn(1)),
+        initialTs.add(VESTING.muln(2).addn(10)));
+      await expectReleaseAll(lock);
+    });
+
+    it('cannot restake more than staked', async () => {
+      await expectRevert(
+        lock.lockAmount(accounts[3], lockAmount.addn(1), { from: manager }),
+        'Not enough available stake to add',
+      );
+      await lock.lockAmount(accounts[3], lockAmount, { from: manager });
+      // not a single wei is left
+      await expectRevert(
+        lock.lockAmount(accounts[3], new BN(1), { from: manager }),
+        'Not enough available stake to add',
+      );
+      expect(await lock.totalTokensOf(manager)).to.be.bignumber.eq(ZERO);
+      expect(await lock.unlockedTokensOf(manager)).to.be.bignumber.eq(ZERO);
+      expect(await lock.unlockedTokensOf(accounts[3])).to.be.bignumber.eq(ZERO);
+      expect(await lock.totalTokensOf(accounts[3])).to.be.bignumber.eq(lockAmount);
+      await time.increaseTo(initialTs.add(VESTING.muln(3).divn(2)));
+      await lock.release({ from: manager });
+      await lock.release({ from: accounts[3] });
+      await time.increaseTo(initialTs.add(VESTING.muln(3)));
+      await lock.release({ from: manager });
+      await lock.release({ from: accounts[3] });
+      await lock.release({ from: accounts[1] });
+      await lock.release({ from: stakedAccountID });
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(ZERO);
+      expect(await WFAIRToken.balanceOf(accounts[3])).to.be.bignumber.eq(lockAmount);
+    });
+
+    // await time.increaseTo(initialTs.add(vestingPeriod.muln(3).divn(2)));
+    it('cannot restake more than manager unlocked previously', async () => {
+      await time.increaseTo(initialTs.add(VESTING.muln(3).divn(2)));
+      // manager takes tokens
+      await lock.release({ from: manager });
+      const unlockedAmount = await lock.unlockedTokensOf(manager);
+      console.log(unlockedAmount.toString());
+      console.log(lockAmount.toString());
+      // no tokens may be restaked
+      // const managerQuantum = releaseQuantum(lockAmount, VESTING).addn(1);
+      // console.log(managerQuantum.toString());
+      // manager cannot shift more than he has available after release
+      await expectRevert(
+        lock.lockAmount(accounts[3], lockAmount.sub(unlockedAmount).addn(1), { from: manager }),
+        'Not enough available stake to add',
+      );
+      // he can shift everything though
+      await lock.lockAmount(accounts[3], lockAmount.sub(unlockedAmount), { from: manager });
+      // unlocked and total must be equal for manager
+      expect(await lock.totalTokensOf(manager)).to.be.bignumber.eq(unlockedAmount);
+      // not a single wei can be restaked
+      await expectRevert(
+        lock.lockAmount(accounts[3], new BN(1), { from: manager }),
+        'Not enough available stake to add',
+      );
+      // manager account has vested tokens < already released do release will fail
+      await expectRevert(
+        lock.release({ from: manager }),
+        ARITH_REV_MSG,
+      );
+      await lock.release({ from: accounts[3] });
+      await time.increaseTo(initialTs.add(VESTING.muln(3)));
+      await lock.release({ from: manager });
+      await lock.release({ from: accounts[3] });
+      await lock.release({ from: accounts[1] });
+      await lock.release({ from: stakedAccountID });
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(ZERO);
+      // all the manager tokens are belong to 3
+      expect(await WFAIRToken.balanceOf(accounts[3])).to.be.bignumber.eq(lockAmount.sub(unlockedAmount));
+    });
+
+    it('with bad and good leaver', async () => {
+      const deltaSec = VESTING.muln(3).divn(2);
+      await time.increaseTo(initialTs.add(deltaSec));
+      // manager takes tokens
+      await lock.release({ from: manager });
+      const unlockedAmount = await lock.unlockedTokensOf(manager);
+      const availableAmount = lockAmount.sub(unlockedAmount);
+      // restakes 1/3 of what's left twice
+      const restakeAmount = availableAmount.divn(3);
+      // existing account
+      await lock.lockAmount(stakedAccountID, restakeAmount, { from: manager });
+      // new account
+      await lock.lockAmount(accounts[2], restakeAmount, { from: manager });
+      // trigger leave events
+      await lock.leaveWallet(stakedAccountID, true, { from: manager });
+      await lock.leaveWallet(accounts[2], false, { from: manager });
+      await time.increaseTo(initialTs.add(VESTING.muln(3)));
+      // release all
+      await lock.release({ from: manager });
+      await lock.release({ from: accounts[2] });
+      await lock.release({ from: stakedAccountID });
+      expect(await WFAIRToken.balanceOf(lock.address)).to.be.bignumber.eq(ZERO);
+      // check final balances
+      const badLeaverTotal = restakeAmount.add(lockAmount).mul(
+        deltaSec).div(VESTING.muln(2)).divn(BAD_LEAVER_DIVISOR);
+      expect(await WFAIRToken.balanceOf(stakedAccountID)).to.be.bignumber.eq(badLeaverTotal);
+      const goodLeaverAcc = restakeAmount.mul(deltaSec.addn(1)).div(VESTING.muln(2));
+      const goodLeaverTotal = goodLeaverAcc.add(restakeAmount.sub(goodLeaverAcc).divn(GOOD_LEAVER_DIVISOR));
+      expect(await WFAIRToken.balanceOf(accounts[2])).to.be.bignumber.eq(goodLeaverTotal);
+    });
+  });
+
   describe('Leave access control', () => {
     let lock;
 
@@ -501,6 +705,40 @@ contract('LeaverTokenLock', function ([deployer, manager, ...accounts]) {
 
     it('must be funded', async () => {
       await expectRevert(lock.leaveWallet(stakedAccountID, true, { from: manager }), 'Not in Initialized state');
+    });
+  });
+
+  describe('Add stake access control', () => {
+    let lock;
+
+    beforeEach(async () => {
+      lock = await newTokenLock(
+        [{ address: manager, amount: LOCK_AMOUNT }, { address: stakedAccountID, amount: LOCK_AMOUNT }],
+      );
+    });
+
+    it('only manager', async () => {
+      await expectRevert(lock.lockAmount(stakedAccountID, LOCK_AMOUNT, { from: accounts[7] }), 'Only manager');
+    });
+
+    it('manager cannot add stake to itself', async () => {
+      await WFAIRToken.transfer(lock.address, LOCK_AMOUNT.muln(2), { from: deployer });
+      await lock.fund();
+      await expectRevert(lock.lockAmount(manager, LOCK_AMOUNT, { from: manager }), 'Manager cannot restake itself');
+    });
+
+    it('can\'t add stake to account that left', async () => {
+      await WFAIRToken.transfer(lock.address, LOCK_AMOUNT.muln(2), { from: deployer });
+      await lock.fund();
+      await lock.leaveWallet(stakedAccountID, true, { from: manager });
+      await expectRevert(
+        lock.lockAmount(stakedAccountID, LOCK_AMOUNT, { from: manager }),
+        'Specified wallet already left',
+      );
+    });
+
+    it('must be funded', async () => {
+      await expectRevert(lock.lockAmount(stakedAccountID, LOCK_AMOUNT, { from: manager }), 'Not in Initialized state');
     });
   });
 });

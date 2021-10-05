@@ -1,0 +1,33 @@
+{
+  "transfers": [
+    {
+      "name": "Wallfair Hot Sale Wallet",
+      "from": "0x7bD30772ffaC5f3B6D675d5f2406bf4112c1e44d",
+      "to": "0x9E1606A047da8F3E4962d18833e5f89478A3cCda",
+      "amount": "95000000000000000000000000",
+      "timestamp": "1633428365020",
+      "txid": "0x4f2747518dd32bb5111bf1fbd4223e5f1fcf9fd1e4c40880d32b6e4dc09b750e"
+    },
+    {
+      "name": "DEX Liquidity",
+      "from": "0x7bD30772ffaC5f3B6D675d5f2406bf4112c1e44d",
+      "to": "0xC08C475024fe3c1Df14129a1B00A323441239B6f",
+      "amount": "2500000000000000000000000",
+      "timestamp": "1633429106562",
+      "txid": "0x21b777eb8a57ace3f586b869b961a5ff4f0a242a3a9aa744b37bedc783f0fa24"
+    }
+  ],
+  "locks": [],
+  "token": {
+    "name": "WFAIR",
+    "address": "0xC6065B9fc8171Ad3D29bad510709249681758972",
+    "timestamp": "1633428134858",
+    "deployer": "0x7bD30772ffaC5f3B6D675d5f2406bf4112c1e44d"
+  },
+  "network": {
+    "name": "mainnet",
+    "chainId": 1,
+    "gas": "auto",
+    "gasPrice": 80000000000
+  }
+}

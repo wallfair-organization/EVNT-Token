@@ -128,6 +128,7 @@ const getStakeValues = async ({ address, provider, dispatch, setStakesLoading })
       const endTimestamp = startTimestamp.add(vestingPeriod)
       const amounts = [totalTokensOf, unlockedTokensOf, tokensVested].map(ethers.utils.formatEther)
       const timestamps = [startTimestamp, endTimestamp, vestingPeriod].map(t => t.toString())
+
       dispatch(
         setStakes({
           lock: lockAddress,
