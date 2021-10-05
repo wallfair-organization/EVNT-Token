@@ -11,4 +11,8 @@
   font-size: 18px;
   font-family: $fontBold;
   cursor: pointer;
+
+  @media all and (max-width: 600px) {
+    max-width: calc(100vw - 30px);
+  }
 }

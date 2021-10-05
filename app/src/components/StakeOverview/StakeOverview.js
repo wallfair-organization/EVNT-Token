@@ -9,8 +9,9 @@ import BalanceDetails from '../BalanceDetails'
 import styles from './styles.module.scss'
 import classNames from 'classnames'
 import walletImage from '../../data/icons/wallet.png'
+import { numberWithCommas } from '../../utils/common'
 
-const StakeOverview = ({ provider, setter, hash, balances }) => {
+const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory)
   const stakes = useSelector(selectStakes)
   const [blocked, setBlocked] = useState(false)
@@ -43,19 +44,19 @@ const StakeOverview = ({ provider, setter, hash, balances }) => {
             <div className={styles.balanceMain}>
               <div className={classNames(styles.balanceTitle, styles.titleOne)}>TOTAL TOKENS LOCKED</div>
               <div className={styles.balanceAmount}>
-                {parseFloat(totalTokensOf).toFixed(3)} <sup>WFAIR</sup>
+                {numberWithCommas(Math.floor(totalTokensOf))} <sup>WFAIR</sup>
               </div>
             </div>
             <div className={styles.balanceMain}>
               <div className={classNames(styles.balanceTitle, styles.titleTwo)}>TOKENS ALREADY CLAIMED</div>
               <div className={styles.balanceAmount}>
-                {parseFloat(unlockedTokensOf).toFixed(3)} <sup>WFAIR</sup>
+                {numberWithCommas(Math.floor(unlockedTokensOf))} <sup>WFAIR</sup>
               </div>
             </div>
             <div className={styles.balanceMain}>
               <div className={classNames(styles.balanceTitle, styles.titleThree)}>TOKENS READY TO BE UNLOCKED</div>
               <div className={styles.balanceAmount}>
-                {parseFloat(unlockableTokens).toFixed(3)} <sup>WFAIR</sup>
+                {numberWithCommas(Math.floor(unlockableTokens))} <sup>WFAIR</sup>
               </div>
             </div>
           </div>
@@ -118,7 +119,7 @@ const StakeOverview = ({ provider, setter, hash, balances }) => {
                   <p>{new Date(data[2] * 1000).toLocaleDateString('en-US')}</p>
                 </div>
                 <div className={styles.historyHeaderRightCol}>
-                  <h4>{parseFloat(data[1]).toFixed(3)}</h4>
+                  <h4>{numberWithCommas(Math.floor(data[1]))}</h4>
                   <p>WFAIR</p>
                 </div>
               </div>

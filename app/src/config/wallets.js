@@ -1,4 +1,7 @@
-import { walletconnect, injected, gnosisSafe} from './connectors'
+import { walletconnect, injected, gnosisSafe } from './connectors'
+import GnosisIcon from '../data/icons/wallet/gnosis.svg'
+import MetaMaskIcon from '../data/icons/wallet/metamask.svg'
+import WallectConnectIcon from '../data/icons/wallet/wallet-connect.svg'
 
 export const SUPPORTED_WALLETS = {
   INJECTED: {
@@ -6,13 +9,14 @@ export const SUPPORTED_WALLETS = {
     name: 'Injected',
     descriptor: 'Injected web3 provider',
     href: null,
-    primary: true,
+    primary: true
   },
   METAMASK: {
     connector: injected,
     name: 'MetaMask',
     description: 'Easy-to-use browser extension.',
     href: null,
+    iconURL: MetaMaskIcon
   },
   WALLET_CONNECT: {
     connector: walletconnect,
@@ -20,11 +24,13 @@ export const SUPPORTED_WALLETS = {
     description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
     href: null,
     mobile: true,
+    iconURL: WallectConnectIcon
   },
   GNOSIS_SAFE: {
     connector: gnosisSafe,
-    name: "Gnosis Safe",
+    name: 'Gnosis Safe',
     description: 'Connect to Gnosis Safe app',
-    href: null
+    href: null,
+    iconURL: GnosisIcon
   }
 }

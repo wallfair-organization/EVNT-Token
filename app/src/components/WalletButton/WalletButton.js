@@ -33,7 +33,6 @@ const WalletConnectInner = () => {
 const WalletConnect = () => {
   const { active } = useWeb3React()
   const contextNetwork = useWeb3React(NetworkContextName)
-
   return (
     <>
       <WalletConnectInner />

@@ -9,10 +9,12 @@ import { resetState, selectBalances, setBalance, setStakes, setHistory } from '.
 import { ZERO } from '../../utils/constants'
 import StakeOverview from '../../components/StakeOverview/StakeOverview'
 import { WFAIRAddress, lockAddresses, currentChainId, currentNetwork } from '../../config/config'
+import Loader from '../../components/Loader'
 
 const Home = () => {
   const dispatch = useDispatch()
   const [hash, setHash] = useState('')
+  const [stakesLoading, setStakesLoading] = useState(true)
   const { active, library, account, chainId } = useWeb3React()
   const balances = useSelector(selectBalances)
   const signer = library?.getSigner()
@@ -40,7 +42,8 @@ const Home = () => {
           })
         )
       })
-      getStakeValues({ address: address, provider: library, dispatch: dispatch })
+      getStakeValues({ address: address, provider: library, dispatch: dispatch, setStakesLoading: setStakesLoading })
+
       getHistory({
         address,
         chainId,
@@ -53,7 +56,7 @@ const Home = () => {
   if (!account) {
     return (
       <>
-        <h1 style={{ textAlign: 'center' }}>Please connect your Wallet</h1>
+        <h1 style={{ textAlign: 'center' }}>Please connect your wallet</h1>
       </>
     )
   }
@@ -66,10 +69,22 @@ const Home = () => {
     )
   }
 
+  if (account && stakesLoading) {
+    return <Loader />
+  }
+
   return (
     <>
       {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>}
-      {account && <StakeOverview provider={library} setter={setHash} hash={hash} balances={balances} />}
+      {account && (
+        <StakeOverview
+          provider={library}
+          setter={setHash}
+          hash={hash}
+          balances={balances}
+          stakesLoading={stakesLoading}
+        />
+      )}
       {account && <TokenTransfer provider={library} setter={setHash} hash={hash} />}
     </>
   )
@@ -96,7 +111,7 @@ const getHistory = async ({ address, dispatch, provider }) => {
   }
 }
 
-const getStakeValues = async ({ address, provider, dispatch }) => {
+const getStakeValues = async ({ address, provider, dispatch, setStakesLoading }) => {
   // loop over all lock addresses
   for (const lockAddress of lockAddresses) {
     const tokenLock = new Contract(lockAddress, WFairTokenLockABI.abi, provider)
@@ -121,6 +136,9 @@ const getStakeValues = async ({ address, provider, dispatch }) => {
       )
     }
   }
+
+  // change loading state
+  setStakesLoading(false)
 }
 
 const getBalanceWFAIR = async ({ address, provider }) => {

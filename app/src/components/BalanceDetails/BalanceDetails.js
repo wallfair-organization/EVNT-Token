@@ -1,5 +1,6 @@
 import React from 'react'
 import { PieChart } from 'react-minimal-pie-chart'
+import { numberWithCommas } from '../../utils/common'
 import styles from './styles.module.scss'
 
 const BalanceDetails = ({ totalTokensOf, unlockedTokensOf, unlockableTokens }) => {
@@ -24,7 +25,7 @@ const BalanceDetails = ({ totalTokensOf, unlockedTokensOf, unlockableTokens }) =
         startAngle={270}
       />
       <div className={styles.overallFundsTotal}>
-        <p>{parseFloat(totalTokensOf).toFixed(3)}</p>
+        <p>{numberWithCommas(Math.floor(totalTokensOf))}</p>
         <span>WFAIR</span>
       </div>
     </div>

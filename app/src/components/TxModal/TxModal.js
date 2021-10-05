@@ -1,35 +1,39 @@
+import Modal from '../Modal'
+import Waiting from './Waiting'
+import Success from './Success'
+import Error from './Error'
+
 const TxModal = ({ hash, action, blocked, success, setModalOpen }) => {
-  return (
-    <div className={"ModalWrapper"}>
-      <div className={"ModalContent"}>
-        <p>Waiting until TX is confirmed & mined</p>
-        {action && <p>Action: {action}</p>}
-        {hash && hash !== "Tx Failed" && <p>TxHash: {hash}</p>}
-        {hash && hash !== "Tx Failed" && (
-          <div>
-            <button
-              onClick={() => {
-                window.open(`https://rinkeby.etherscan.io/tx/${hash}`, "_blank");
-              }}
-            >
-              Look up on Etherscan
-            </button>
-          </div>
-        )}
-        {!blocked && (
+  const getModalContent = () => {
+    if (blocked) return <Waiting />
+
+    if (hash && hash !== 'Tx Failed') {
+      return (
+        <div>
           <button
-            success={success}
             onClick={() => {
-              setModalOpen(false);
+              window.open(`https://rinkeby.etherscan.io/tx/${hash}`, '_blank')
             }}
           >
-            {success ? "Success" : "Error"}
+            Look up on Etherscan
           </button>
-        )}
-      </div>
-      <div className="ModalBG" />
-    </div>
-  );
-};
+        </div>
+      )
+    }
 
-export default TxModal;
+    if (!blocked) {
+      if (success) {
+        return <Success setModalOpen={setModalOpen} />
+      } else {
+        return <Error setModalOpen={setModalOpen} />
+      }
+    }
+  }
+  return (
+    <Modal isOpen={true} showCloseButton={false}>
+      {getModalContent()}
+    </Modal>
+  )
+}
+
+export default TxModal

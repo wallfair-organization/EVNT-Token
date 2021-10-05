@@ -1,4 +1,6 @@
-export default function Option({
+import styles from './styles.module.scss'
+
+export default function Option ({
   link = null,
   clickable = true,
   size,
@@ -8,11 +10,12 @@ export default function Option({
   subheader = null,
   icon,
   active = false,
-  id,
+  id
 }) {
   return (
-    <div className="OptionWrap" id={id} onClick={onClick} clickable={clickable && !active} active={active}>
+    <div className={styles.optionWrap} id={id} onClick={onClick} clickable={clickable && !active} active={active}>
+      {icon && <img src={icon} alt={header} />}
       <span>{header}</span>
     </div>
-  );
+  )
 }

@@ -1,11 +1,34 @@
-const Modal = ({ isOpen, onDismiss = null, minHeight = false, maxHeight = 90, children }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="ModalWrapper">
-      <div className="ModalContent">{children}</div>
-      <div className="ModalBG" onClick={onDismiss} />
-    </div>
-  );
-};
+import styles from './styles.module.scss'
+import CloseButton from '../../data/icons/cross-red.svg'
 
-export default Modal;
+const Modal = ({
+  isOpen,
+  onDismiss = null,
+  minHeight = false,
+  maxHeight = 90,
+  children,
+  header,
+  footer,
+  showCloseButton = true
+}) => {
+  if (!isOpen) return null
+  return (
+    <div className={styles.modalWrapper}>
+      <div className={styles.modalContent}>
+        <div className={styles.modalHeader}>
+          {header && <div className={styles.modalHeaderContent}>{header}</div>}
+          {showCloseButton && (
+            <div className={styles.modalClose} onClick={onDismiss}>
+              <img src={CloseButton} alt={`Close`} />
+            </div>
+          )}
+        </div>
+        <div className={styles.modalBody}>{children}</div>
+        {footer && <div className={styles.modalfooter}></div>}
+      </div>
+      <div className={styles.modalBg} onClick={onDismiss} />
+    </div>
+  )
+}
+
+export default Modal
