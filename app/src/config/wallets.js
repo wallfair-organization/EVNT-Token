@@ -16,6 +16,7 @@ export const SUPPORTED_WALLETS = {
     name: 'MetaMask',
     description: 'Easy-to-use browser extension.',
     href: null,
+    mobile: true,
     iconURL: MetaMaskIcon
   },
   WALLET_CONNECT: {
@@ -23,7 +24,7 @@ export const SUPPORTED_WALLETS = {
     name: 'WalletConnect',
     description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
     href: null,
-    mobile: true,
+    mobile: false,
     iconURL: WallectConnectIcon
   },
   WALLET_LINK: {
@@ -31,7 +32,7 @@ export const SUPPORTED_WALLETS = {
     name: "Coinbase Link",
     description: "Connect to Coinbase or other Wallet Link wallets...",
     href: null,
-    mobile: true,
+    mobile: false,
     iconURL: WallectConnectIcon
   },
   GNOSIS_SAFE: {
