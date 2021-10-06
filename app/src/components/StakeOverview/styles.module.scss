@@ -12,6 +12,17 @@
       padding: 15px;
     }
   }
+  .participationText {
+    color: $colorWhite;
+    font-family: $fontRegular;
+    font-size: 18px;
+    word-spacing: 2px;
+    margin-top: 50px;
+    padding: 30px;
+    background: $colorBlueDarkShade;
+    display: inline-block;
+    border-radius: 30px 30px 0 0;
+  }
 
   .balanceDetails {
     .balanceTokens {
@@ -53,6 +64,12 @@
             top: 5px;
             background-color: $colorWhite;
           }
+
+          @media all and (max-width: $screen-sm) {
+            font-size: 12px;
+            word-spacing: 1px;
+            letter-spacing: 0px;
+          }
         }
         .titleOne {
           &::before {
@@ -79,6 +96,14 @@
             font-size: 10px;
             margin-left: 5px;
             font-family: $fontRegular;
+
+            @media all and (max-width: $screen-sm) {
+              font-size: 8px;
+            }
+          }
+
+          @media all and (max-width: $screen-sm) {
+            font-size: 16px;
           }
         }
       }
@@ -173,13 +198,16 @@
       border-top: 1px solid $colorDarkGray1;
       h4 {
         font-family: $fontRegular;
-        font-size: 18px;
+        font-size: 16px;
       }
       .historyHeaderLeftCol {
         text-align: left;
         h4 {
-          word-break: break-all;
           max-width: 90%;
+          a {
+            color: $colorYellow;
+            text-decoration: underline;
+          }
         }
       }
     }

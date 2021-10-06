@@ -5,24 +5,15 @@ import Error from './Error'
 
 const TxModal = ({ hash, action, blocked, success, setModalOpen }) => {
   const getModalContent = () => {
-    if (blocked) return <Waiting />
+    if (blocked && !(hash && hash !== 'Tx Failed')) return <Waiting />
 
     // TODO: do not use hash to pass errors! please pass final status separately
     // TODO: we must not close modal when tx fails
     // TODO: when tx fails and hash is available we must show link to etherscan
     // TODO: look up on Etherscan does not show at all, it should look like a link
+    // TDONE
     if (hash && hash !== 'Tx Failed') {
-      return (
-        <div>
-          <button
-            onClick={() => {
-              window.open(`https://rinkeby.etherscan.io/tx/${hash}`, '_blank')
-            }}
-          >
-            Look up on Etherscan
-          </button>
-        </div>
-      )
+      return <Error setModalOpen={setModalOpen} isTxFail={true} hash={hash} />
     }
 
     if (!blocked) {

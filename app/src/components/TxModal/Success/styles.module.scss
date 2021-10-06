@@ -17,7 +17,6 @@
       top: 50%;
       transform: translateY(-50%);
       height: 80%;
-      border-right: 1px solid $colorGrayLight4;
     }
   }
 
@@ -48,10 +47,10 @@
     &::after {
       content: '';
       position: absolute;
-      width: calc(100% + 50px);
+      width: calc(100% - 15px);
       bottom: -15px;
-      left: -25px;
-      right: 0;
+      left: 50%;
+      transform: translateX(-50%);
       height: 10px;
       background-color: $colorYellow;
       border-top-left-radius: 10px;

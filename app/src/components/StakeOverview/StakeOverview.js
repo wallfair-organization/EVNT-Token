@@ -11,9 +11,10 @@ import BalanceDetails from '../BalanceDetails'
 import styles from './styles.module.scss'
 import classNames from 'classnames'
 import walletImage from '../../data/icons/wallet.png'
-import { numberWithCommas } from '../../utils/common'
+import { numberWithCommas, shortenAddress } from '../../utils/common'
 import TimeCounter from '../TimeCounter'
 import timerStyles from './timer-styles.module.scss'
+import NoStakes from './NoStakes'
 
 const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory)
@@ -31,7 +32,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
     }
   }, [modalOpen])
 
-  const WFAIRBalance = Math.floor(parseFloat(balances["WFAIR"]));
+  const WFAIRBalance = Math.floor(parseFloat(balances['WFAIR']))
 
   let lockValues = []
   for (const lockAddress in stakes) {
@@ -46,7 +47,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
-        <p>{`Here's your participation in {Lock Wallet Name}!`}</p>
+        <p className={styles.participationText}>{`Here's your participation in {Lock Wallet Name}!`}</p>
         <div className={styles.balanceDetails}>
           <BalanceDetails
             totalTokensOf={totalTokensOf}
@@ -91,24 +92,26 @@ const StakeOverview = ({ provider, setter, hash }) => {
             >
               Unlock now
             </button>
-            {WFAIRBalance > 0 && <button
-              className={styles.transferButton}
-              disabled={unlockableTokens < 1}
-              onClick={() => {
-                setBlocked(true)
-                ReleaseStake({
-                  provider,
-                  setter,
-                  lockAddress,
-                  setTXSuccess: setTXSuccess,
-                  setBlocked: setBlocked,
-                  setModalOpen: setModalOpen
-                })
-              }}
-            >
-              <img src={walletImage} alt={`Wallet`} />
-              Transfer {numberWithCommas(Math.floor(WFAIRBalance))} WFAIR
-            </button>}
+            {WFAIRBalance > 0 && (
+              <button
+                className={styles.transferButton}
+                disabled={WFAIRBalance < 1}
+                onClick={() => {
+                  setBlocked(true)
+                  ReleaseStake({
+                    provider,
+                    setter,
+                    lockAddress,
+                    setTXSuccess: setTXSuccess,
+                    setBlocked: setBlocked,
+                    setModalOpen: setModalOpen
+                  })
+                }}
+              >
+                <img src={walletImage} alt={`Wallet`} />
+                Transfer {numberWithCommas(Math.floor(WFAIRBalance))} WFAIR
+              </button>
+            )}
           </div>
           <div className={styles.timeDetails}>
             <p>Time to full unlock:</p>
@@ -121,25 +124,29 @@ const StakeOverview = ({ provider, setter, hash }) => {
             </p>
           </div>
         </div>
-        {unlockedTokensOf > 0 && <div key={'history' + lockAddress} className={styles.balanceHistory}>
-          <div className={styles.historyHeader}>
-            <h4>{`Your Past Claims`}</h4>
+        {unlockedTokensOf > 0 && (
+          <div key={'history' + lockAddress} className={styles.balanceHistory}>
+            <div className={styles.historyHeader}>
+              <h4>{`Your Past Claims`}</h4>
+            </div>
+            {historyData[lockAddress]?.map(data => {
+              return (
+                <div key={data[0]} className={styles.historyRow}>
+                  <div className={styles.historyHeaderLeftCol}>
+                    <h4>
+                      <a href={`${currentNetwork.explorer}tx/${data[0]}`}>{shortenAddress(data[0])}</a>
+                    </h4>
+                    <p>{new Date(data[2] * 1000).toLocaleDateString('en-US')}</p>
+                  </div>
+                  <div className={styles.historyHeaderRightCol}>
+                    <h4>{numberWithCommas(Math.floor(data[1]))}</h4>
+                    <p>WFAIR</p>
+                  </div>
+                </div>
+              )
+            }) || <p>No history found</p>}
           </div>
-          {historyData[lockAddress]?.map(data => {
-            return (
-              <div key={data[0]} className={styles.historyRow}>
-                <div className={styles.historyHeaderLeftCol}>
-                  <h4><a href={`${currentNetwork.explorer}tx/${data[0]}`}>{data[0]}</a></h4>
-                  <p>{new Date(data[2] * 1000).toLocaleDateString('en-US')}</p>
-                </div>
-                <div className={styles.historyHeaderRightCol}>
-                  <h4>{numberWithCommas(Math.floor(data[1]))}</h4>
-                  <p>WFAIR</p>
-                </div>
-              </div>
-            )
-          }) || <p>No history found</p>}
-        </div>}
+        )}
         <hr></hr>
       </div>
     )
@@ -147,11 +154,8 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
   if (lockValues.length === 0) {
     // TODO: style this, looks really bad
-    return <div className='Stake'>
-      Unfortunately we could not find any tokens for you to unlock. Please make sure that the wallet address
-      <br/><b>{account}</b><br/>
-      you used to connect is the same address you used in the IDO or during private or seed sale
-      </div>
+    // TDONE
+    return <NoStakes account={account} />
   }
   return (
     <>

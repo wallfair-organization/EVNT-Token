@@ -1,0 +1,20 @@
+@import '../../styles/all';
+
+.lowBalanceWrapper {
+  .lowBalanceMessage {
+    background-color: $colorBlueDarkShade;
+    padding: 64px;
+    border-radius: 10px;
+    margin-bottom: 35px;
+
+    p {
+      margin-bottom: 25px;
+      font-family: $fontRegular;
+      line-height: 1.8;
+    }
+
+    @media all and (max-width: $screen-sm) {
+      padding: 15px;
+    }
+  }
+}

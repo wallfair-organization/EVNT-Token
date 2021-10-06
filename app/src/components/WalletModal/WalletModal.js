@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import usePrevious from '../../hooks/usePrevious'
 import { ApplicationModal } from '../../state/application/consts'
+import classNames from 'classnames'
 import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
@@ -25,12 +26,15 @@ const WALLET_VIEWS = {
   PENDING: 'PENDING'
 }
 
-function isUserRejected(error) {
-  return error instanceof UserRejectedRequestErrorInjected || error instanceof UserRejectedRequestErrorWalletConnect ||
-        (error.message && error.message === 'User denied account authorization');
+function isUserRejected (error) {
+  return (
+    error instanceof UserRejectedRequestErrorInjected ||
+    error instanceof UserRejectedRequestErrorWalletConnect ||
+    (error.message && error.message === 'User denied account authorization')
+  )
 }
 
-function getErrorMessage(error) {
+function getErrorMessage (error) {
   if (error instanceof NoEthereumProviderError) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
   } else if (error instanceof UnsupportedChainIdError) {
@@ -39,7 +43,7 @@ function getErrorMessage(error) {
     return 'Please authorize this website to access your Ethereum account.'
   } else {
     console.error(error)
-    return error.message || "Unknown error";
+    return error.message || 'Unknown error'
   }
 }
 
@@ -48,6 +52,7 @@ const WalletModal = () => {
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
   const [, setPendingWallet] = useState(undefined)
   const [pendingError, setPendingError] = useState(false)
+  const [walletError, setWalletError] = useState('')
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
   const previousAccount = usePrevious(account)
@@ -76,22 +81,22 @@ const WalletModal = () => {
   const tryActivation = async connector => {
     setPendingWallet(connector)
     setWalletView(WALLET_VIEWS.PENDING)
-
     if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
       connector.walletConnectProvider = undefined
     }
-
     connector &&
-      activate(connector, undefined, true).catch((error) => {
-        console.log(error);
+      activate(connector, undefined, true).catch(error => {
         if (isUserRejected(error)) {
           // TODO: ignore error and show the options again
-          setPendingError(true);
+          // TDONE
+          setPendingError(true)
+          setWalletError('')
         } else {
           // TODO: show error message and let the window close
-          const message = getErrorMessage(error);
-          console.log(message);
-          setPendingError(false);
+          // TDONE: ISSUE with error state trigger
+          const message = getErrorMessage(error)
+          setPendingError(true)
+          setWalletError(message)
         }
       })
   }
@@ -169,7 +174,19 @@ const WalletModal = () => {
     return <div className={styles.optionsWrap}>{getOptions()}</div>
   }
 
-  const getContentLoading = pendingError => {
+  const getContentLoading = () => {
+    if (walletError) {
+      return (
+        <div className={classNames(styles.optionsWrap, styles.optionsError)}>
+          <strong>{`Something went wrong`}</strong>
+          <span>
+            {`Message: `}
+            {walletError}
+          </span>
+        </div>
+      )
+    }
+
     if (pendingError) {
       return getContentWithOptions()
     }
@@ -182,6 +199,7 @@ const WalletModal = () => {
   }
 
   const getModalHeader = () => {
+    if (walletError) return null
     return (
       <>
         <div className={styles.modalHeaderTitle}>
@@ -202,11 +220,19 @@ const WalletModal = () => {
       return <span>account details</span>
     }
 
-    return <>{walletView === WALLET_VIEWS.PENDING ? getContentLoading(pendingError) : getContentWithOptions()}</>
+    return <>{walletView === WALLET_VIEWS.PENDING ? getContentLoading() : getContentWithOptions()}</>
   }
 
   return (
-    <Modal isOpen={walletModalOpen} onDismiss={toggleWalletModal} header={getModalHeader()} showCloseButton={true}>
+    <Modal
+      isOpen={walletModalOpen}
+      onDismiss={() => {
+        setWalletError('')
+        toggleWalletModal()
+      }}
+      header={getModalHeader()}
+      showCloseButton={true}
+    >
       {getModalContent()}
     </Modal>
   )

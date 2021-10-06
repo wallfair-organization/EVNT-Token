@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useEagerConnect, useInactiveListener } from '../../hooks/web3'
+import Loader from '../Loader'
 
 const Web3ReactManager = ({ children }) => {
   const triedEager = useEagerConnect()
@@ -19,8 +20,9 @@ const Web3ReactManager = ({ children }) => {
 
   if (!triedEager) {
     // TODO: style this: show wallfair (as in header) and a spinner, this is visible with
-    // mobile device in devtools and metamask enabled 
-    return showLoader ? <h1>Loading...</h1> : null
+    // mobile device in devtools and metamask enabled
+    // TDONE
+    return showLoader ? <Loader withHeader={true} /> : null
   }
 
   return children

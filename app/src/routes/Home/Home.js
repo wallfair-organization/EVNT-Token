@@ -10,6 +10,7 @@ import { ZERO } from '../../utils/constants'
 import StakeOverview from '../../components/StakeOverview/StakeOverview'
 import { WFAIRAddress, lockAddresses, currentChainId, currentNetwork } from '../../config/config'
 import Loader from '../../components/Loader'
+import LowBalance from '../../components/LowBalance'
 
 const Home = () => {
   const dispatch = useDispatch()
@@ -18,7 +19,7 @@ const Home = () => {
   const { active, library, account, chainId } = useWeb3React()
   const balances = useSelector(selectBalances)
   const signer = library?.getSigner()
-  const ETHBalance = parseFloat(balances["ETH"]);
+  const ETHBalance = parseFloat(balances['ETH'])
 
   useEffect(() => {
     dispatch(resetState())
@@ -56,7 +57,7 @@ const Home = () => {
 
   // do not render further
   if (!account) {
-    return (<></>)
+    return <></>
   }
 
   if (chainId !== currentChainId) {
@@ -64,12 +65,12 @@ const Home = () => {
       <>
         <h2 style={{ textAlign: 'center' }}>Please change your network to {currentNetwork.label}</h2>
         <button
-              onClick={() => {
-                library.provider.close();
-              }}
-            >
-              Disconnect
-            </button>
+          onClick={() => {
+            library.provider.close()
+          }}
+        >
+          Disconnect
+        </button>
       </>
     )
   }
@@ -81,16 +82,11 @@ const Home = () => {
   // TODO: style this: shows when you use account with 0 ether
   // the link is invisible below
   // TODO: {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>} remove that, we must handle tx errors in the TxModal modal
+  // TDONE
   return (
     <>
-      {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>}
-      {ETHBalance < 0.001 &&
-        <div>
-        You do not have enough Ether in your wallet to unlock or transfer the tokens. If you use Metamask ot Trust Wallet, you can make purchase within the app.
-        You can also use <a href="https://global.transak.com/">Transak</a> directly. <br/>
-        The amount in range of 100 USD should let you to unlock the WFAIR and make several transfers in order, for example, to trade or stake the WFAIR token.
-      </div>
-      }
+      {/* {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>} */}
+      {ETHBalance < 0.001 && <LowBalance />}
 
       {account && (
         <StakeOverview
@@ -102,13 +98,15 @@ const Home = () => {
         />
       )}
       {account && <TokenTransfer provider={library} setter={setHash} hash={hash} />}
-      {library && <button
-              onClick={() => {
-                library.provider.close();
-              }}
-            >
-              Disconnect
-            </button>}
+      {library && (
+        <button
+          onClick={() => {
+            library.provider.close()
+          }}
+        >
+          Disconnect
+        </button>
+      )}
     </>
   )
 }

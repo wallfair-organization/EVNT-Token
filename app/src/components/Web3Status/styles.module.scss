@@ -1,18 +1,55 @@
 @import '../../styles/all';
 
-.connectWallet {
-  display: block;
-  margin: 0 auto 15px;
-  background-image: url('../../data/backgrounds/highlight-deposit.svg');
-  width: 100%;
-  max-width: 460px;
-  height: 60px;
-  border-radius: 10px;
-  font-size: 18px;
-  font-family: $fontBold;
-  cursor: pointer;
+.connectWrapper {
+  padding: 0 15px;
 
-  @media all and (max-width: 600px) {
-    max-width: calc(100vw - 30px);
+  strong {
+    font-family: $fontBold;
+    margin-bottom: 25px;
+    display: block;
+  }
+
+  p {
+    font-family: $fontRegular;
+    margin-bottom: 25px;
+  }
+
+  a {
+    color: $colorYellow;
+  }
+
+  .walletAppInfo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid $colorGrayLight8;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    span {
+      font-family: $fontRegular;
+      font-size: 16px;
+      color: $colorGrayLight9;
+      margin-left: 10px;
+      text-align: left;
+      flex-grow: 1;
+    }
+    img {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  .connectWallet {
+    display: block;
+    margin: 0 auto 15px;
+    background-image: url('../../data/backgrounds/highlight-deposit.svg');
+    width: 100%;
+    max-width: 460px;
+    height: 60px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-family: $fontBold;
+    cursor: pointer;
   }
 }

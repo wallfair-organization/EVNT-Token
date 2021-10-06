@@ -1,0 +1,17 @@
+@import '../../styles/all';
+
+.logoTitle {
+  color: $colorWhite;
+  font-family: $fontBold;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.13;
+  letter-spacing: 1px;
+  margin-bottom: 95px;
+  display: inline-block;
+
+  span {
+    font-family: initial;
+    color: $colorYellowLight;
+  }
+}

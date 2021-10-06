@@ -1,8 +1,6 @@
 {
-  "short_name": "Wallfair",
-  "name": "Wallfair",
-  "description": "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quam accusantium officiis, id cumque nostrum",
-  "iconPath": "beastlogo120.png",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",

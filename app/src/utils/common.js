@@ -1,6 +1,7 @@
-// formatting number
+import { isMobile } from 'react-device-detect'
+
 export const numberWithCommas = x => {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 export const calculateTimeLeft = date => {
   if (!date) {
@@ -20,4 +21,9 @@ export const calculateTimeLeft = date => {
   }
 
   return timeLeft
+}
+
+export const shortenAddress = account => {
+  if (isMobile) return account?.substr(0, 4) + '...' + account?.substr(account?.length - 2)
+  return account?.substr(0, 6) + '...' + account?.substr(account?.length - 4)
 }

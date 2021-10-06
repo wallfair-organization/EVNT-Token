@@ -1,6 +1,8 @@
-import { walletconnect, injected, gnosisSafe, trezor, walletlink} from './connectors'
+import { walletconnect, injected, gnosisSafe, trezor, walletlink } from './connectors'
+import TrezorIcon from '../data/icons/wallet/trezor.svg'
 import GnosisIcon from '../data/icons/wallet/gnosis.svg'
 import MetaMaskIcon from '../data/icons/wallet/metamask.svg'
+import CoinbaseIcon from '../data/icons/wallet/coinbase.svg'
 import WallectConnectIcon from '../data/icons/wallet/wallet-connect.svg'
 
 export const SUPPORTED_WALLETS = {
@@ -29,11 +31,11 @@ export const SUPPORTED_WALLETS = {
   },
   WALLET_LINK: {
     connector: walletlink,
-    name: "Coinbase Link",
-    description: "Connect to Coinbase or other Wallet Link wallets...",
+    name: 'Coinbase Link',
+    description: 'Connect to Coinbase or other Wallet Link wallets...',
     href: null,
     mobile: false,
-    iconURL: WallectConnectIcon
+    iconURL: CoinbaseIcon
   },
   GNOSIS_SAFE: {
     connector: gnosisSafe,
@@ -44,9 +46,9 @@ export const SUPPORTED_WALLETS = {
   },
   TREZOR: {
     connector: trezor,
-    name: "Trezor",
+    name: 'Trezor Wallet',
     description: 'Trezor Hardware Wallet',
     href: null,
-    iconURL: GnosisIcon
+    iconURL: TrezorIcon
   }
 }
