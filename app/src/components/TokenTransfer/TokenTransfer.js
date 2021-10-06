@@ -47,8 +47,6 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
           key='transferValue'
           placeholder='WFAIR Amount'
           value={transferValue}
-          type={`number`}
-          max={balance}
           onChange={e => {
             if (e.target.value <= balance) {
               setTransferValue(

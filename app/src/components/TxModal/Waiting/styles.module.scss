@@ -29,6 +29,8 @@
     strong {
       font-family: $fontBold;
       border-bottom: 3px solid $colorYellow;
+      cursor: pointer;
+      word-break: break-all;
     }
     @media screen and (min-width: $screen-md) {
       margin: 30px 0;
@@ -60,20 +62,6 @@
       font-size: 42px;
     }
   }
-  .confettiRight,
-  .confettiLeft {
-    position: absolute;
-    z-index: 1;
-  }
-  .confettiLeft {
-    left: calc(0vw - 80px);
-    top: calc(0vh - 80px);
-  }
-  .confettiRight {
-    right: calc(0vw - 80px);
-    top: calc(0vh - 80px);
-  }
-
   .keepGoing {
     display: block;
     margin: 0 auto 15px;
