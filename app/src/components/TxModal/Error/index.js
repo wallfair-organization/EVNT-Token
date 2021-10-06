@@ -32,7 +32,7 @@ const Error = ({ setModalOpen, isTxFail = false, hash }) => {
             setModalOpen(false)
           }}
         >
-          Try Again
+          Close
         </button>
       )}
     </div>

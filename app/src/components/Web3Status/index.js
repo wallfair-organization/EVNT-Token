@@ -7,7 +7,7 @@ import { shortenAddress } from '../../utils/common'
 import MetaMaskIcon from '../../data/icons/wallet/metamask.svg'
 import CoinbaseIcon from '../../data/icons/wallet/coinbase.svg'
 import TrustWalletIcon from '../../data/icons/wallet/trustwallet.svg'
-import WalletColorIcon from '../../data/icons/wallet-color.svg'
+import WallectConnectIcon from '../../data/icons/wallet/wallet-connect.svg'
 
 function Web3StatusInner () {
   const { account, error } = useWeb3React()
@@ -50,7 +50,7 @@ function Web3StatusInner () {
           <span>If you use Coinbase open this website on the desktop and select Wallet Link as the wallet type</span>
         </div>
         <div className={styles.walletAppInfo}>
-          <img src={WalletColorIcon} alt={`Wallet`} />
+          <img src={WallectConnectIcon} alt={`Wallet`} />
           <span>
             For any other wallet like Trust Wallet open this website on the desktop and select Wallet Connect as the
             wallet type

@@ -11,6 +11,10 @@
       margin-bottom: 25px;
       font-family: $fontRegular;
       line-height: 1.8;
+
+      a {
+        color: $colorYellow;
+      }
     }
 
     @media all and (max-width: $screen-sm) {
