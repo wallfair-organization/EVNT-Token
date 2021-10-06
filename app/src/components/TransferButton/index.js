@@ -19,17 +19,21 @@ const TransferButton = ({ balance, provider, hash, setter, setBlocked, showCance
       />
     )
   }
-  return (
-    <button
-      className={styles.transferButton}
-      onClick={() => {
-        setBlocked(true)
-        setTokenAreaOpen(true)
-      }}
-    >
-      <img src={walletImage} alt={`Wallet`} />
-      Transfer {numberWithCommas(Math.floor(balance))} WFAIR
-    </button>
-  )
+  if (balance > 0 && !tokenAreaOpen) {
+    return (
+      <button
+        className={styles.transferButton}
+        onClick={() => {
+          setBlocked(true)
+          setTokenAreaOpen(true)
+        }}
+      >
+        <img src={walletImage} alt={`Wallet`} />
+        Transfer {numberWithCommas(Math.floor(balance))} WFAIR
+      </button>
+    )
+  }
+
+  return null
 }
 export default TransferButton
