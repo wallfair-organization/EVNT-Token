@@ -1,6 +1,9 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Wallfair",
+  "name": "Wallfair Investor Dashboard",
+  "description": "Claim, stake and transfer your WFAIR tokens",
+  "iconPath": "logo512.png",
+  "providedBy": {"name": "Wallfair", "url": "https://wallfair.io"},
   "icons": [
     {
       "src": "favicon.ico",
