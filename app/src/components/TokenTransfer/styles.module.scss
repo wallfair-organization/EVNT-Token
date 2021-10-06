@@ -1,30 +1,51 @@
 @import '../../styles/all';
 
-.timePartContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 20px;
-}
+.transferWrapper {
+  display: block;
+  margin: 0 auto 15px;
+  width: 100%;
+  max-width: 460px;
+  background: $colorPrimaryLight;
+  padding: 20px;
+  border-radius: 10px;
 
-.timerColon{
-  padding: 0 5px;
-  font-size: 18px;
-  font-weight: 800;
-  color: $colorWhite;
-  opacity: 0.8;
-}
+  input {
+    display: block;
+    width: 100%;
+    height: 60px;
+    border-radius: 10px;
+    padding: 0 15px;
+    font-family: $fontRegular;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
 
-.timePartValue{
-  font-size: 24px;
-  font-family: "PlusJakarta-Bold";
-  color: $colorWhite;
-}
+  strong {
+    display: block;
+    text-align: center;
+    font-family: $fontBold;
+    margin-bottom: 15px;
+  }
 
-.timePartName {
-    margin-top: 5px;
-    font-size: 15px;
-    font-weight: normal;
-    color: $colorWhite;
-    opacity: 0.8;
+  .buttonWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    button {
+      display: block;
+      width: 100%;
+      height: 60px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-family: $fontBold;
+      cursor: pointer;
+      background: #ffffff;
+      background-image: url('../../data/backgrounds/highlight-deposit.svg');
+    }
+
+    .cancelButton {
+      background-image: url('../../data/backgrounds/highlight-deposit-red.svg');
+    }
+  }
 }

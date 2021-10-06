@@ -10,11 +10,11 @@ import SafeCall from '../SafeContractCall/SafeContractCall'
 import BalanceDetails from '../BalanceDetails'
 import styles from './styles.module.scss'
 import classNames from 'classnames'
-import walletImage from '../../data/icons/wallet.png'
 import { numberWithCommas, shortenAddress } from '../../utils/common'
 import TimeCounter from '../TimeCounter'
 import timerStyles from './timer-styles.module.scss'
 import NoStakes from './NoStakes'
+import TransferButton from '../TransferButton'
 
 const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory)
@@ -92,26 +92,14 @@ const StakeOverview = ({ provider, setter, hash }) => {
             >
               Unlock now
             </button>
-            {WFAIRBalance > 0 && (
-              <button
-                className={styles.transferButton}
-                disabled={WFAIRBalance < 1}
-                onClick={() => {
-                  setBlocked(true)
-                  ReleaseStake({
-                    provider,
-                    setter,
-                    lockAddress,
-                    setTXSuccess: setTXSuccess,
-                    setBlocked: setBlocked,
-                    setModalOpen: setModalOpen
-                  })
-                }}
-              >
-                <img src={walletImage} alt={`Wallet`} />
-                Transfer {numberWithCommas(Math.floor(WFAIRBalance))} WFAIR
-              </button>
-            )}
+            <TransferButton
+              balance={WFAIRBalance}
+              provider={provider}
+              hash={hash}
+              setter={setter}
+              setBlocked={setBlocked}
+              showCancel={true}
+            />
           </div>
           <div className={styles.timeDetails}>
             <p>Time to full unlock:</p>
@@ -155,7 +143,16 @@ const StakeOverview = ({ provider, setter, hash }) => {
   if (lockValues.length === 0) {
     // TODO: style this, looks really bad
     // TDONE
-    return <NoStakes account={account} />
+    return (
+      <NoStakes
+        account={account}
+        balance={WFAIRBalance}
+        provider={provider}
+        hash={hash}
+        setter={setter}
+        setBlocked={setBlocked}
+      />
+    )
   }
   return (
     <>

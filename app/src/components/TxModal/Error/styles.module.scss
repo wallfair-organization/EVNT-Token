@@ -30,6 +30,7 @@
       font-family: $fontBold;
       border-bottom: 3px solid $colorRed;
       cursor: pointer;
+      word-break: break-all;
     }
   }
   .prizeAmount {

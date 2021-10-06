@@ -15,7 +15,7 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorInjected
 } from '@web3-react/injected-connector'
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
-import PendingView from './PendingView'
+
 import WalletSvg from '../../data/icons/wallet-2.svg'
 import styles from './styles.module.scss'
 import Loader from '../Loader'

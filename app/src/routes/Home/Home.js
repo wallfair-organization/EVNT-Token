@@ -2,7 +2,6 @@ import { useWeb3React } from '@web3-react/core'
 import { Contract, ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import TokenTransfer from '../../components/TokenTransfer'
 import WFairABI from '../../config/abi/WFAIRToken.json'
 import WFairTokenLockABI from '../../config/abi/TokenLock.json'
 import { resetState, selectBalances, setBalance, setStakes, setHistory } from '../../state/wallfair/slice'
@@ -11,6 +10,7 @@ import StakeOverview from '../../components/StakeOverview/StakeOverview'
 import { WFAIRAddress, lockAddresses, currentChainId, currentNetwork } from '../../config/config'
 import Loader from '../../components/Loader'
 import LowBalance from '../../components/LowBalance'
+import DisconnectButton from '../../components/DisconnectButton'
 
 const Home = () => {
   const dispatch = useDispatch()
@@ -61,18 +61,7 @@ const Home = () => {
   }
 
   if (chainId !== currentChainId) {
-    return (
-      <>
-        <h2 style={{ textAlign: 'center' }}>Please change your network to {currentNetwork.label}</h2>
-        <button
-          onClick={() => {
-            library.provider.close()
-          }}
-        >
-          Disconnect
-        </button>
-      </>
-    )
+    return <DisconnectButton library={library} message={`Please change your network to ${currentNetwork.label}`} />
   }
 
   if (account && stakesLoading) {
@@ -97,16 +86,8 @@ const Home = () => {
           stakesLoading={stakesLoading}
         />
       )}
-      {account && <TokenTransfer provider={library} setter={setHash} hash={hash} />}
-      {library && (
-        <button
-          onClick={() => {
-            library.provider.close()
-          }}
-        >
-          Disconnect
-        </button>
-      )}
+
+      {library && <DisconnectButton library={library} />}
     </>
   )
 }
