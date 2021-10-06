@@ -78,11 +78,12 @@ const Home = () => {
     return <Loader />
   }
 
+  // TODO: style this: shows when you use account with 0 ether
+  // the link is invisible below
+  // TODO: {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>} remove that, we must handle tx errors in the TxModal modal
   return (
     <>
       {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>}
-      // TODO: style this: shows when you use account with 0 ether
-      // the link is invisible below
       {ETHBalance < 0.001 &&
         <div>
         You do not have enough Ether in your wallet to unlock or transfer the tokens. If you use Metamask ot Trust Wallet, you can make purchase within the app.

@@ -27,10 +27,12 @@ function Web3StatusInner () {
     return (
       <div>
         Hello WFAIR Investor!<br/>
-        If you have mobile wallet installed then please open this website inside your wallet.<br/>
-        * If you use mobile Metamask click this link <a href="https://metamask.app.link/dapp/dashboard.wallfair.io/">METAMASK LOGO</a><br/>
-        * If you use Coinbase open this website on the desktop and select Wallet Link as the wallet typ
-        * For any other wallet like Trust Wallet open this website on the desktop and select Wallet Connect as the wallet type
+        Do you have mobile wallet? Then you can view this page directly in there or connect it with the desktop. Try one of those.
+        <br/>
+        * [METAMASK ICON] For Metamask Mobile click <a href="https://metamask.app.link/dapp/dashboard.wallfair.io/">here</a><br/>
+        * [trust wallet logo - option visible only on android] For Trust Wallet on Android click <a href="https://link.trustwallet.com/open_url?coin_id=60&url=https://dashboard.wallfair.io">here</a><br/>
+        * [show wallet link icon somwehre] If you use Coinbase open this website on the desktop and select Wallet Link as the wallet type<br/>
+        * [show wallet connect icon somwehre] For any other wallet like Trust Wallet open this website on the desktop and select Wallet Connect as the wallet type<br/>
       </div>
     )
   } else { 
