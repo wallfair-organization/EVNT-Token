@@ -87,13 +87,9 @@ const WalletModal = () => {
     connector &&
       activate(connector, undefined, true).catch(error => {
         if (isUserRejected(error)) {
-          // TODO: ignore error and show the options again
-          // TDONE
           setPendingError(true)
           setWalletError('')
         } else {
-          // TODO: show error message and let the window close
-          // TDONE: ISSUE with error state trigger
           const message = getErrorMessage(error)
           setPendingError(true)
           setWalletError(message)

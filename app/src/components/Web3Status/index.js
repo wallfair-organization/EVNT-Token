@@ -22,9 +22,8 @@ function Web3StatusInner () {
   } else if (error) {
     return <span>{error instanceof UnsupportedChainIdError ? 'WRONG NETWORK IDX' : 'ERROR'}</span>
   } else if (isMobile && !window.web3 && !window.ethereum) {
-    // TODO: style this: mobile device + metamask plugin disabled
-    // nothing injected, suggest to open app in the metamask
-    // TDONE
+    const twLink = `https://link.trustwallet.com/open_url?coin_id=60&url=https://${window.location.host}`;
+    const mmLink = `https://metamask.app.link/dapp/${window.location.host}/`;
     return (
       <div className={styles.connectWrapper}>
         <strong>Hello WFAIR Investor!</strong>
@@ -35,14 +34,14 @@ function Web3StatusInner () {
         <div className={styles.walletAppInfo}>
           <img src={MetaMaskIcon} alt={`MetaMask`} />
           <span>
-            For Metamask Mobile click <a href='https://metamask.app.link/dapp/dashboard.wallfair.io/'>here</a>
+            For Metamask Mobile click <a href={mmLink}>here</a>
           </span>
         </div>
         <div className={styles.walletAppInfo}>
           <img src={TrustWalletIcon} alt={`Trust Wallet`} />
           <span>
             For Trust Wallet on Android click{' '}
-            <a href='https://link.trustwallet.com/open_url?coin_id=60&url=https://dashboard.wallfair.io'>here</a>
+            <a href={twLink}>here</a>
           </span>
         </div>
         <div className={styles.walletAppInfo}>
@@ -60,8 +59,6 @@ function Web3StatusInner () {
       </div>
     )
   } else {
-    // TODO: style this
-    // TDONE
     return (
       <div className={styles.connectWrapper}>
         <strong>Hello WFAIR Investor!</strong>

@@ -19,9 +19,6 @@ const Web3ReactManager = ({ children }) => {
   }, [])
 
   if (!triedEager) {
-    // TODO: style this: show wallfair (as in header) and a spinner, this is visible with
-    // mobile device in devtools and metamask enabled
-    // TDONE
     return showLoader ? <Loader withHeader={true} /> : null
   }
 

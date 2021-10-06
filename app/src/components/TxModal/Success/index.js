@@ -6,14 +6,14 @@ const Success = ({ setModalOpen }) => {
   return (
     <div className={styles.promoMessage}>
       <span className={styles.prizeAmount}>{`Congratulations`}</span>
-      <p>{`Your process has been been successfully completed.`}</p>
+      <p>{`Your transaction completed succesfully.`}</p>
       <button
         className={styles.keepGoing}
         onClick={() => {
           setModalOpen(false)
         }}
       >
-        Keep Going!
+        See Your Tokens!
       </button>
       <ConfettiLeft className={styles.confettiLeft} />
       <ConfettiRight className={styles.confettiRight} />

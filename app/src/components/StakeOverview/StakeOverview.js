@@ -47,7 +47,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
-        <p className={styles.participationText}>{`Here's your participation in {Lock Wallet Name}!`}</p>
+        <p className={styles.participationText}>{`Here's your participation in Private Sale!`}</p>
         <div className={styles.balanceDetails}>
           <BalanceDetails
             totalTokensOf={totalTokensOf}
@@ -141,8 +141,6 @@ const StakeOverview = ({ provider, setter, hash }) => {
   }
 
   if (lockValues.length === 0) {
-    // TODO: style this, looks really bad
-    // TDONE
     return (
       <NoStakes
         account={account}

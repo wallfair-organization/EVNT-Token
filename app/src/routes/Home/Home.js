@@ -68,10 +68,6 @@ const Home = () => {
     return <Loader />
   }
 
-  // TODO: style this: shows when you use account with 0 ether
-  // the link is invisible below
-  // TODO: {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>} remove that, we must handle tx errors in the TxModal modal
-  // TDONE
   return (
     <>
       {/* {hash === 'Tx Failed' && <p>Last Tx Failed, please try again</p>} */}
