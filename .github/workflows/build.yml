@@ -17,6 +17,9 @@ jobs:
       - name: Install modules
         run: npm install
 
+      - name: Install app modules
+        run: cd app && npm install
+
       - name: Lint Solidity Files
         run: npm run lint:sol
 
