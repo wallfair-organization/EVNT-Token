@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 import React, { useEffect, useState } from 'react'
 import { selectStakes, selectHistory, selectBalances } from '../../state/wallfair/slice'
 import TokenLockAbi from '../../config/abi/TokenLock.json'
-import { currentNetwork } from '../../config/config'
+import { currentNetwork, lockInfo } from '../../config/config'
 import { Contract } from '@ethersproject/contracts'
 import TxModal from '../TxModal'
 import SafeCall from '../SafeContractCall/SafeContractCall'
@@ -47,7 +47,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
-        <p className={styles.participationText}>{`Here's your participation in Private Sale!`}</p>
+        <p className={styles.participationText}>{`Here's your participation in ${lockInfo[lockAddress].name}!`}</p>
         <div className={styles.balanceDetails}>
           <BalanceDetails
             totalTokensOf={totalTokensOf}

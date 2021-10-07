@@ -78,6 +78,8 @@ The deployment procedure is as follows:
 2. Several `TokenLock` instances are deployed, depending on the actual allocations and vesting schedules of Wallfair, and final lists of addresses are provided to those instances.
 3. The `deployer` transfers the tokens it holds to the `TokenLock` instances (and other wallets if needed) - as per the Wallfair token allocation. At this point `deployer` will not hold any tokens and its private key may be destroyed.
 
+node scripts/csvToLockConfig.js --csv scripts/rinkebylockwallets1.csv --tgetime 2021-08-05T00:00:00.000Z --fraction 0.1 --period 6 --delay 0 --network rinkeby --name test1
+env $(cat .env.example | grep "^[^#;]" | xargs) 
 
 # Installation
 

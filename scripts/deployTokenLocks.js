@@ -77,6 +77,12 @@ console.log('Number of lock functions to deploy: ' + lockGroups.length);
 // Calculate total WFAIR supply requirement, check for cliff/initial conflicts,
 total(splitLockRequests);
 
+function mulFraction (fraction) {
+  const fracPrc = parseFloat(fraction) * 100;
+  // this will fail if fraction so only two decimal places are supported
+  return Q18.mul(fracPrc.toString()).div('100');
+}
+
 async function deployTokenLock (lockGroup, wallets, amounts) {
   let contractParams;
   if (lockConfig.Artifact === 'TokenLock') {
@@ -85,7 +91,7 @@ async function deployTokenLock (lockGroup, wallets, amounts) {
       (TGE_TIME + monthsToSeconds(lockGroup[0].delay)).toString(),
       (monthsToSeconds(lockGroup[0].vestingPeriod)).toString(),
       (monthsToSeconds(lockGroup[0].cliffPeriod)).toString(),
-      (Q18.mul(lockGroup[0].initialReleaseFraction)).toString(),
+      (mulFraction(lockGroup[0].initialReleaseFraction)).toString(),
       wallets,
       amounts,
     ];
