@@ -57,12 +57,20 @@
       "txid": "0xfe8d0e9cc8bb4be99830132fc5b09f2fe4b9b7b109dce353f7235c96ce1e2820"
     },
     {
-      "name": "Fund TokenLock #0 in deploytest1Lock",
+      "name": "Private Sale #1",
       "from": "0x6756766Ad3b2585e541a6f369AF05A31a3836724",
       "to": "0xaf9CA53996C4cc00d5BC41966Ecc02E2A6fFB1fC",
       "amount": "3450000000000000000000000",
       "timestamp": "1633552245878",
       "txid": "0x1bc7bc917fb36b9980a859fde167540b064924619de75637af886c2a2af1f362"
+    },
+    {
+      "name": "Private Sale #2",
+      "from": "0x6756766Ad3b2585e541a6f369AF05A31a3836724",
+      "to": "0x8C9f10AdD1353eD72E21Def2B0bA2876e4a7186c",
+      "amount": "2209590000000000000000000",
+      "timestamp": "1633629677341",
+      "txid": "0x576bb9a7677b2aba3adb533481638ffc90c8e8b7cbd78dff85973cda138c2d1c"
     }
   ],
   "locks": [
@@ -324,6 +332,60 @@
         "1250000000000000000000000"
       ],
       "lockConfigFile": "deploytest1Lock"
+    },
+    {
+      "name": "TokenLock #0 in deployprivSale2Lock",
+      "address": "0x8C9f10AdD1353eD72E21Def2B0bA2876e4a7186c",
+      "parameters": [
+        "0x3D01B461c7231E7acB9DeaBDB03D7Ccba074B722",
+        "1630800000",
+        "15552000",
+        "0",
+        "250000000000000000",
+        [
+          "0xB79D53cfce261ed04EECF39Dc5AA3Eca9e17e2a0",
+          "0xff446615c8A1e1E562742a82F1F2CFDDc968F956",
+          "0xa066E15a7843A281EBfcf685Cb30020b022b9B2D",
+          "0x0A7DE70d9E8B39d3A5F3d3F22Ccf87DFbC364813",
+          "0xC846bAAf7090c6D73CA62736cE49fbf2eADeb4aF",
+          "0x10126A436276D4b00fbe045741E46A7CC0B717a1",
+          "0x8E297013D033B4267728f4dfA92f9370DD2FA6f8",
+          "0xeF4C6766d75bbcAeB8ed24EFA6bf07af1Bb0DEB0"
+        ],
+        [
+          "350000000000000000000000",
+          "125000000000000000000000",
+          "781200000000000000000000",
+          "34100000000000000000000",
+          "23100000000000000000000",
+          "700000000000000000000000",
+          "76190000000000000000000",
+          "120000000000000000000000"
+        ]
+      ],
+      "timestamp": "1633628758793",
+      "artifact": "TokenLock",
+      "wallets": [
+        "0xB79D53cfce261ed04EECF39Dc5AA3Eca9e17e2a0",
+        "0xff446615c8A1e1E562742a82F1F2CFDDc968F956",
+        "0xa066E15a7843A281EBfcf685Cb30020b022b9B2D",
+        "0x0A7DE70d9E8B39d3A5F3d3F22Ccf87DFbC364813",
+        "0xC846bAAf7090c6D73CA62736cE49fbf2eADeb4aF",
+        "0x10126A436276D4b00fbe045741E46A7CC0B717a1",
+        "0x8E297013D033B4267728f4dfA92f9370DD2FA6f8",
+        "0xeF4C6766d75bbcAeB8ed24EFA6bf07af1Bb0DEB0"
+      ],
+      "amounts": [
+        "350000000000000000000000",
+        "125000000000000000000000",
+        "781200000000000000000000",
+        "34100000000000000000000",
+        "23100000000000000000000",
+        "700000000000000000000000",
+        "76190000000000000000000",
+        "120000000000000000000000"
+      ],
+      "lockConfigFile": "deployprivSale2Lock"
     }
   ],
   "token": {
