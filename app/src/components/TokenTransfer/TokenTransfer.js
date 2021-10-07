@@ -33,6 +33,7 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
           blocked={blocked}
           success={TXSuccess}
           setModalOpen={setModalOpen}
+          setTokenAreaOpen={setTokenAreaOpen}
           action={'Token Transfer'}
         />
       )}
