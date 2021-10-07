@@ -154,6 +154,15 @@ contract('TokenLock', function (accounts) {
       expect(lock.receipt.gasUsed, 'Gas used must be less than 8.000.000').lt(8000000);
     });
 
+    it('and keeps gas below block limit for 500 unlock wallets', async () => {
+      const randomAddress = () => web3.utils.toChecksumAddress(web3.utils.randomHex(20));
+
+      const stakes = [...Array(500)].map(() => { return { address: randomAddress(), amount: Q18 }; });
+      const lock = await newTokenLock(stakes); ;
+      // this is less than current block limit
+      expect(lock.receipt.gasUsed, 'Gas used must be less than 25.000.000').lt(25000000);
+    });
+
     async function deployAndCheck (stakes) {
       const lock = await newTokenLock(stakes);
 

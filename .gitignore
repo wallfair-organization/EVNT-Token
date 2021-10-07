@@ -3,15 +3,19 @@ scripts/localhost/logs
 
 node_modules/
 app/node_modules/
+app/dist
 
 .idea/
+scripts/*.csv
 
 # legacy secrets files
 *.secret
 
 # Hardhat files
 cache
-artifacts
+*.dbg.json
+/artifacts/*
+!/artifacts/contracts/
 
 # dotenv secret
 .env

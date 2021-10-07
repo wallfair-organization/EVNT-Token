@@ -11,11 +11,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.4.1
+        with:
+          node-version: 15.x
+
       - name: Checkout git repo
         uses: actions/checkout@v2
 
       - name: Install modules
         run: npm install
+
+      - name: Install app modules
+        run: cd app && npm install
 
       - name: Lint Solidity Files
         run: npm run lint:sol

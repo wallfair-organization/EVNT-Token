@@ -1,8 +1,7 @@
 import { deployWFAIR } from './utils/deploy';
 import { Q18 } from './utils/consts';
 import { expect } from 'hardhat';
-
-const { BN } = require('@openzeppelin/test-helpers');
+import { BN } from '@openzeppelin/test-helpers';
 
 contract('WFAIRToken', function (accounts) {
   it('Should deploy', async () => {

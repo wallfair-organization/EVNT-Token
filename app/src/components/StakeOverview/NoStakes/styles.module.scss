@@ -1,0 +1,46 @@
+@import '../../../styles/all';
+
+.noStakesWrapper {
+  background-color: $colorBlueDarkShade;
+  padding: 64px;
+  border-radius: 10px;
+
+  .noStakesMessage {
+    margin-bottom: 35px;
+
+    p {
+      margin-bottom: 25px;
+      font-family: $fontRegular;
+    }
+
+    strong {
+      font-family: $fontBold;
+      display: block;
+      margin-bottom: 25px;
+    }
+  }
+  @media all and (max-width: $screen-sm) {
+    padding: 15px;
+  }
+
+  .transferButton {
+    display: block;
+    margin: 0 auto 15px;
+    width: 100%;
+    max-width: 460px;
+    height: 60px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-family: $fontBold;
+    cursor: pointer;
+    background: transparent;
+    border: 2px solid #282f47;
+    color: $colorWhite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+      margin-right: 10px;
+    }
+  }
+}
