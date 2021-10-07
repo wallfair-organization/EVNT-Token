@@ -1,31 +1,27 @@
+import { currentNetwork } from '../../../config/config'
 import styles from './styles.module.scss'
 
-const Error = ({ setModalOpen, isTxFail = false, hash }) => {
+const Error = ({ setModalOpen, hash }) => {
   return (
     <div className={styles.promoMessage}>
       <span className={styles.prizeAmount}>{`Oopssssss`}</span>
       <p>{`Your transaction has failed.`}</p>
-      {isTxFail ? (
+      {hash && (
         <>
           <p>
+            Look up on Etherscan <br/>
             <strong
               onClick={() => {
-                window.open(`https://rinkeby.etherscan.io/tx/${hash}`, '_blank')
+                window.open(`${currentNetwork.explorer}tx/${hash}`, '_blank')
               }}
             >
               {hash}
             </strong>
           </p>
-          <button
-            className={styles.keepGoing}
-            onClick={() => {
-              window.open(`https://rinkeby.etherscan.io/tx/${hash}`, '_blank')
-            }}
-          >
-            Look up on Etherscan
-          </button>
+          <br/>
         </>
-      ) : (
+      )
+      }
         <button
           className={styles.keepGoing}
           onClick={() => {
@@ -34,7 +30,7 @@ const Error = ({ setModalOpen, isTxFail = false, hash }) => {
         >
           Close
         </button>
-      )}
+      
     </div>
   )
 }

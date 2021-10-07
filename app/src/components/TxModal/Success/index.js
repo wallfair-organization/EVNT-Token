@@ -3,7 +3,7 @@ import { ReactComponent as ConfettiLeft } from '../../../data/icons/confetti-lef
 import { ReactComponent as ConfettiRight } from '../../../data/icons/confetti-right.svg'
 import AddTokens from '../../AddTokens'
 
-const Success = ({ setModalOpen, action, setTokenAreaOpen }) => {
+const Success = ({ setModalOpen, canAddToken, setTokenAreaOpen }) => {
   const updateModalAndArea = () => {
     if (setTokenAreaOpen && typeof setTokenAreaOpen === 'function') {
       setTokenAreaOpen(false)
@@ -14,7 +14,11 @@ const Success = ({ setModalOpen, action, setTokenAreaOpen }) => {
     <div className={styles.promoMessage}>
       <span className={styles.prizeAmount}>{`Congratulations`}</span>
       <p>{`Your transaction completed succesfully.`}</p>
-      {action === 'Stake Release' && <AddTokens onFutherClick={updateModalAndArea} />}
+      {canAddToken && (
+        <>Add WFAIR to Metamask
+        <AddTokens onFurtherClick={updateModalAndArea} />
+        </>
+      )}
       <button
         className={styles.keepGoing}
         onClick={() => {

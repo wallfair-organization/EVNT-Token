@@ -3,14 +3,14 @@ import { WFAIRAddress } from '../../config/config'
 import MetaMaskIcon from '../../data/icons/wallet/metamask.svg'
 import PlusIcon from '../../data/icons/plus.svg'
 
-const AddTokens = ({ onFutherClick }) => {
+const AddTokens = ({ onFurtherClick }) => {
   return (
     <div className={styles.buttonWrapper}>
       <button
         className={styles.addToken}
         onClick={async () => {
-          if (onFutherClick && typeof onFutherClick === 'function') {
-            onFutherClick()
+          if (onFurtherClick && typeof onFurtherClick === 'function') {
+            onFurtherClick()
           }
 
           const { ethereum } = window

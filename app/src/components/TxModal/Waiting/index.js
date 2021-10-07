@@ -1,17 +1,18 @@
+import { currentNetwork } from '../../../config/config'
 import Loader from '../../Loader'
 import styles from './styles.module.scss'
 
-const Waiting = ({ setModalOpen, hash }) => {
+const Waiting = ({ setModalOpen, hash, action }) => {
   return (
     <div className={styles.promoMessage}>
       <span className={styles.prizeAmount}>{`Waiting for confirmation`}</span>
-      <p>{`Until TX is confirmed & mined.`}</p>
+      <p>{action}</p>
       {hash && (
         <>
           <p>
             <strong
               onClick={() => {
-                window.open(`https://rinkeby.etherscan.io/tx/${hash}`, '_blank')
+                window.open(`${currentNetwork.explorer}tx/${hash}`, '_blank')
               }}
             >
               {hash}
@@ -20,7 +21,7 @@ const Waiting = ({ setModalOpen, hash }) => {
           <button
             className={styles.keepGoing}
             onClick={() => {
-              window.open(`https://rinkeby.etherscan.io/tx/${hash}`, '_blank')
+              window.open(`${currentNetwork.explorer}tx/${hash}`, '_blank')
             }}
           >
             Look up on Etherscan
