@@ -13,7 +13,9 @@ scripts/*.csv
 
 # Hardhat files
 cache
-artifacts
+*.dbg.json
+/artifacts/*
+!/artifacts/contracts/
 
 # dotenv secret
 .env
