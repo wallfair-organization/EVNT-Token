@@ -296,7 +296,7 @@
       "lockConfigFile": "deployTeamLock"
     },
     {
-      "name": "TokenLock #0 in deploytest1Lock",
+      "name": "Private Sale #1",
       "address": "0xaf9CA53996C4cc00d5BC41966Ecc02E2A6fFB1fC",
       "parameters": [
         "0x3D01B461c7231E7acB9DeaBDB03D7Ccba074B722",
@@ -334,7 +334,7 @@
       "lockConfigFile": "deploytest1Lock"
     },
     {
-      "name": "TokenLock #0 in deployprivSale2Lock",
+      "name": "Private Sale #2",
       "address": "0x8C9f10AdD1353eD72E21Def2B0bA2876e4a7186c",
       "parameters": [
         "0x3D01B461c7231E7acB9DeaBDB03D7Ccba074B722",
