@@ -3,7 +3,7 @@
 import hre from 'hardhat';
 import { web3 } from '@openzeppelin/test-helpers/src/setup';
 import { toBN, LockString } from './utils/consts';
-import { formatAmount, formatTimestamp, formatDuration } from './utils/formatters';
+import { formatAmount, formatFraction, formatTimestamp, formatDuration } from './utils/formatters';
 import { loadActionsLog } from './utils/helpers';
 
 // Retrieve network and account details
@@ -90,7 +90,7 @@ async function main () {
     console.log(`Vesting Schedule:
     starts on ${formatTimestamp(startTime)} 
     duration ${formatDuration(vestingPeriod)} 
-    initial release ${formatAmount(initialReleaseFraction)} 
+    initial release ${formatFraction(initialReleaseFraction)} 
     total locked tokens ${formatAmount(totalLockedTokens)}`);
     if (lock.artifact === 'LeaverTokenLock') {
       console.log(`LeaverTokenLock manager address: ${await lockContract.managerAddress()}`);

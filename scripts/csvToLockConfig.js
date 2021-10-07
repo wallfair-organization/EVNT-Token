@@ -51,6 +51,7 @@ const optionDefinitions = [
   { name: 'delay', type: Number },
   { name: 'artifact', type: String, defaultValue: 'TokenLock' },
   { name: 'manager', type: String },
+  { name: 'chunk', type: Number, defaultValue: 500 },
 ];
 
 let options;
@@ -98,8 +99,8 @@ if (options.artifact !== 'LeaverTokenLock' && options.artifact !== 'TokenLock') 
 }
 
 // verify stakes
-const amounts = [];
-const addresses = [];
+let amounts = [];
+let addresses = [];
 for (const stake of stakes) {
   ensureAddress(stake.address);
   const parsedAmount = parseStrToNumStrict(stake.amount);
@@ -110,23 +111,37 @@ for (const stake of stakes) {
   amounts.push(stake.amount);
 }
 
-const deployWallet = {
-  TGETime: options.tgetime,
-  Artifact: options.artifact,
-  Manager: options.manager,
-  lockRequests: [
-    {
-      addresses,
-      amounts,
-      initialReleaseFraction: options.fraction.toString(),
-      vestingPeriod: options.period.toString(),
-      cliffPeriod: '0',
-      delay: options.delay.toString(),
-    },
-  ],
-};
+function getChunk (addresses, amounts) {
+  const deployWallet = {
+    TGETime: options.tgetime,
+    Artifact: options.artifact,
+    Manager: options.manager,
+    lockRequests: [
+      {
+        addresses: addresses.slice(0, options.chunk),
+        amounts: amounts.slice(0, options.chunk),
+        initialReleaseFraction: options.fraction.toString(),
+        vestingPeriod: options.period.toString(),
+        cliffPeriod: '0',
+        delay: options.delay.toString(),
+      },
+    ],
+  };
 
-const path = `./scripts/${options.network}/deploy${options.name}Lock.config.json`;
-fs.writeFileSync(path, JSON.stringify(deployWallet, null, 2), (err) => {
-  console.error(err.message);
-});
+  return [addresses.slice(options.chunk), amounts.slice(options.chunk), deployWallet];
+}
+
+let chunk = '';
+while (addresses.length > 0) {
+  let deployWallet;
+  [addresses, amounts, deployWallet] = getChunk(addresses, amounts);
+  const path = `./scripts/${options.network}/deploy${options.name}${chunk}Lock.config.json`;
+  fs.writeFileSync(path, JSON.stringify(deployWallet, null, 2), (err) => {
+    throw err;
+  });
+  chunk = chunk === '' ? 2 : chunk + 1;
+  // console.log(deployWallet.lockRequests[0].addresses);
+  // console.log(deployWallet.lockRequests[0].amounts);
+  // console.log(addresses);
+  // console.log(amounts);
+}

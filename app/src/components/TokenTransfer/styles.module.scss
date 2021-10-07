@@ -42,10 +42,21 @@
       cursor: pointer;
       background: #ffffff;
       background-image: url('../../data/backgrounds/highlight-deposit.svg');
+
+      @media all and (max-width: $screen-xs) {
+        font-size: 12px;
+      }
     }
 
     .cancelButton {
       background-image: url('../../data/backgrounds/highlight-deposit-red.svg');
+    }
+  }
+  .transferFormErrors {
+    margin-bottom: 15px;
+    em {
+      display: block;
+      color: $colorRed;
     }
   }
 }

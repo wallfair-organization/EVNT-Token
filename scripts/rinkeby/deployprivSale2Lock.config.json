@@ -1,0 +1,32 @@
+{
+  "TGETime": "2021-09-05T00:00:00.000Z",
+  "Artifact": "TokenLock",
+  "lockRequests": [
+    {
+      "addresses": [
+        "0xB79D53cfce261ed04EECF39Dc5AA3Eca9e17e2a0",
+        "0xff446615c8A1e1E562742a82F1F2CFDDc968F956",
+        "0xa066E15a7843A281EBfcf685Cb30020b022b9B2D",
+        "0x0A7DE70d9E8B39d3A5F3d3F22Ccf87DFbC364813",
+        "0xC846bAAf7090c6D73CA62736cE49fbf2eADeb4aF",
+        "0x10126A436276D4b00fbe045741E46A7CC0B717a1",
+        "0x8E297013D033B4267728f4dfA92f9370DD2FA6f8",
+        "0xeF4C6766d75bbcAeB8ed24EFA6bf07af1Bb0DEB0"
+      ],
+      "amounts": [
+        "350000",
+        "125000",
+        "781200",
+        "34100",
+        "23100",
+        "700000",
+        "76190",
+        "120000"
+      ],
+      "initialReleaseFraction": "0.25",
+      "vestingPeriod": "6",
+      "cliffPeriod": "0",
+      "delay": "0"
+    }
+  ]
+}

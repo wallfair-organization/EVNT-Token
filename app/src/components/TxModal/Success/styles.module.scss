@@ -25,7 +25,6 @@
     line-height: 1.75;
     position: relative;
     color: $colorBlack;
-    z-index: 2;
     strong {
       font-family: $fontBold;
       border-bottom: 3px solid $colorYellow;
@@ -43,7 +42,6 @@
     margin-bottom: 40px;
     color: $colorBlack;
 
-    z-index: 2;
     &::after {
       content: '';
       position: absolute;
@@ -67,11 +65,17 @@
   }
   .confettiLeft {
     left: calc(0vw - 80px);
-    top: calc(0vh - 80px);
+    top: calc(0vh - 120px);
+    @media screen and (max-width: $screen-md) {
+      top: calc(0vh - 160px);
+    }
   }
   .confettiRight {
     right: calc(0vw - 80px);
-    top: calc(0vh - 80px);
+    top: calc(0vh - 140px);
+    @media screen and (max-width: $screen-md) {
+      top: calc(0vh - 180px);
+    }
   }
 
   .keepGoing {

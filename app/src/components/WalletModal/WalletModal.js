@@ -7,6 +7,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { injected } from '../../config/connectors'
 import { isMobile } from 'react-device-detect'
+import { isMetamask } from '../../utils/detection';
 import { SUPPORTED_WALLETS } from '../../config/wallets'
 import Modal from '../Modal'
 import Option from './Option'
@@ -98,12 +99,9 @@ const WalletModal = () => {
   }
 
   const getOptions = () => {
-    const isMetamask =
-      (window.ethereum && window.ethereum.isMetaMask && !(window.ethereum.isMathWallet || window.ethereum.isMew)) ||
-      false
+    
     return Object.keys(SUPPORTED_WALLETS).map(key => {
       const option = SUPPORTED_WALLETS[key]
-
       if (isMobile) {
         if (option.mobile) {
           return (

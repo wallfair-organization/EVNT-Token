@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 import React, { useEffect, useState } from 'react'
 import { selectStakes, selectHistory, selectBalances } from '../../state/wallfair/slice'
 import TokenLockAbi from '../../config/abi/TokenLock.json'
-import { currentNetwork } from '../../config/config'
+import { currentNetwork, lockInfo } from '../../config/config'
 import { Contract } from '@ethersproject/contracts'
 import TxModal from '../TxModal'
 import SafeCall from '../SafeContractCall/SafeContractCall'
@@ -15,6 +15,7 @@ import TimeCounter from '../TimeCounter'
 import timerStyles from './timer-styles.module.scss'
 import NoStakes from './NoStakes'
 import TransferButton from '../TransferButton'
+import { isMetamask } from '../../utils/detection'
 
 const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory)
@@ -34,11 +35,13 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
   const WFAIRBalance = Math.floor(parseFloat(balances['WFAIR']))
 
-  let lockValues = []
+  let lockValues = [];
+  let totalUnlockedTokensOf = 0;
   for (const lockAddress in stakes) {
     const lockStake = stakes[lockAddress]
     const totalTokensOf = parseFloat(lockStake[0]).toFixed(2)
     const unlockedTokensOf = parseFloat(lockStake[1]).toFixed(2)
+    totalUnlockedTokensOf += parseFloat(lockStake[1]);
     const tokensVested = parseFloat(lockStake[2]).toFixed(2)
     // take end timestamp
     const vestingPeriod = lockStake[4] * 1000
@@ -47,7 +50,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
-        <p className={styles.participationText}>{`Here's your participation in Private Sale!`}</p>
+        <p className={styles.participationText}>{`Here's your participation in ${lockInfo[lockAddress].name}!`}</p>
         <div className={styles.balanceDetails}>
           <BalanceDetails
             totalTokensOf={totalTokensOf}
@@ -90,7 +93,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
                 })
               }}
             >
-              Unlock now
+              Unlock {numberWithCommas(Math.floor(unlockableTokens))} WFAIR
             </button>
             <TransferButton
               balance={WFAIRBalance}
@@ -160,7 +163,8 @@ const StakeOverview = ({ provider, setter, hash }) => {
           blocked={blocked}
           success={TXSuccess}
           setModalOpen={setModalOpen}
-          action={'Stake Release'}
+          action={'Unlock Tokens'}
+          canAddToken={isMetamask && totalUnlockedTokensOf === 0}
         />
       )}
       <div className='Stake'>{lockValues}</div>

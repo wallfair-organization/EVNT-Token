@@ -1,8 +1,10 @@
 import styles from './styles.module.scss'
+import DepositIcon from '../../data/icons/deposit-yellow.svg'
 
 const LowBalance = () => {
   return (
     <div className={styles.lowBalanceWrapper}>
+      <img src={DepositIcon} alt={`Information`} className={styles.lowBalanceImages} />
       <div className={styles.lowBalanceMessage}>
         <p>
           You do not have enough Ether in your wallet to unlock or transfer the tokens. If you use Metamask ot Trust

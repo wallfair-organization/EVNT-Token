@@ -3,6 +3,8 @@
 [![tests](https://github.com/wallfair-organization/WFAIR-Token/actions/workflows/tests.yml/badge.svg)](https://github.com/wallfair-organization/WFAIR-Token/actions/workflows/tests.yml)
 
 # Contracts
+## Audit
+Please find the [audit](https://omniscia.io/wallfair-token-vesting/) of the `WFAIRToken` and `TokenLock` contracts done by [Omniscia](https://omniscia.io/) 
 ## WFAIRToken
 The `WFAIRToken` is an ERC20 token that uses ERC1363 extentions. The ERC20 implementation is provided by OpenZeppelin, and ERC1363 extensions are by https://github.com/vittominacori/erc1363-payable-token.
 
@@ -77,7 +79,6 @@ The deployment procedure is as follows:
 1. `WFAIRToken` instance is deployed and the full supply is minted to `msg.sender` (`deployer`).
 2. Several `TokenLock` instances are deployed, depending on the actual allocations and vesting schedules of Wallfair, and final lists of addresses are provided to those instances.
 3. The `deployer` transfers the tokens it holds to the `TokenLock` instances (and other wallets if needed) - as per the Wallfair token allocation. At this point `deployer` will not hold any tokens and its private key may be destroyed.
-
 
 # Installation
 

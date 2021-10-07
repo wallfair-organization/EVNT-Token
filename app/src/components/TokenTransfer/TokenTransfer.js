@@ -12,6 +12,7 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
   const currentBalance = useSelector(selectBalances)
   const [TXSuccess, setTXSuccess] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [formError, setformError] = useState('')
 
   useEffect(() => {
     if (!modalOpen) {
@@ -32,11 +33,18 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
           blocked={blocked}
           success={TXSuccess}
           setModalOpen={setModalOpen}
+          setTokenAreaOpen={setTokenAreaOpen}
           action={'Token Transfer'}
         />
       )}
       <div className={styles.transferWrapper}>
         <strong>{`You can maximally transfer ${balance} token(s)`}</strong>
+        {formError && (
+          <div className={styles.transferFormErrors}>
+            <em>{formError}</em>
+          </div>
+        )}
+
         <input
           key='transferAddress'
           placeholder='Recipient Address'
@@ -63,6 +71,7 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
             className={styles.transferButton}
             onClick={() => {
               setBlocked(true)
+              setformError('')
               WFAIRTransfer({
                 provider: provider,
                 setter: setter,
@@ -70,7 +79,8 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
                 to_address: transferAddress,
                 setBlocked: setBlocked,
                 setModalOpen: setModalOpen,
-                setTXSuccess: setTXSuccess
+                setTXSuccess: setTXSuccess,
+                setformError: setformError
               })
             }}
           >
@@ -81,6 +91,7 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
             <button
               className={styles.cancelButton}
               onClick={() => {
+                setformError('')
                 setTokenAreaOpen('')
               }}
             >

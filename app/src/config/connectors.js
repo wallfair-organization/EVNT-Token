@@ -31,8 +31,8 @@ export const walletconnect = new WalletConnectConnector({
 
 export const walletlink = new WalletLinkConnector({
   url: currentNetwork.url,
-  appName: "Wallfair Investor Dashboard",
-  appLogoUrl: "https://wallfair.io/favicon.ico",
+  appName: 'Wallfair Investor Dashboard',
+  appLogoUrl: `https://${window.location.host}/favicon.ico`,
   supportedChainIds: chainIds,
 })
 
@@ -41,6 +41,6 @@ export const trezor = new TrezorConnector({
   url: currentNetwork.url,
   pollingInterval: POLLING_INTERVAL,
   manifestEmail: 'info@wallfair.io',
-  manifestAppUrl: 'https://dashboard.wallfair.io'
+  manifestAppUrl: `https://${window.location.host}`,
 })
 
