@@ -8,6 +8,7 @@ import MetaMaskIcon from '../../data/icons/wallet/metamask.svg'
 import CoinbaseIcon from '../../data/icons/wallet/coinbase.svg'
 import TrustWalletIcon from '../../data/icons/wallet/trustwallet.svg'
 import WallectConnectIcon from '../../data/icons/wallet/wallet-connect.svg'
+import SocialIcons from '../SocialIcons'
 
 function Web3StatusInner () {
   const { account, error } = useWeb3React()
@@ -22,8 +23,8 @@ function Web3StatusInner () {
   } else if (error) {
     return <span>{error instanceof UnsupportedChainIdError ? 'WRONG NETWORK IDX' : 'ERROR'}</span>
   } else if (isMobile && !window.web3 && !window.ethereum) {
-    const twLink = `https://link.trustwallet.com/open_url?coin_id=60&url=https://${window.location.host}`;
-    const mmLink = `https://metamask.app.link/dapp/${window.location.host}/`;
+    const twLink = `https://link.trustwallet.com/open_url?coin_id=60&url=https://${window.location.host}`
+    const mmLink = `https://metamask.app.link/dapp/${window.location.host}/`
     return (
       <div className={styles.connectWrapper}>
         <strong>Hello WFAIR Investor!</strong>
@@ -40,8 +41,7 @@ function Web3StatusInner () {
         <div className={styles.walletAppInfo}>
           <img src={TrustWalletIcon} alt={`Trust Wallet`} />
           <span>
-            For Trust Wallet on Android click{' '}
-            <a href={twLink}>here</a>
+            For Trust Wallet on Android click <a href={twLink}>here</a>
           </span>
         </div>
         <div className={styles.walletAppInfo}>
@@ -61,15 +61,24 @@ function Web3StatusInner () {
   } else {
     return (
       <div className={styles.connectWrapper}>
-        <strong>Hello WFAIR Investor!</strong>
-        <p>
-          Please connect the same wallet you used during the IDO or the wallet address that you provided in seed or
-          private sale.
-        </p>
+        <div className={styles.mainHeadline}>
+          <h1>Betting Reimagined</h1>
 
-        <button className={styles.connectWallet} onClick={toggleWalletModal}>
-          Connect to a wallet
-        </button>
+          <div className={styles.slogan}>Clear, Social &amp; Fair</div>
+
+          <SocialIcons className={styles.socialIcons} />
+          <div className={styles.secondaryHeading}>
+            <strong>Hello WFAIR Investor!</strong>
+            <p>
+              Please connect the same wallet you used during the IDO or the wallet address that you provided in seed or
+              private sale.
+            </p>
+
+            <button className={styles.connectWallet} onClick={toggleWalletModal}>
+              Connect to a wallet
+            </button>
+          </div>
+        </div>
       </div>
     )
   }

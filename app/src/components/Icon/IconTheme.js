@@ -1,0 +1,7 @@
+export const IconTheme = {
+  black: 'black',
+  primary: 'primary',
+  primaryLightTransparent: 'primaryLightTransparent',
+  white: 'white',
+  notification: 'notification'
+}
