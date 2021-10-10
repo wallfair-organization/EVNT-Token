@@ -114,7 +114,7 @@ async function main () {
       const [totalTokens, vestedTokens, unlockedTokens] = await Promise.all([
         lockContract.totalTokensOf(stakeholder),
         lockContract.tokensVested(stakeholder, blockchainTime()),
-        lockContract.unlockedTokensOf(stakeholder)
+        lockContract.unlockedTokensOf(stakeholder),
       ]);
       console.log(name.padEnd(42) + ' | ' +
       formatAmount(totalTokens).padStart(28) + ' | ' +

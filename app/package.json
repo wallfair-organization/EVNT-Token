@@ -36,9 +36,11 @@
   "scripts": {
     "start": "echo 'use start:localhost or start:rinkeby'",
     "start:localhost": "./scripts/configure.sh localhost && react-scripts start",
-    "start:rinkeby": "./scripts/configure.sh rinkeby rinkeby && react-scripts start",
+    "start:rinkeby": "./scripts/configure.sh rinkeby && react-scripts start",
+    "start:mainnet": "./scripts/configure.sh mainnet && react-scripts start",
     "build:localhost": "./scripts/configure.sh localhost && react-scripts build",
     "build:rinkeby": "./scripts/configure.sh rinkeby && react-scripts build",
+    "build:mainnet": "./scripts/configure.sh mainnet && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
