@@ -22,6 +22,7 @@
     "hardhat-gas-reporter": "^1.0.4",
     "mathjs": "^9.4.4",
     "moment": "^2.29.1",
+    "node-ask": "^1.0.1",
     "papaparse": "^5.3.1"
   },
   "scripts": {
