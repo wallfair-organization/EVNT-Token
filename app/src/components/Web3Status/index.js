@@ -29,8 +29,8 @@ function Web3StatusInner () {
       <div className={styles.connectWrapper}>
         <strong>Hello WFAIR Investor!</strong>
         <p>
-          Do you have mobile wallet? Then you can view this page directly in there or connect it with the desktop. Try
-          one of those.
+        If you have a mobile wallet, you will be able to view this page directly inside of the wallet interface or connect it with your desktop version. 
+        Please select one of the options below.
         </p>
         <div className={styles.walletAppInfo}>
           <img src={MetaMaskIcon} alt={`MetaMask`} />
@@ -46,7 +46,7 @@ function Web3StatusInner () {
         </div>
         <div className={styles.walletAppInfo}>
           <img src={CoinbaseIcon} alt={`Coinbase`} />
-          <span>If you use Coinbase open this website on the desktop and select Wallet Link as the wallet type</span>
+          <span>If you use Coinbase Wallet open this website on the desktop and select Wallet Link as the wallet type</span>
         </div>
         <div className={styles.walletAppInfo}>
           <img src={WallectConnectIcon} alt={`Wallet`} />

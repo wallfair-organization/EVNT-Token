@@ -7,8 +7,8 @@ const LowBalance = () => {
       <img src={DepositIcon} alt={`Information`} className={styles.lowBalanceImages} />
       <div className={styles.lowBalanceMessage}>
         <p>
-          You do not have enough Ether in your wallet to unlock or transfer the tokens. If you use Metamask ot Trust
-          Wallet, you can make purchase within the app. You can also use{' '}
+          Ooops, You do not have enough ETH in your wallet to unlock or transfer the tokens. If you use Metamask ot Trust
+          Wallet, you can make purchases directly within the app. You can also use{' '}
           <a href='https://global.transak.com/'>Transak</a> directly.
         </p>
         <p>

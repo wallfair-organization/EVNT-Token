@@ -71,7 +71,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
               </div>
             </div>
             <div className={styles.balanceMain}>
-              <div className={classNames(styles.balanceTitle, styles.titleThree)}>TOKENS READY TO BE UNLOCKED</div>
+              <div className={classNames(styles.balanceTitle, styles.titleThree)}>TOKENS READY TO BE CLAIMED</div>
               <div className={styles.balanceAmount}>
                 {numberWithCommas(Math.floor(unlockableTokens))} <sup>WFAIR</sup>
               </div>
@@ -93,7 +93,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
                 })
               }}
             >
-              Unlock {numberWithCommas(Math.floor(unlockableTokens))} WFAIR
+              Claim {numberWithCommas(Math.floor(unlockableTokens))} WFAIR
             </button>
             <TransferButton
               balance={WFAIRBalance}
@@ -118,7 +118,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
         {unlockedTokensOf > 0 && (
           <div key={'history' + lockAddress} className={styles.balanceHistory}>
             <div className={styles.historyHeader}>
-              <h4>{`Your Past Claims`}</h4>
+              <h4>{`Your Claims So Far`}</h4>
             </div>
             {historyData[lockAddress]?.map(data => {
               return (
@@ -135,7 +135,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
                   </div>
                 </div>
               )
-            }) || <p>No history found</p>}
+            }) || <p>No claims yet</p>}
           </div>
         )}
         <hr></hr>

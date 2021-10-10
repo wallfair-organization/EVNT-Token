@@ -5,6 +5,7 @@ import { web3 } from '@openzeppelin/test-helpers/src/setup';
 import { toBN, LockString } from './utils/consts';
 import { formatAmount, formatFraction, formatTimestamp, formatDuration } from './utils/formatters';
 import { loadActionsLog } from './utils/helpers';
+import _ from 'lodash';
 
 // Retrieve network and account details
 const network = hre.hardhatArguments.network;
@@ -95,7 +96,9 @@ async function main () {
     if (lock.artifact === 'LeaverTokenLock') {
       console.log(`LeaverTokenLock manager address: ${await lockContract.managerAddress()}`);
     }
-
+    console.log(`Found ${lock.wallets.length} initial wallets`);
+    // show maximum 15 random wallets
+    const sampledWallets = _.sampleSize(lock.wallets, 13);
     // loop through each address we have on record, checking total, unlocked and vested quantities
     const retrievedContractData = [];
     console.log('Account                                    |' +
@@ -106,11 +109,13 @@ async function main () {
       '------------------------------+' +
       '------------------------------+' +
       '------------------------------');
-    for (const stakeholder of lock.wallets) {
+    for (const stakeholder of sampledWallets) {
       const name = revWallets[web3.utils.toChecksumAddress(stakeholder)] || stakeholder;
-      const totalTokens = await lockContract.totalTokensOf(stakeholder);
-      const vestedTokens = await lockContract.tokensVested(stakeholder, blockchainTime());
-      const unlockedTokens = await lockContract.unlockedTokensOf(stakeholder);
+      const [totalTokens, vestedTokens, unlockedTokens] = await Promise.all([
+        lockContract.totalTokensOf(stakeholder),
+        lockContract.tokensVested(stakeholder, blockchainTime()),
+        lockContract.unlockedTokensOf(stakeholder),
+      ]);
       console.log(name.padEnd(42) + ' | ' +
       formatAmount(totalTokens).padStart(28) + ' | ' +
       formatAmount(vestedTokens).toString().padStart(28) + ' | ' +

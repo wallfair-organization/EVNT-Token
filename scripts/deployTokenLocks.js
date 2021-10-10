@@ -136,12 +136,13 @@ async function main () {
       // keep a running total of the sum of the amounts locked
       totalLockFund = totalLockFund.add(entry.amount);
     }
-    console.log('Processing the following lock group:\n', lockGroup);
+    const groupName = `TokenLock #${lockGroups.indexOf(lockGroup)} in ${lockConfigFileStem}`;
+    console.log('Processing the following lock group:', groupName);
     const [tokenlock, contractParams] = await deployTokenLock(lockGroup, wallets, amounts);
     console.log('TokenLock contract deployed to:', tokenlock.address);
     console.log('Parameters supplied:\n', contractParams);
     const contractDetails = {
-      name: `TokenLock #${lockGroups.indexOf(lockGroup)} in ${lockConfigFileStem}`,
+      name: groupName,
       address: tokenlock.address,
       parameters: contractParams,
       timestamp: Date.now().toString(),
