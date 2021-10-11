@@ -2,6 +2,7 @@
 import hre from 'hardhat';
 import fs from 'fs';
 import assert from 'assert';
+import { confirm } from 'node-ask';
 import { Q18, toBN } from './utils/consts';
 import { groupByArray, minEth, total, monthsToSeconds, loadActionsLog } from './utils/helpers';
 
@@ -109,6 +110,7 @@ async function deployTokenLock (lockGroup, wallets, amounts) {
   const TokenLock = await hre.ethers.getContractFactory(lockConfig.Artifact);
   const instance = await TokenLock.deploy(...contractParams);
   // wait for tx to be mined
+  console.log(instance.deployTransaction);
   await instance.deployTransaction.wait();
   return [instance, contractParams];
 }
@@ -123,6 +125,10 @@ async function main () {
 
   // Check ETH balance of deployer is sufficient
   await minEth(accounts[0]);
+
+  if (!(await confirm('Are you sure? [y/n] '))) {
+    throw new Error('Aborting!');
+  }
 
   // loop through each array of token locks and deploy
   for (const lockGroup of lockGroups) {

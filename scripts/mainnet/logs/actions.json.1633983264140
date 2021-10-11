@@ -1,0 +1,68 @@
+{
+  "transfers": [
+    {
+      "name": "Wallfair Hot Sale Wallet",
+      "from": "0x7bD30772ffaC5f3B6D675d5f2406bf4112c1e44d",
+      "to": "0x9E1606A047da8F3E4962d18833e5f89478A3cCda",
+      "amount": "95000000000000000000000000",
+      "timestamp": "1633428365020",
+      "txid": "0x4f2747518dd32bb5111bf1fbd4223e5f1fcf9fd1e4c40880d32b6e4dc09b750e"
+    },
+    {
+      "name": "DEX Liquidity",
+      "from": "0x7bD30772ffaC5f3B6D675d5f2406bf4112c1e44d",
+      "to": "0xC08C475024fe3c1Df14129a1B00A323441239B6f",
+      "amount": "2500000000000000000000000",
+      "timestamp": "1633429106562",
+      "txid": "0x21b777eb8a57ace3f586b869b961a5ff4f0a242a3a9aa744b37bedc783f0fa24"
+    },
+    {
+      "name": "DEX Deployer",
+      "from": "0x7bD30772ffaC5f3B6D675d5f2406bf4112c1e44d",
+      "to": "0xB29f86C697CBa0134513D04d1F1bD18C91698214",
+      "amount": "5000000000000000000000000",
+      "timestamp": "1633429106562",
+      "txid": "0xa79e3a32b7c837d8166e335fdf2820f9d75f454a89fed6dbbca8549e3d3303a6"
+    }
+  ],
+  "locks": [
+    {
+      "name": "TokenLock #0 in deployTokenLock",
+      "address": "0x588D503a48BDa59ba10Efe2473D733188f628639",
+      "parameters": [
+        "0xC6065B9fc8171Ad3D29bad510709249681758972",
+        "1634058000",
+        "2592000",
+        "0",
+        "1000000000000000000",
+        [
+          "0xA068D713005a2fA938818539bF4340A517980916",
+          "0x7aaC37D172A0F23F9D5195D2893E103c8059A603"
+        ],
+        [ "887500000000000000000000", "3500000000000000000000000" ]
+      ],
+      "timestamp": "1633980548",
+      "artifact": "TokenLock",
+      "wallets": [
+        "0xA068D713005a2fA938818539bF4340A517980916",
+        "0x7aaC37D172A0F23F9D5195D2893E103c8059A603"
+      ],
+      "amounts": [
+        "887500000000000000000000", "3500000000000000000000000"
+      ],
+      "lockConfigFile": "deployTokenLock"
+    }
+  ],
+  "token": {
+    "name": "WFAIR",
+    "address": "0xC6065B9fc8171Ad3D29bad510709249681758972",
+    "timestamp": "1633428134858",
+    "deployer": "0x7bD30772ffaC5f3B6D675d5f2406bf4112c1e44d"
+  },
+  "network": {
+    "name": "mainnet",
+    "chainId": 1,
+    "gas": "auto",
+    "gasPrice": 80000000000
+  }
+}

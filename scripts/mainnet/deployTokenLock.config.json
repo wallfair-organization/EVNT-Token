@@ -1,0 +1,112 @@
+{
+  "TGETime": "2021-10-12T17:00:00.000Z",
+  "Artifact": "TokenLock",
+  "lockRequests": 
+    [
+      {
+        "name": "Wallfair Initial Release",
+        "initialReleaseFraction": "1",
+        "vestingPeriod": "1",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "887500"
+      },
+      {
+        "name": "Joint Initial Release",
+        "initialReleaseFraction": "1",
+        "vestingPeriod": "1",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "3500000"
+      },
+      {
+        "name": "Wallfair Advisors",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "9",
+        "cliffPeriod": "0",
+        "delay": "3",
+        "amount": "20250000"
+      },
+      {
+        "name": "Wallfair Advisors",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "3",
+        "cliffPeriod": "0",
+        "delay": "12",
+        "amount": "18750000"
+      },
+      {
+        "name": "Joint Advisors",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "9",
+        "cliffPeriod": "0",
+        "delay": "3",
+        "amount": "36000000"
+      },
+      {
+        "name": "Wallfair Treasury",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "12",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "57500000"
+      },
+      {
+        "name": "Joint Treasury",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "12",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "40000000"
+      },
+      {
+        "name": "Wallfair Community",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "12",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "83750000"
+      },
+      {
+        "name": "Wallfair Community",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "12",
+        "cliffPeriod": "0",
+        "delay": "12",
+        "amount": "123750000"
+      },
+      {
+        "name": "Joint Community",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "12",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "40000000"
+      },
+      {
+        "name": "Wallfair Ecosystem",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "12",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "70245000"
+      },
+      {
+        "name": "Wallfair Ecosystem",
+
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "18",
+        "cliffPeriod": "0",
+        "delay": "12",
+        "amount": "225367500"
+      },
+      {
+        "name": "Joint Ecosystem",
+        "initialReleaseFraction": "0",
+        "vestingPeriod": "12",
+        "cliffPeriod": "0",
+        "delay": "0",
+        "amount": "80000000"
+      }
+    ]
+}

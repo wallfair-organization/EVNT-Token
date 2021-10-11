@@ -51,7 +51,7 @@ module.exports = {
     mainnet: {
       url: MAINNET_API_URL,
       chainId: 1,
-      gasPrice: 80000000000, // 80gwei
+      gasPrice: 140000000000, // 120gwei
       accounts: [MAINNET_PRIVATE_KEY],
     },
     mumbai: {
