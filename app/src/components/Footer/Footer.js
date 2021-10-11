@@ -1,12 +1,12 @@
 import styles from './styles.module.scss'
 import classNames from 'classnames'
-import LogoDemo from '../../data/images/logo-demo-dot.svg'
+// import LogoDemo from '../../data/images/logo-demo-dot.svg'
 import GitHubLogo from '../../data/icons/github.svg'
 import FairTradeIcon from '../../data/icons/fair-trade.svg'
 import BlockchainIcon from '../../data/icons/blockchain.svg'
 import NoMiddleMan from '../../data/icons/no-middle-man.svg'
 import OpenSourceIcon from '../../data/icons/open-source.svg'
-import SocialIcons from '../SocialIcons'
+// import SocialIcons from '../SocialIcons'
 
 const Footer = ({ className = '' }) => {
   return (
