@@ -211,7 +211,7 @@
       "lockConfigFile": "deployTokenLock"
     },
     {
-      "name": "TokenLock #0 in deployTeamLock",
+      "name": "Team",
       "address": "0x22530752c53d89e07fE5Ed76B3de01889f274aC8",
       "parameters": [
         "0xC6065B9fc8171Ad3D29bad510709249681758972",
