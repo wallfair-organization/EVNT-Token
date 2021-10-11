@@ -1,0 +1,43 @@
+{
+  "TGETime": "2021-10-12T17:00:00.000Z",
+  "Artifact": "LeaverTokenLock",
+  "Manager": "Team Wallet",
+  "lockRequests": [
+    {
+      "addresses": [
+        "0x30F63C71485A37De97654A0F993874931aD817ed",
+        "0x3d2eD5268FB3efaaeEf39331b6Fe1021c84cD149",
+        "0x9DE32009B16Cb8Af4Bc19009AEfA40515EDc93c9",
+        "0xE554755Dbdd698a2f15575EB9B932F2eB6518eaE",
+        "0xbd831E176710293C9FC4560A91CAdba2b2F4f3bB",
+        "0x51a996B045346C2682e89fB777CA60Cf3aD5925C",
+        "0x7F8C5c8bbb14D2A43210Abd5377f4FE3C9249baB",
+        "0xE8Bba2F6bcF6893E66F316d7f2546ee8534F2868",
+        "0x26c34650c44a2E72dD9d5A06BB7bc3b83F95C161",
+        "0x42490364E3EF2041705a64AAFcB49C5C16e9E42b",
+        "0x1E7c30EcF24A3Ba6EB54324a17Bb16a8B1472088",
+        "0xe146FC47B3B92934124Ae554baE683c42aA01e3C",
+        "0x1098d4BD64cAad64732A72c8b2f4d2c747A710F1"
+      ],
+      "amounts": [
+        "2000000",
+        "1000000",
+        "10000000",
+        "4000000",
+        "10000000",
+        "12000000",
+        "2000000",
+        "2000000",
+        "2000000",
+        "2000000",
+        "200000",
+        "1500000",
+        "51300000"
+      ],
+      "initialReleaseFraction": "0",
+      "vestingPeriod": "12",
+      "cliffPeriod": "0",
+      "delay": "12"
+    }
+  ]
+}
