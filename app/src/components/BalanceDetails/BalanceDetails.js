@@ -16,7 +16,7 @@ const BalanceDetails = ({ totalTokensOf, unlockedTokensOf, unlockableTokens }) =
           {
             title: `Tokens ready to be claimed`,
             value: unlockableTokens,
-            color: '#acc4ff'
+            color: '#2FCD65'
           }
         ]}
         background={`#2a3252`}

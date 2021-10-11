@@ -12,7 +12,7 @@ const Footer = ({ className = '' }) => {
   return (
     <div className={styles.container}>
       <div className={classNames(styles.footer, className)}>
-        <img src={LogoDemo} width={150} alt={'Wallfair'} />
+        {/* <img src={LogoDemo} width={150} alt={'Wallfair'} /> */}
 
         <div className={styles.links}>
           <div className={styles.column}>
@@ -39,7 +39,7 @@ const Footer = ({ className = '' }) => {
           </div>
         </div>
 
-        <SocialIcons className={styles.socialIcons} />
+        {/* <SocialIcons className={styles.socialIcons} /> */}
       </div>
 
       <div className={classNames(styles.iconsContainer, className)}>

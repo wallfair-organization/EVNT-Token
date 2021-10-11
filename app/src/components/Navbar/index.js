@@ -41,7 +41,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      <div className={style.drawerWrapper}>{renderNavButtons()}</div>
+      {/* <div className={style.drawerWrapper}>{renderNavButtons()}</div> */}
     </div>
   )
 }

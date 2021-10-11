@@ -50,7 +50,8 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
-        <p className={styles.participationText}>{`Here's your participation in ${lockInfo[lockAddress].name}!`}</p>
+        {/* <p className={styles.participationText}>{`Here's your participation in ${lockInfo[lockAddress].name}!`}</p> */}
+        <p className={styles.participationText}>{`Overview of your ${lockInfo[lockAddress].name} allocation`}</p>
         <div className={styles.balanceDetails}>
           <BalanceDetails
             totalTokensOf={totalTokensOf}
@@ -125,7 +126,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
                 <div key={data[0]} className={styles.historyRow}>
                   <div className={styles.historyHeaderLeftCol}>
                     <h4>
-                      <a href={`${currentNetwork.explorer}tx/${data[0]}`}>{shortenAddress(data[0])}</a>
+                      <a href={`${currentNetwork.explorer}tx/${data[0]}`} target="_blank" rel="noreferrer">{shortenAddress(data[0])}</a>
                     </h4>
                     <p>{new Date(data[2] * 1000).toLocaleDateString('en-US')}</p>
                   </div>

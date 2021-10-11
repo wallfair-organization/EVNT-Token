@@ -1,5 +1,5 @@
 import styles from './styles.module.scss'
-import DepositIcon from '../../data/icons/deposit-yellow.svg'
+import DepositIcon from '../../data/icons/deposit-white.svg'
 
 const LowBalance = () => {
   return (
