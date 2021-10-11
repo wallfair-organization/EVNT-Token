@@ -4,7 +4,7 @@ import style from './styles.module.scss'
 import Icon from '../Icon'
 import { IconType } from '../Icon/IconType'
 import { NavLink } from 'react-router-dom'
-import TelegramButton from '../TelegramButton'
+// import TelegramButton from '../TelegramButton'
 
 const Navbar = () => {
   const renderNavbarLink = (route, text, isLogo = false) => {
@@ -15,13 +15,13 @@ const Navbar = () => {
     )
   }
 
-  const renderNavButtons = () => {
-    return (
-      <div className={style.navbarItems}>
-        <TelegramButton />
-      </div>
-    )
-  }
+  // const renderNavButtons = () => {
+  //   return (
+  //     <div className={style.navbarItems}>
+  //       <TelegramButton />
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className={classNames(style.navbar)}>
@@ -41,7 +41,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      <div className={style.drawerWrapper}>{renderNavButtons()}</div>
+      {/* <div className={style.drawerWrapper}>{renderNavButtons()}</div> */}
     </div>
   )
 }

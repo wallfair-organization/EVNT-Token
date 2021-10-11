@@ -1,7 +1,7 @@
 import { isMobile } from 'react-device-detect'
 
 export const numberWithCommas = x => {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 export const calculateTimeLeft = date => {
   if (!date) {

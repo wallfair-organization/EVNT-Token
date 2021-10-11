@@ -17,7 +17,7 @@ function Web3StatusInner () {
   if (account) {
     return (
       <>
-        <h2>{`Hi Investor ${shortenAddress(account)}`}</h2>
+        <h2>{`Hi Contributor ${shortenAddress(account)}`}</h2>
       </>
     )
   } else if (error) {
@@ -27,7 +27,7 @@ function Web3StatusInner () {
     const mmLink = `https://metamask.app.link/dapp/${window.location.host}/`
     return (
       <div className={styles.connectWrapper}>
-        <strong>Hello WFAIR Investor!</strong>
+        <strong>Hello WFAIR Contributor!</strong>
         <p>
         If you have a mobile wallet, you will be able to view this page directly inside of the wallet interface or connect it with your desktop version. 
         Please select one of the options below.
@@ -68,9 +68,9 @@ function Web3StatusInner () {
 
           <SocialIcons className={styles.socialIcons} />
           <div className={styles.secondaryHeading}>
-            <strong>Hello WFAIR Investor!</strong>
+            <strong>Hello WFAIR Contributor!</strong>
             <p>
-              Please connect the same wallet you used during the IDO or the wallet address that you provided in seed or
+              Please connect the same wallet you used during the IDO or the wallet address that you provided in the seed or
               private sale.
             </p>
 
