@@ -36,12 +36,12 @@ const StakeOverview = ({ provider, setter, hash }) => {
   const WFAIRBalance = Math.floor(parseFloat(balances['WFAIR']))
 
   let lockValues = [];
-  let totalUnlockedTokensOf = 0;
+  // let totalUnlockedTokensOf = 0;
   for (const lockAddress in stakes) {
     const lockStake = stakes[lockAddress]
     const totalTokensOf = parseFloat(lockStake[0]).toFixed(2)
     const unlockedTokensOf = parseFloat(lockStake[1]).toFixed(2)
-    totalUnlockedTokensOf += parseFloat(lockStake[1]);
+    // totalUnlockedTokensOf += parseFloat(lockStake[1]);
     const tokensVested = parseFloat(lockStake[2]).toFixed(2)
     // take end timestamp
     const vestingPeriod = lockStake[4] * 1000
@@ -165,7 +165,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
           success={TXSuccess}
           setModalOpen={setModalOpen}
           action={'Unlock Tokens'}
-          canAddToken={isMetamask && totalUnlockedTokensOf === 0}
+          canAddToken={isMetamask}
         />
       )}
       <div className='Stake'>{lockValues}</div>
