@@ -35,19 +35,23 @@ const StakeOverview = ({ provider, setter, hash }) => {
 
   const WFAIRBalance = Math.floor(parseFloat(balances['WFAIR']))
 
-  let lockValues = [];
-  let totalUnlockedTokensOf = 0;
+  let lockValues = []
+  let totalUnlockedTokensOf = 0
+  let totalUnlockedTokensFromHistory = 0
   for (const lockAddress in stakes) {
     const lockStake = stakes[lockAddress]
     const totalTokensOf = parseFloat(lockStake[0]).toFixed(2)
     const unlockedTokensOf = parseFloat(lockStake[1]).toFixed(2)
-    totalUnlockedTokensOf += parseFloat(lockStake[1]);
+    totalUnlockedTokensOf += parseFloat(lockStake[1])
     const tokensVested = parseFloat(lockStake[2]).toFixed(2)
     // take end timestamp
     const vestingPeriod = lockStake[4] * 1000
     const fullVestingPeriodDate = new Date(vestingPeriod)
     const unlockableTokens = tokensVested - unlockedTokensOf
 
+    if (historyData[lockAddress]) {
+      totalUnlockedTokensFromHistory += historyData[lockAddress][historyData[lockAddress].length - 1][1]
+    }
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
         {/* <p className={styles.participationText}>{`Here's your participation in ${lockInfo[lockAddress].name}!`}</p> */}
@@ -126,7 +130,9 @@ const StakeOverview = ({ provider, setter, hash }) => {
                 <div key={data[0]} className={styles.historyRow}>
                   <div className={styles.historyHeaderLeftCol}>
                     <h4>
-                      <a href={`${currentNetwork.explorer}tx/${data[0]}`} target="_blank" rel="noreferrer">{shortenAddress(data[0])}</a>
+                      <a href={`${currentNetwork.explorer}tx/${data[0]}`} target='_blank' rel='noreferrer'>
+                        {shortenAddress(data[0])}
+                      </a>
                     </h4>
                     <p>{new Date(data[2] * 1000).toLocaleDateString('en-US')}</p>
                   </div>
@@ -165,7 +171,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
           success={TXSuccess}
           setModalOpen={setModalOpen}
           action={'Unlock Tokens'}
-          canAddToken={isMetamask && totalUnlockedTokensOf === 0}
+          canAddToken={isMetamask && totalUnlockedTokensOf <= totalUnlockedTokensFromHistory}
         />
       )}
       <div className='Stake'>{lockValues}</div>
