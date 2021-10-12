@@ -94,9 +94,9 @@ if (Number.isNaN(parseStrToNumStrict(options.period))) {
 if (Number.isNaN(parseStrToNumStrict(options.delay))) {
   throw new Error(`Delay ${options.delay}`);
 }
-if (options.artifact !== 'LeaverTokenLock' && options.artifact !== 'TokenLock') {
-  throw new Error(`Unknown artifact ${options.artifact}`);
-}
+// if (options.artifact !== 'LeaverTokenLock' && options.artifact !== 'TokenLock') {
+//   throw new Error(`Unknown artifact ${options.artifact}`);
+// }
 
 // verify stakes
 let amounts = [];

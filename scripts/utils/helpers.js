@@ -1,4 +1,5 @@
 import fs from 'fs';
+import Decimal from 'decimal';
 import { MIN_ETH, toBN, Q18 } from './consts.js';
 
 // @dev - group array by multiple keys - used to fold multiple lock requirements into
@@ -39,9 +40,10 @@ export function total (requests) {
       console.error('Error: Cliff/initial conflict in entry:\n', request);
       process.exit(1);
     }
-    tally = tally.add(toBN(Q18.mul(request.amount)));
+    const d = Decimal(request.amount).mul(Q18.toString());
+    tally = tally.add(toBN(d.toString()));
   }
-  console.log('WFAIR to be locked: ' + tally.div(Q18));
+  console.log('WFAIR to be locked: ' + tally);
   return tally;
 }
 
