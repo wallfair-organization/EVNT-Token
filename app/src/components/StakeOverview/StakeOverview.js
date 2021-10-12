@@ -11,8 +11,8 @@ import BalanceDetails from '../BalanceDetails'
 import styles from './styles.module.scss'
 import classNames from 'classnames'
 import { numberWithCommas, shortenAddress } from '../../utils/common'
-import TimeCounter from '../TimeCounter'
-import timerStyles from './timer-styles.module.scss'
+// import TimeCounter from '../TimeCounter'
+// import timerStyles from './timer-styles.module.scss'
 import NoStakes from './NoStakes'
 import TransferButton from '../TransferButton'
 import { isMetamask } from '../../utils/detection'
@@ -44,8 +44,8 @@ const StakeOverview = ({ provider, setter, hash }) => {
     // totalUnlockedTokensOf += parseFloat(lockStake[1]);
     const tokensVested = parseFloat(lockStake[2]).toFixed(2)
     // take end timestamp
-    const vestingPeriod = lockStake[4] * 1000
-    const fullVestingPeriodDate = new Date(vestingPeriod)
+    // const vestingPeriod = lockStake[4] * 1000
+    // const fullVestingPeriodDate = new Date(vestingPeriod)
     const unlockableTokens = tokensVested - unlockedTokensOf
 
     lockValues.push(
@@ -105,7 +105,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
               showCancel={true}
             />
           </div>
-          <div className={styles.timeDetails}>
+          {/* <div className={styles.timeDetails}>
             <p>Time to full unlock:</p>
             <div className={styles.timeContainer}>
               <TimeCounter endDate={vestingPeriod} externalStyles={timerStyles} />
@@ -114,7 +114,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
               {fullVestingPeriodDate.getDate()} | {fullVestingPeriodDate.getMonth()} |{' '}
               {fullVestingPeriodDate.getFullYear()}
             </p>
-          </div>
+          </div> */}
         </div>
         {unlockedTokensOf > 0 && (
           <div key={'history' + lockAddress} className={styles.balanceHistory}>

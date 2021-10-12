@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { selectBalances } from '../../state/wallfair/slice'
+import { numberWithCommas } from '../../utils/common'
 import TxModal from '../TxModal'
 import WFAIRTransfer from '../WFAIRTransfer'
 import styles from './styles.module.scss'
@@ -38,7 +39,7 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
         />
       )}
       <div className={styles.transferWrapper}>
-        <strong>{`You can maximally transfer ${balance} token(s)`}</strong>
+        <strong>{`You can maximally transfer ${numberWithCommas(balance)} token(s)`}</strong>
         {formError && (
           <div className={styles.transferFormErrors}>
             <em>{formError}</em>

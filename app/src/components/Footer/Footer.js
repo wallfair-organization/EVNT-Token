@@ -17,19 +17,21 @@ const Footer = ({ className = '' }) => {
         <div className={styles.links}>
           <div className={styles.column}>
             <div className={styles.firstRow}>
-              <a href='https://wallfair.gitbook.io/wallfair/' target='_blank' rel='noreferrer'>
+
+              {/* <a href='https://wallfair.gitbook.io/wallfair/' target='_blank' rel='noreferrer'>
                 Documentation
-              </a>
+              </a> */}
 
               <a href='https://wallfair.io/career' target='_blank' rel='noreferrer'>
                 Career
               </a>
-            </div>
+            
+            {/* </div>
+            <div className={styles.firstRow}> */}
 
-            <div className={styles.firstRow}>
-              <a href='https://trustpad.io/pool/wallfair' target='_blank' rel='noreferrer'>
+              {/* <a href='https://app.uniswap.org/#/swap' target='_blank' rel='noreferrer'>
                 Buy WFAIR tokens
-              </a>
+              </a> */}
 
               <a href='https://github.com/wallfair-organization' target='_blank' rel='noreferrer'>
                 <img src={GitHubLogo} width={18} alt={'Github Logo'} />
