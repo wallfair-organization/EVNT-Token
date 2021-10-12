@@ -79,9 +79,9 @@ console.log('Number of lock functions to deploy: ' + lockGroups.length);
 total(splitLockRequests);
 
 function mulFraction (fraction) {
-  const fracPrc = parseFloat(fraction) * 100;
+  const fracPrc = parseFloat(fraction) * 10000;
   // this will fail if fraction so only two decimal places are supported
-  return Q18.mul(fracPrc.toString()).div('100');
+  return Q18.mul(fracPrc.toString()).div('10000');
 }
 
 async function deployTokenLock (lockGroup, wallets, amounts) {

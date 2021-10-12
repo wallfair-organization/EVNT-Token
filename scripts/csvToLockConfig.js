@@ -38,7 +38,7 @@ function parseStrToNumStrict (source) {
 function ensureAddress (address) {
   const addressTrimmed = address.trim();
   if (!ethers.utils.isAddress(addressTrimmed)) { throw new Error(`Address:${address} must be checksummed address!!`); }
-  return addressTrimmed;
+  return ethers.utils.getAddress(addressTrimmed);
 }
 
 const optionDefinitions = [
@@ -101,13 +101,18 @@ if (options.artifact !== 'LeaverTokenLock' && options.artifact !== 'TokenLock') 
 // verify stakes
 let amounts = [];
 let addresses = [];
+const addressD = {};
 for (const stake of stakes) {
-  ensureAddress(stake.address);
+  const a = ensureAddress(stake.address);
   const parsedAmount = parseStrToNumStrict(stake.amount);
   if (Number.isNaN(parsedAmount)) {
     throw new Error(`Investor ${stake.address} amount ${stake.amount} could not be parsed`);
   }
-  addresses.push(stake.address);
+  if (a in addressD) {
+    console.log(`Address ${a} already on the list. Tx will fail.`);
+  }
+  addresses.push(a);
+  addressD[a] = a;
   amounts.push(stake.amount);
 }
 

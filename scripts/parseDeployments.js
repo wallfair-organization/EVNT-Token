@@ -15,6 +15,9 @@ const actionsFilepath = './scripts/' + network + '/logs/actions.json';
 
 const knownWallets = require('./' + network + '/knownWallets.json');
 
+// from where to load lock request. env LOCK_CONFIG is used for override
+const lockConfigFileStem = 'LOCK_CONFIG' in process.env ? process.env.LOCK_CONFIG : undefined;
+
 async function blockchainTime () {
   const headBlockNumber = await hre.ethers.provider.getBlockNumber();
   const headBlock = await hre.ethers.provider.getBlock(headBlockNumber);
@@ -75,6 +78,10 @@ async function main () {
   // Checking initial deployment of lock
   console.log('\nChecking token locks');
   for (const lock of actions.locks) {
+    if (lock.lockConfigFile !== (lockConfigFileStem || lock.lockConfigFile)) {
+      // allow for filtering of contracts to show
+      continue;
+    }
     console.log('\nToken lock contract name: ' + lock.name);
     console.log('Token lock contract address: ' + lock.address);
     // connect to lock contract
