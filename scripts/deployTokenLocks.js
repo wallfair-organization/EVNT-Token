@@ -4,6 +4,7 @@ import fs from 'fs';
 import assert from 'assert';
 import { confirm } from 'node-ask';
 import { Q18, toBN } from './utils/consts';
+import Decimal from 'decimal';
 import { groupByArray, minEth, total, monthsToSeconds, loadActionsLog } from './utils/helpers';
 
 require('log-timestamp');
@@ -138,11 +139,13 @@ async function main () {
     let totalLockFund = toBN('0');
     for (const entry of lockGroup) {
       wallets.push(entry.address);
-      amounts.push(Q18.mul(entry.amount).toString());
+      const d = Decimal(entry.amount).mul(Q18.toString());
+      amounts.push(d.toString());
       // keep a running total of the sum of the amounts locked
-      totalLockFund = totalLockFund.add(entry.amount);
+      totalLockFund = totalLockFund.add(d.toString());
     }
-    const groupName = `TokenLock #${lockGroups.indexOf(lockGroup)} in ${lockConfigFileStem}`;
+    const groupName = `TokenLock #${lockGroups.indexOf(lockGroup)} in ${lockConfigFileStem} ` +
+      `total ${totalLockFund.toString()}`;
     console.log('Processing the following lock group:', groupName);
     const [tokenlock, contractParams] = await deployTokenLock(lockGroup, wallets, amounts);
     console.log('TokenLock contract deployed to:', tokenlock.address);
