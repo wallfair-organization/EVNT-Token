@@ -1,6 +1,7 @@
 /* ./scripts/deployTokenLock.js */
 import hre from 'hardhat';
 import fs from 'fs';
+import { confirm } from 'node-ask';
 import { transfers, minEth, loadActionsLog } from './utils/helpers';
 import { Q18, LockString, ZERO } from './utils/consts';
 import { formatAmount } from './utils/formatters';
@@ -76,6 +77,10 @@ async function main () {
   } else {
     const excess = wfairBalance.sub(requiredTokens);
     console.log('Excess WFAIR tokens is: ' + excess.div(Q18));
+  }
+
+  if (!(await confirm('Are you sure? [y/n] '))) {
+    throw new Error('Aborting!');
   }
 
   // loop through each array of token locks and fund
