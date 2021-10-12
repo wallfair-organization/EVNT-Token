@@ -105,7 +105,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
               showCancel={true}
             />
           </div>
-          <div className={styles.timeDetails}>
+          {/* <div className={styles.timeDetails}>
             <p>Time to full unlock:</p>
             <div className={styles.timeContainer}>
               <TimeCounter endDate={vestingPeriod} externalStyles={timerStyles} />
@@ -114,7 +114,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
               {fullVestingPeriodDate.getDate()} | {fullVestingPeriodDate.getMonth()} |{' '}
               {fullVestingPeriodDate.getFullYear()}
             </p>
-          </div>
+          </div> */}
         </div>
         {unlockedTokensOf > 0 && (
           <div key={'history' + lockAddress} className={styles.balanceHistory}>
