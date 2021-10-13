@@ -14,11 +14,7 @@ const Success = ({ setModalOpen, canAddToken, setTokenAreaOpen }) => {
     <div className={styles.promoMessage}>
       <span className={styles.prizeAmount}>{`Congratulations`}</span>
       <p>{`Your transaction completed succesfully.`}</p>
-      {canAddToken && (
-        <>Add WFAIR to Metamask
-        <AddTokens onFurtherClick={updateModalAndArea} />
-        </>
-      )}
+      {canAddToken && (<AddTokens onFurtherClick={updateModalAndArea} />)}
       <button
         className={styles.keepGoing}
         onClick={() => {

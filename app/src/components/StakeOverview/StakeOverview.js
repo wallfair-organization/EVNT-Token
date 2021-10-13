@@ -14,6 +14,7 @@ import { numberWithCommas, shortenAddress } from '../../utils/common'
 // import TimeCounter from '../TimeCounter'
 // import timerStyles from './timer-styles.module.scss'
 import NoStakes from './NoStakes'
+import AddTokens from '../AddTokens'
 import TransferButton from '../TransferButton'
 import { isMetamask } from '../../utils/detection'
 
@@ -96,6 +97,7 @@ const StakeOverview = ({ provider, setter, hash }) => {
             >
               Claim {numberWithCommas(Math.floor(unlockableTokens))} WFAIR
             </button>
+            {isMetamask && WFAIRBalance > 0 && (<AddTokens/>)}
             <TransferButton
               balance={WFAIRBalance}
               provider={provider}

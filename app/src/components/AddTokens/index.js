@@ -31,6 +31,7 @@ const AddTokens = ({ onFurtherClick }) => {
         <img src={MetaMaskIcon} alt={`MetaMask`} />
         <img src={PlusIcon} alt={`Plus`} />
         <img src='https://main.wallfair.io/logo192.png' alt={`WallFair.`} />
+        <strong>&nbsp;&nbsp;&nbsp;Add WFAIR to Metamask</strong>
       </button>
     </div>
   )

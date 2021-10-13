@@ -45,7 +45,6 @@ const TokenTransfer = ({ provider, setter, hash, balance, showCancel = false, se
             <em>{formError}</em>
           </div>
         )}
-
         <input
           key='transferAddress'
           placeholder='Recipient Address'
