@@ -74,6 +74,9 @@ The amount of slashed tokens are computed as follows.
 ### Transfering stake
 Manager can transfer stake that s/he will eventually unlock to existing or a new wallet. That allows to (1) redistribute reposesed tokens from leaver events (2) give additional bonuses to existing or new team members. The amount of tokens available for transfer is a total amount that may be unlocked until the end of vesting period. For more details see `lockAmount` function and tests.
 
+## AddLockTokenLock
+It is a `LeaverTokenLock` with leaver function removed, so stake can be only transferred to new wallets.
+
 ## Deployment
 The deployment procedure is as follows:
 1. `WFAIRToken` instance is deployed and the full supply is minted to `msg.sender` (`deployer`).

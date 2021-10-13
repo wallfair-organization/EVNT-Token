@@ -1,0 +1,19 @@
+{
+  "TGETime": "2021-10-12T17:00:00.000Z",
+  "Artifact": "AddLockTokenLock",
+  "Manager": "Wallfair Hot Sale Wallet",
+  "lockRequests": [
+    {
+      "addresses": [
+        "0x9E1606A047da8F3E4962d18833e5f89478A3cCda"
+      ],
+      "amounts": [
+        "2625938"
+      ],
+      "initialReleaseFraction": "0.25",
+      "vestingPeriod": "4",
+      "cliffPeriod": "0",
+      "delay": "0"
+    }
+  ]
+}
