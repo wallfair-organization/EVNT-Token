@@ -107,6 +107,19 @@
             font-size: 16px;
           }
         }
+
+        .marketValueAmount {
+          margin-top: 10px;
+          font-size: 12px;
+          color: $colorWhite;
+          font-family: $fontRegular;
+
+          .gains {
+            font-size: 12px;
+            color: $colorGreen;
+            font-family: $fontRegular;
+          }
+        }
       }
     }
 

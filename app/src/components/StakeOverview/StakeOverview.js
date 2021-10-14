@@ -17,6 +17,7 @@ import NoStakes from './NoStakes'
 import AddTokens from '../AddTokens'
 import TransferButton from '../TransferButton'
 import { isMetamask } from '../../utils/detection'
+import useUniswapPrice from '../../hooks/useUniswapPrice'
 
 const StakeOverview = ({ provider, setter, hash }) => {
   const historyData = useSelector(selectHistory)
@@ -25,7 +26,8 @@ const StakeOverview = ({ provider, setter, hash }) => {
   const [blocked, setBlocked] = useState(false)
   const [TXSuccess, setTXSuccess] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
-  const { account } = useWeb3React()
+  const { account } = useWeb3React();
+  const wfairPrice = useUniswapPrice();
 
   useEffect(() => {
     if (!modalOpen) {
@@ -48,6 +50,10 @@ const StakeOverview = ({ provider, setter, hash }) => {
     // const vestingPeriod = lockStake[4] * 1000
     // const fullVestingPeriodDate = new Date(vestingPeriod)
     const unlockableTokens = tokensVested - unlockedTokensOf
+    
+    const totalTokensMarketValue = parseFloat(wfairPrice * totalTokensOf).toFixed(2);
+    const unlockedTokensMarketValue = parseFloat(wfairPrice * unlockedTokensOf).toFixed(2);
+    const tokensVestedMarketValue = parseFloat(wfairPrice * unlockableTokens).toFixed(2);
 
     lockValues.push(
       <div key={lockAddress} className={styles.balanceWrapper}>
@@ -65,18 +71,35 @@ const StakeOverview = ({ provider, setter, hash }) => {
               <div className={styles.balanceAmount}>
                 {numberWithCommas(Math.floor(totalTokensOf))} <sup>WFAIR</sup>
               </div>
+              {Math.floor(totalTokensMarketValue) > 0 &&
+                <div className={styles.marketValueAmount}>
+                  &asymp; {numberWithCommas(Math.floor(totalTokensMarketValue))} <span>USDT</span>{' '}
+                  {/* <span className={styles.gains}>%</span> */}
+                </div>
+              }
             </div>
             <div className={styles.balanceMain}>
               <div className={classNames(styles.balanceTitle, styles.titleTwo)}>TOKENS ALREADY CLAIMED</div>
               <div className={styles.balanceAmount}>
                 {numberWithCommas(Math.floor(unlockedTokensOf))} <sup>WFAIR</sup>
               </div>
+              {Math.floor(unlockedTokensMarketValue) > 0 &&
+                <div className={styles.marketValueAmount}>
+                  &asymp; {numberWithCommas(Math.floor(unlockedTokensMarketValue))} <span>USDT</span>{' '}
+                </div>
+              }
             </div>
             <div className={styles.balanceMain}>
               <div className={classNames(styles.balanceTitle, styles.titleThree)}>TOKENS READY TO BE CLAIMED</div>
               <div className={styles.balanceAmount}>
                 {numberWithCommas(Math.floor(unlockableTokens))} <sup>WFAIR</sup>
               </div>
+              {Math.floor(tokensVestedMarketValue) > 0 &&
+                <div className={styles.marketValueAmount}>
+                  &asymp; {numberWithCommas(Math.floor(tokensVestedMarketValue))} <span>USDT</span>{' '}
+                  {/* <span className={styles.gains}>%</span> */}
+                </div>
+              }
             </div>
           </div>
           <div className={styles.buttonActions}>
