@@ -19,6 +19,8 @@
     "@web3-react/walletlink-connector": "^6.2.5",
     "classnames": "^2.3.1",
     "ethers": "^5.4.7",
+    "graphql": "^15.6.1",
+    "graphql-request": "^3.6.0",
     "history": "^5.0.1",
     "moment": "^2.29.1",
     "node-libs-browser": "^2.2.1",
