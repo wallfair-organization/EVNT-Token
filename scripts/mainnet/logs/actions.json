@@ -4984,7 +4984,7 @@
       "amounts": [
         "2625938000000000000000000"
       ],
-      "lockConfigFile": "deployPublicManagerLock"
+      "lockConfigFile": "deploySeedManagerLock"
     },
     {
       "name": "Private Manager",

@@ -20,6 +20,8 @@ const {
   MAINNET_PRIVATE_KEY,
   MUMBAI_PRIVATE_KEY,
   MATIC_PRIVATE_KEY,
+  KOVAN_API_URL,
+  KOVAN_PRIVATE_KEY,
 } = process.env;
 
 module.exports = {
@@ -57,6 +59,12 @@ module.exports = {
     mumbai: {
       url: MUMBAI_API_URL,
       accounts: [MUMBAI_PRIVATE_KEY],
+    },
+    kovan: {
+      url: KOVAN_API_URL,
+      gas: 'auto',
+      gasPrice: 1000000000, // 1 gwei
+      accounts: [KOVAN_PRIVATE_KEY],
     },
     matic: {
       url: MATIC_API_URL,

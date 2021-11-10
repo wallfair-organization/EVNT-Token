@@ -1,0 +1,26 @@
+{
+  "wallfairTotalSupply": "1000000000",
+  "transferRequests" :
+    [
+      {
+        "name": "PK1",
+        "amount": "95000000"
+      },
+      {
+        "name": "PK2",
+        "amount": "2500000"
+      },
+      {
+        "name": "PK3",
+        "amount": "17651281"
+      },
+      {
+        "name": "PK4",
+        "amount": "12500000"
+      },
+      {
+        "name": "PK5",
+        "amount": "450000"
+      }
+    ]
+}
