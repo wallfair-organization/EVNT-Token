@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import LogoDemo from '../../data/images/logo-demo-dot.svg'
+import LogoDemo from '../../data/svg/wallfair-logo.svg'
 import style from './styles.module.scss'
 import Icon from '../Icon'
 import { IconType } from '../Icon/IconType'

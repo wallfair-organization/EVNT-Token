@@ -12,7 +12,7 @@
   button {
     display: block;
     margin: 0 auto 15px;
-    background-image: url('../../data/backgrounds/highlight-deposit-red.svg');
+    // background-image: url('../../data/backgrounds/highlight-deposit-red.svg');
     width: 100%;
     max-width: 460px;
     height: 60px;
@@ -20,5 +20,8 @@
     font-size: 18px;
     font-family: $fontBold;
     cursor: pointer;
+    color: #fff;
+    border: 0;
+    background: $colorYellow;
   }
 }

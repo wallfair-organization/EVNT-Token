@@ -137,8 +137,10 @@
         font-size: 18px;
         font-family: $fontBold;
         cursor: pointer;
-        background: $colorWhite;
-        background-image: url('../../data/backgrounds/highlight-deposit.svg');
+        color: #fff;
+        border: 0;
+        background: $colorYellow;
+        // background-image: url('../../data/backgrounds/highlight-deposit.svg');
 
         &:disabled {
           cursor: not-allowed;
