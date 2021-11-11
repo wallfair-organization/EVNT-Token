@@ -1,8 +1,9 @@
 import React from 'react'
 import Web3Status from '../Web3Status'
 import styles from './styles.module.scss'
-import Logo from '../Logo'
+// import Logo from '../Logo'
 import Navbar from '../Navbar'
+import { ReactComponent as WallfairLogo} from '../../data/svg/wallfair-logo.svg';
 
 const Header = ({ withNavbar = false }) => {
   return (
@@ -16,7 +17,7 @@ const Header = ({ withNavbar = false }) => {
         </>
       ) : (
         <header className={styles.header}>
-          <Logo />
+          <WallfairLogo />
           <div className={styles.walletWelcome}>
             <Web3Status />
           </div>

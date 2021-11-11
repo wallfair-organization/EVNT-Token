@@ -41,7 +41,10 @@
       font-family: $fontBold;
       cursor: pointer;
       background: #ffffff;
-      background-image: url('../../data/backgrounds/highlight-deposit.svg');
+      // background-image: url('../../data/backgrounds/highlight-deposit.svg');
+      color: #fff;
+      border: 0;
+      background: $colorYellow;
 
       @media all and (max-width: $screen-xs) {
         font-size: 12px;
@@ -49,7 +52,9 @@
     }
 
     .cancelButton {
-      background-image: url('../../data/backgrounds/highlight-deposit-red.svg');
+      // background-image: url('../../data/backgrounds/highlight-deposit-red.svg');
+      border: 1px solid $colorYellow;
+      background: transparent;
     }
   }
   .transferFormErrors {

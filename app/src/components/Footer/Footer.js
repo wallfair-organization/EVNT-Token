@@ -22,7 +22,7 @@ const Footer = ({ className = '' }) => {
                 Documentation
               </a> */}
 
-              <a href='https://wallfair.io/career' target='_blank' rel='noreferrer'>
+              <a href='https://wallfair.io/about-us' target='_blank' rel='noreferrer'>
                 Career
               </a>
             
