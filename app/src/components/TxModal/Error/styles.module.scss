@@ -72,6 +72,9 @@
     font-family: $fontBold;
     cursor: pointer;
     background: $colorWhite;
-    background-image: url('../../../data/backgrounds/highlight-deposit-red.svg');
+    // background-image: url('../../../data/backgrounds/highlight-deposit-red.svg');
+    color: #fff;
+    border: 0;
+    background: $colorYellow;
   }
 }

@@ -62,9 +62,9 @@ function Web3StatusInner () {
     return (
       <div className={styles.connectWrapper}>
         <div className={styles.mainHeadline}>
-          <h1>Betting Reimagined</h1>
+          {/* <h1>Betting Reimagined</h1>
 
-          <div className={styles.slogan}>Clear, Social &amp; Fair</div>
+          <div className={styles.slogan}>Clear, Social &amp; Fair</div> */}
 
           <SocialIcons className={styles.socialIcons} />
           <div className={styles.secondaryHeading}>
